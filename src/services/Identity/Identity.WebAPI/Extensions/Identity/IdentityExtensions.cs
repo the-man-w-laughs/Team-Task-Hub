@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using static System.Net.WebRequestMethods;
+using Microsoft.IdentityModel.Logging;
 
 namespace Identity.WebAPI.Extensions.Identity
 {
@@ -13,6 +15,7 @@ namespace Identity.WebAPI.Extensions.Identity
     {
         public static void ConfigureIdentity(this IServiceCollection services)
         {
+            IdentityModelEventSource.ShowPII = true;
             services.AddIdentity<AppUser, IdentityRole<int>>(config =>
             {
                 config.Password.RequiredLength = 4;
@@ -50,11 +53,13 @@ namespace Identity.WebAPI.Extensions.Identity
             })
                 .AddJwtBearer(options =>
                 {
+                    options.Authority = "https://localhost:7124";
+                    options.RequireHttpsMetadata = false;                    
                     options.TokenValidationParameters = new TokenValidationParameters()
                     {
+                        ValidIssuer = "http://localhost",
                         ValidateIssuer = false,
-                        ValidateAudience = false,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("abcdefghijklmnopqrstuvwxyz123456"))
+                        ValidateAudience = false,                        
                     };
                 });
 

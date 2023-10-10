@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Microsoft.AspNetCore.Http;
+using System.Net;
 
 namespace Identity.WebAPI.Middleware;
 public class ExceptionMiddleware
@@ -28,6 +29,6 @@ public class ExceptionMiddleware
     {
         context.Response.ContentType = ContentType;
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        await context.Response.WriteAsync(Status500ErrorMessage);
+        await context.Response.WriteAsync(exception.Message);
     }
 }
