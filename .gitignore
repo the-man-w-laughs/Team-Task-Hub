@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Ignore .ctr, .csr, and .pem files in all directories and subdirectories
+**/*.ctr
+**/*.csr
+**/*.pem
+
 # User-specific files
 *.rsuser
 *.suo
