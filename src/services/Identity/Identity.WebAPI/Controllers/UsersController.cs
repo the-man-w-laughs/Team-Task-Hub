@@ -3,6 +3,8 @@ using Identity.Application.Ports.Services;
 using Identity.Domain.Constraints;
 using Identity.WebAPI.Extensions;
 using IdentityServer4;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
@@ -54,9 +56,7 @@ public class UsersController : ControllerBase
     /// Delete user by id
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Policy = Policies.AdminOnly)]
-    //[Authorize(IdentityServerConstants.LocalApi.PolicyName)]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Policy = Policies.AdminOnly)]    
     public async Task<IActionResult> DeleteUserByIdAsync(int id)
     {
         var result = await _userService.DeleteUserByIdAsync(id);

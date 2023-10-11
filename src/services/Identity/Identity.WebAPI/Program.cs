@@ -15,6 +15,12 @@ builder.Services.ConfigureSwagger(builder.Configuration);
 builder.Services.RegisterApplicationDependencies();
 builder.Services.AddControllers();
 
+builder.Services.AddLogging(builder =>
+{
+    builder.AddConsole();
+    builder.SetMinimumLevel(LogLevel.Trace);
+});
+
 var app = builder.Build();
 
 app.InitializeDatabase();

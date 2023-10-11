@@ -6,8 +6,7 @@ namespace Identity.WebAPI.Extensions.Identity
     public class IdentityServerConfig
     {
         private const string ClientName = "client";
-        public const string TasksApiScopeName = "TasksWebAPI";
-        private const string RoleApiScopeName = "role";
+        public const string TasksApiScopeName = "TasksWebAPI";        
         private const string ClientSecret = "client";
         public static IEnumerable<ApiScope> ApiScopes =>
             new List<ApiScope>
@@ -25,8 +24,7 @@ namespace Identity.WebAPI.Extensions.Identity
         public static IEnumerable<ApiResource> ApiResources =>
             new List<ApiResource>
             {
-                new(IdentityServerConstants.LocalApi.ScopeName),
-                new(RoleApiScopeName),
+                new(TasksApiScopeName),                
             };
 
         public static IEnumerable<Client> Clients =>
@@ -38,9 +36,7 @@ namespace Identity.WebAPI.Extensions.Identity
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     RequireClientSecret = false,
                     AllowedScopes =
-                    {
-                        IdentityServerConstants.LocalApi.ScopeName,
-                        RoleApiScopeName,
+                    {                        
                         TasksApiScopeName
                     },                    
                     ClientSecrets =

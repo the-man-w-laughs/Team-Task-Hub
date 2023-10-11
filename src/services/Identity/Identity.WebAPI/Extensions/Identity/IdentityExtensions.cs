@@ -1,10 +1,12 @@
 ﻿using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.DatabaseContext;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 namespace Identity.WebAPI.Extensions.Identity
@@ -47,6 +49,7 @@ namespace Identity.WebAPI.Extensions.Identity
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
                 .AddJwtBearer(options =>
                 {
@@ -54,10 +57,14 @@ namespace Identity.WebAPI.Extensions.Identity
                     {
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("abcdefghijklmnopqrstuvwxyz123456"))
+                        //SignatureValidator = delegate (string token, TokenValidationParameters parameters)
+                        //{
+                        //    var jwt = new JwtSecurityToken(token);
+
+                        //    return jwt;
+                        //}
                     };
                 });
-
         }
 
         public static void ConfigureAuthorization(this IServiceCollection services)
