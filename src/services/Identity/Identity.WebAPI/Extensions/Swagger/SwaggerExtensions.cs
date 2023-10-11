@@ -23,7 +23,7 @@ namespace Identity.WebAPI.Extensions.Swagger
                     {
                         Password = new OpenApiOAuthFlow()
                         {
-                            TokenUrl = new Uri(config["IdentityServer:Token"]),
+                            TokenUrl = new Uri(config["IdentityServerSettings:Token"]),
                         }
                     }
                 });

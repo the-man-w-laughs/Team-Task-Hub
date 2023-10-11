@@ -5,13 +5,15 @@ using Identity.WebAPI.Extensions.Identity;
 using Identity.Application;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
+
 builder.Services.ConfigureIdentity();
-builder.Services.ConfigureAuthentication();
+builder.Services.ConfigureAuthentication(config);
 builder.Services.ConfigureAuthorization();
-builder.Services.ConfigureIdentityServer(builder.Configuration);
-builder.Services.ConfigureDatabaseConnection(builder.Configuration);
+builder.Services.ConfigureIdentityServer(config);
+builder.Services.ConfigureDatabaseConnection(config);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.ConfigureSwagger(builder.Configuration);
+builder.Services.ConfigureSwagger(config);
 builder.Services.RegisterApplicationDependencies();
 builder.Services.AddControllers();
 

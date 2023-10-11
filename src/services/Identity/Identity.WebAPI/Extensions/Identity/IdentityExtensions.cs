@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace Identity.WebAPI.Extensions.Identity
@@ -28,11 +29,16 @@ namespace Identity.WebAPI.Extensions.Identity
         }
         public static void ConfigureIdentityServer(this IServiceCollection services, ConfigurationManager config)
         {
+            var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
+            var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
+
+            var key = new X509Certificate2(keyFilePath, keyPassword);            
+
             services.AddIdentityServer(options =>
             {
                 options.IssuerUri = config["IdentityServerSettings:IssuerUri"];
             })
-                    .AddDeveloperSigningCredential()                    
+                    .AddSigningCredential(key)                    
                     .AddAspNetIdentity<AppUser>()
                     .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
                     .AddInMemoryClients(IdentityServerConfig.Clients)
@@ -43,8 +49,13 @@ namespace Identity.WebAPI.Extensions.Identity
             services.AddLocalApiAuthentication();
         }
 
-        public static void ConfigureAuthentication(this IServiceCollection services)
+        public static void ConfigureAuthentication(this IServiceCollection services, ConfigurationManager config)
         {
+            var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
+            var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
+
+            var key = new X509Certificate2(keyFilePath, keyPassword);
+
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -57,12 +68,7 @@ namespace Identity.WebAPI.Extensions.Identity
                     {
                         ValidateIssuer = false,
                         ValidateAudience = false,
-                        //SignatureValidator = delegate (string token, TokenValidationParameters parameters)
-                        //{
-                        //    var jwt = new JwtSecurityToken(token);
-
-                        //    return jwt;
-                        //}
+                        IssuerSigningKey = new X509SecurityKey(key)
                     };
                 });
         }
