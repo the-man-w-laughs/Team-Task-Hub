@@ -1,10 +1,13 @@
 ﻿using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.DatabaseContext;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using static System.Net.WebRequestMethods;
 using Microsoft.IdentityModel.Logging;
@@ -29,11 +32,16 @@ namespace Identity.WebAPI.Extensions.Identity
         }
         public static void ConfigureIdentityServer(this IServiceCollection services, ConfigurationManager config)
         {
+            var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
+            var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
+
+            var key = new X509Certificate2(keyFilePath, keyPassword);            
+
             services.AddIdentityServer(options =>
             {
                 options.IssuerUri = config["IdentityServerSettings:IssuerUri"];
             })
-                    .AddDeveloperSigningCredential()                    
+                    .AddSigningCredential(key)                    
                     .AddAspNetIdentity<AppUser>()
                     .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
                     .AddInMemoryClients(IdentityServerConfig.Clients)
@@ -44,25 +52,28 @@ namespace Identity.WebAPI.Extensions.Identity
             services.AddLocalApiAuthentication();
         }
 
-        public static void ConfigureAuthentication(this IServiceCollection services)
+        public static void ConfigureAuthentication(this IServiceCollection services, ConfigurationManager config)
         {
+            var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
+            var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
+
+            var key = new X509Certificate2(keyFilePath, keyPassword);
+
             services.AddAuthentication(auth =>
             {
                 auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
                 .AddJwtBearer(options =>
-                {
-                    options.Authority = "https://localhost:7124";
-                    options.RequireHttpsMetadata = false;                    
+                {                                        
                     options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ValidIssuer = "http://localhost",
+                    {                        
                         ValidateIssuer = false,
-                        ValidateAudience = false,                        
+                        ValidateAudience = false,
+                        IssuerSigningKey = new X509SecurityKey(key)
                     };
                 });
-
         }
 
         public static void ConfigureAuthorization(this IServiceCollection services)
