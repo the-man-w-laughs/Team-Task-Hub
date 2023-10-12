@@ -2,12 +2,8 @@
 using Identity.Application.Ports.Services;
 using Identity.Domain.Constraints;
 using Identity.WebAPI.Extensions;
-using IdentityServer4;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace SocialNetwork.API.Controllers;
 

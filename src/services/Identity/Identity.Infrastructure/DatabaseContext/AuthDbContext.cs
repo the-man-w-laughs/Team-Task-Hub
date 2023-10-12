@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Identity.Domain.Constraints;
 using Identity.Application.Ports.Repositories;
 
 namespace Identity.Infrastructure.DatabaseContext

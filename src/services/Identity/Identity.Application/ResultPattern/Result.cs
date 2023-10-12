@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Identity.Application.Result
-{    
+﻿namespace Identity.Application.Result
+{
     public abstract class Result<T>
     {
         public abstract ResultType ResultType { get; }

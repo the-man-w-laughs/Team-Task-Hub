@@ -1,15 +1,10 @@
 ﻿using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.DatabaseContext;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using static System.Net.WebRequestMethods;
 using Microsoft.IdentityModel.Logging;
 
 namespace Identity.WebAPI.Extensions.Identity
@@ -35,13 +30,13 @@ namespace Identity.WebAPI.Extensions.Identity
             var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
             var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
 
-            var key = new X509Certificate2(keyFilePath, keyPassword);            
+            var key = new X509Certificate2(keyFilePath, keyPassword);
 
             services.AddIdentityServer(options =>
             {
                 options.IssuerUri = config["IdentityServerSettings:IssuerUri"];
             })
-                    .AddSigningCredential(key)                    
+                    .AddSigningCredential(key)
                     .AddAspNetIdentity<AppUser>()
                     .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
                     .AddInMemoryClients(IdentityServerConfig.Clients)
@@ -66,9 +61,9 @@ namespace Identity.WebAPI.Extensions.Identity
                 auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
                 .AddJwtBearer(options =>
-                {                                        
+                {
                     options.TokenValidationParameters = new TokenValidationParameters()
-                    {                        
+                    {
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         IssuerSigningKey = new X509SecurityKey(key)
