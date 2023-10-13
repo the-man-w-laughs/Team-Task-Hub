@@ -30,7 +30,7 @@ namespace Identity.WebAPI.Extensions.Identity
                     RequireClientSecret = false,
                     AllowedScopes = { TasksApiScopeName },
                     ClientSecrets = { new Secret(ClientSecret.Sha256()) },
-                    AllowAccessTokensViaBrowser = true
+                    AllowAccessTokensViaBrowser = true,
                 }
             };
     }

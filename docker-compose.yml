@@ -17,6 +17,6 @@ services:
       context: .
       dockerfile: src/services/Identity/Identity.WebAPI/Dockerfile
     ports:
-      - 7124:7124
+      - 5000:5001
     depends_on:
       - mysql
