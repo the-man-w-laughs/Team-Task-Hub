@@ -1,4 +1,4 @@
-﻿using Identity.Infrastructure.DatabaseContext;
+﻿using Identity.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,7 +6,7 @@ using Namespace;
 
 namespace Identity.Infrastructure.Extensions
 {
-    public static class DatabaseConfigurationExtension
+    public static class DbConfigurationExtension
     {
         public static void ConfigureDatabaseConnection(
             this IServiceCollection services,

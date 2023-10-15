@@ -1,4 +1,4 @@
-﻿using Identity.Infrastructure.DatabaseContext;
+﻿using Identity.Infrastructure.DbContext;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 

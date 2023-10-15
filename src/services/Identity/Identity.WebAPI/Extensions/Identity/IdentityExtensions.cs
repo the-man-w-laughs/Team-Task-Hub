@@ -1,6 +1,6 @@
 ﻿using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
-using Identity.Infrastructure.DatabaseContext;
+using Identity.Infrastructure.DbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
