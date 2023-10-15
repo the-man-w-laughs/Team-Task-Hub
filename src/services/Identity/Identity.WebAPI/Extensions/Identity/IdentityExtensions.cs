@@ -14,52 +14,62 @@ namespace Identity.WebAPI.Extensions.Identity
         public static void ConfigureIdentity(this IServiceCollection services)
         {
             IdentityModelEventSource.ShowPII = true;
-            services.AddIdentity<AppUser, IdentityRole<int>>(config =>
-            {
-                config.Password.RequiredLength = 4;
-                config.Password.RequireDigit = false;
-                config.Password.RequireNonAlphanumeric = false;
-                config.Password.RequireUppercase = false;
-            })
-            .AddEntityFrameworkStores<AuthDbContext>()
-            .AddDefaultTokenProviders()
-            .AddRoles<IdentityRole<int>>();
+            services
+                .AddIdentity<AppUser, IdentityRole<int>>(config =>
+                {
+                    config.Password.RequiredLength = 4;
+                    config.Password.RequireDigit = false;
+                    config.Password.RequireNonAlphanumeric = false;
+                    config.Password.RequireUppercase = false;
+                })
+                .AddEntityFrameworkStores<AuthDbContext>()
+                .AddDefaultTokenProviders()
+                .AddRoles<IdentityRole<int>>();
         }
-        public static void ConfigureIdentityServer(this IServiceCollection services, ConfigurationManager config)
+
+        public static void ConfigureIdentityServer(
+            this IServiceCollection services,
+            ConfigurationManager config
+        )
         {
             var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
             var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
 
             var key = new X509Certificate2(keyFilePath, keyPassword);
 
-            services.AddIdentityServer(options =>
-            {
-                options.IssuerUri = config["IdentityServerSettings:IssuerUri"];
-            })
-                    .AddSigningCredential(key)
-                    .AddAspNetIdentity<AppUser>()
-                    .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
-                    .AddInMemoryClients(IdentityServerConfig.Clients)
-                    .AddInMemoryApiResources(IdentityServerConfig.ApiResources)
-                    .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
-                    .AddProfileService<ProfileService>();
+            services
+                .AddIdentityServer(options =>
+                {
+                    options.IssuerUri = config["IdentityServerSettings:IssuerUri"];
+                })
+                .AddSigningCredential(key)
+                .AddAspNetIdentity<AppUser>()
+                .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
+                .AddInMemoryClients(IdentityServerConfig.Clients)
+                .AddInMemoryApiResources(IdentityServerConfig.ApiResources)
+                .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
+                .AddProfileService<ProfileService>();
 
             services.AddLocalApiAuthentication();
         }
 
-        public static void ConfigureAuthentication(this IServiceCollection services, ConfigurationManager config)
+        public static void ConfigureAuthentication(
+            this IServiceCollection services,
+            ConfigurationManager config
+        )
         {
             var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
             var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
 
             var key = new X509Certificate2(keyFilePath, keyPassword);
 
-            services.AddAuthentication(auth =>
-            {
-                auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            services
+                .AddAuthentication(auth =>
+                {
+                    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters()
@@ -75,10 +85,13 @@ namespace Identity.WebAPI.Extensions.Identity
         {
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(Policies.AdminOnly, policy =>
-                {
-                    policy.RequireRole(Roles.AdminRole.Name);
-                });
+                options.AddPolicy(
+                    Policies.AdminOnly,
+                    policy =>
+                    {
+                        policy.RequireRole(Roles.AdminRole.Name);
+                    }
+                );
             });
         }
     }

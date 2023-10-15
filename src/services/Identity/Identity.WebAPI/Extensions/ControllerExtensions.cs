@@ -20,7 +20,9 @@ namespace Identity.WebAPI.Extensions
                 case ResultType.Unauthorized:
                     return controller.Unauthorized();
                 default:
-                    throw new Exception("An unhandled result has occurred as a result of a service call.");
+                    throw new Exception(
+                        "An unhandled result has occurred as a result of a service call."
+                    );
             }
         }
     }

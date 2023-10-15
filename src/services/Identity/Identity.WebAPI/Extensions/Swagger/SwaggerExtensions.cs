@@ -7,7 +7,7 @@ namespace Identity.WebAPI.Extensions.Swagger
     public static class SwaggerExtensions
     {
         public static void ConfigureSwagger(this IServiceCollection services, IConfiguration config)
-        {                     
+        {
             services.AddSwaggerGen(options =>
             {
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -16,34 +16,39 @@ namespace Identity.WebAPI.Extensions.Swagger
 
                 options.OperationFilter<AuthorizeCheckOperationFilter>();
 
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
-                    {
-                        Password = new OpenApiOAuthFlow()
-                        {
-                            TokenUrl = new Uri(config["IdentityServerSettings:Token"]),
-                        }
-                    }
-                });
-
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
+                options.AddSecurityDefinition(
+                    "oauth2",
                     new OpenApiSecurityScheme
                     {
-                        Reference = new OpenApiReference
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
                         {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = IdentityServerAuthenticationDefaults.AuthenticationScheme
-                        },
-                        Scheme = IdentityServerAuthenticationDefaults.AuthenticationScheme,
-                        In = ParameterLocation.Header
-                    },
-                    new string[] {}
-                }
-            });
+                            Password = new OpenApiOAuthFlow()
+                            {
+                                TokenUrl = new Uri(config["IdentityServerSettings:Token"]),
+                            }
+                        }
+                    }
+                );
+
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = IdentityServerAuthenticationDefaults.AuthenticationScheme
+                                },
+                                Scheme = IdentityServerAuthenticationDefaults.AuthenticationScheme,
+                                In = ParameterLocation.Header
+                            },
+                            new string[] { }
+                        }
+                    }
+                );
             });
         }
 

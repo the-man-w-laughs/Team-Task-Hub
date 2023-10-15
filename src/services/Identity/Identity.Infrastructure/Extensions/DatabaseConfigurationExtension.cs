@@ -8,10 +8,14 @@ namespace Identity.Infrastructure.Extensions
 {
     public static class DatabaseConfigurationExtension
     {
-        public static void ConfigureDatabaseConnection(this IServiceCollection services, ConfigurationManager config)
+        public static void ConfigureDatabaseConnection(
+            this IServiceCollection services,
+            ConfigurationManager config
+        )
         {
             var connectionString = config.GetConnectionString("Default");
-            services.AddDbContext<AuthDbContext>(options => {
+            services.AddDbContext<AuthDbContext>(options =>
+            {
                 options.UseMySQL(connectionString);
             });
 

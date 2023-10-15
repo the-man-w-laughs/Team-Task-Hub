@@ -31,7 +31,7 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseIdentityServer(); 
+app.UseIdentityServer();
 app.MapControllers();
 
 app.Run();

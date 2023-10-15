@@ -17,7 +17,11 @@ namespace Identity.Application.Services
         private readonly UserManager<AppUser> _userManager;
         private readonly IAuthDBContext _authDbContext;
 
-        public UserService(IMapper mapper, UserManager<AppUser> userManager, IAuthDBContext authDbContext)
+        public UserService(
+            IMapper mapper,
+            UserManager<AppUser> userManager,
+            IAuthDBContext authDbContext
+        )
         {
             this._mapper = mapper;
             this._userManager = userManager;
@@ -29,11 +33,16 @@ namespace Identity.Application.Services
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
             var identityResult = await _userManager.CreateAsync(appUser, appUserDto.Password);
+
             if (!identityResult.Succeeded)
-            {                
-                var errorMessage = string.Join(", ", identityResult.Errors.Select(e => e.Description));
+            {
+                var errorMessage = string.Join(
+                    ", ",
+                    identityResult.Errors.Select(e => e.Description)
+                );
                 return new InvalidResult<int>($"Unable to create user: {errorMessage}");
             }
+
             await _authDbContext.SaveChangesAsync();
 
             return new SuccessResult<int>(appUser.Id);
@@ -42,7 +51,7 @@ namespace Identity.Application.Services
         public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
         {
             var users = await _userManager.Users.ToListAsync();
-            
+
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
             return new SuccessResult<List<AppUserDto>>(usersDtos);
@@ -53,7 +62,7 @@ namespace Identity.Application.Services
             var user = await _userManager.FindByIdAsync(id.ToString());
 
             if (user == null)
-            {                
+            {
                 return new InvalidResult<AppUserDto>("User not found.");
             }
 
@@ -67,7 +76,7 @@ namespace Identity.Application.Services
             var user = await _userManager.FindByIdAsync(id.ToString());
 
             if (user == null)
-            {                
+            {
                 return new InvalidResult<AppUserDto>("User not found.");
             }
 
@@ -79,8 +88,11 @@ namespace Identity.Application.Services
             var identityResult = await _userManager.DeleteAsync(user);
 
             if (!identityResult.Succeeded)
-            {                
-                var errorMessage = string.Join(", ", identityResult.Errors.Select(e => e.Description));
+            {
+                var errorMessage = string.Join(
+                    ", ",
+                    identityResult.Errors.Select(e => e.Description)
+                );
                 return new InvalidResult<AppUserDto>($"Unable to delete user: {errorMessage}");
             }
 
@@ -90,6 +102,5 @@ namespace Identity.Application.Services
 
             return new SuccessResult<AppUserDto>(userDto);
         }
-
     }
 }

@@ -5,13 +5,10 @@ namespace Identity.WebAPI.Extensions.Identity
     public class IdentityServerConfig
     {
         private const string ClientName = "client";
-        public const string TasksApiScopeName = "TasksWebAPI";        
+        public const string TasksApiScopeName = "TasksWebAPI";
         private const string ClientSecret = "client";
         public static IEnumerable<ApiScope> ApiScopes =>
-            new List<ApiScope>
-            {
-                new(TasksApiScopeName)
-            };
+            new List<ApiScope> { new(TasksApiScopeName) };
 
         public static IEnumerable<IdentityResource> IdentityResources =>
             new List<IdentityResource>
@@ -21,10 +18,7 @@ namespace Identity.WebAPI.Extensions.Identity
             };
 
         public static IEnumerable<ApiResource> ApiResources =>
-            new List<ApiResource>
-            {
-                new(TasksApiScopeName),                
-            };
+            new List<ApiResource> { new(TasksApiScopeName), };
 
         public static IEnumerable<Client> Clients =>
             new List<Client>
@@ -34,14 +28,8 @@ namespace Identity.WebAPI.Extensions.Identity
                     ClientId = ClientName,
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     RequireClientSecret = false,
-                    AllowedScopes =
-                    {                        
-                        TasksApiScopeName
-                    },                    
-                    ClientSecrets =
-                    {
-                        new Secret(ClientSecret.Sha256())
-                    },
+                    AllowedScopes = { TasksApiScopeName },
+                    ClientSecrets = { new Secret(ClientSecret.Sha256()) },
                     AllowAccessTokensViaBrowser = true
                 }
             };

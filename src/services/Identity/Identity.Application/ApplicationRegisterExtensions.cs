@@ -8,10 +8,10 @@ namespace Identity.Application
     public static class ApplicationRegisterExtensions
     {
         public static void RegisterApplicationDependencies(this IServiceCollection services)
-        {            
+        {
             services.AddAutoMapper(typeof(UsersProfile));
 
             services.AddScoped<IUserService, UserService>();
-        }     
+        }
     }
 }

@@ -2,8 +2,5 @@
 
 namespace Identity.Domain.Entities
 {
-    public class AppUser : IdentityUser<int>
-    {
-
-    }
+    public class AppUser : IdentityUser<int> { }
 }

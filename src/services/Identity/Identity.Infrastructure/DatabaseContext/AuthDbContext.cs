@@ -8,10 +8,9 @@ namespace Identity.Infrastructure.DatabaseContext
 {
     public class AuthDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>, IAuthDBContext
     {
-        public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options)
-        {
+        public AuthDbContext(DbContextOptions<AuthDbContext> options)
+            : base(options) { }
 
-        }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -22,11 +21,15 @@ namespace Identity.Infrastructure.DatabaseContext
 
         private static void SetRoles(ModelBuilder builder)
         {
-            builder.Entity<IdentityRole<int>>().HasData(new List<IdentityRole<int>>()
-        {
-            Domain.Constraints.Roles.UserRole,
-            Domain.Constraints.Roles.AdminRole
-        });
+            builder
+                .Entity<IdentityRole<int>>()
+                .HasData(
+                    new List<IdentityRole<int>>()
+                    {
+                        Domain.Constraints.Roles.UserRole,
+                        Domain.Constraints.Roles.AdminRole
+                    }
+                );
         }
 
         private static void SetUsers(ModelBuilder builder)
@@ -45,13 +48,11 @@ namespace Identity.Infrastructure.DatabaseContext
 
         private static void SetUserRoles(ModelBuilder builder)
         {
-            builder.Entity<IdentityUserRole<int>>().HasData(
-                new IdentityUserRole<int>()
-                {
-                    RoleId = 2,
-                    UserId = 1
-                });
+            builder
+                .Entity<IdentityUserRole<int>>()
+                .HasData(new IdentityUserRole<int>() { RoleId = 2, UserId = 1 });
         }
+
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

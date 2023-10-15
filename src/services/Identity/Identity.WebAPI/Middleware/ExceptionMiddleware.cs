@@ -1,19 +1,20 @@
 ﻿using System.Net;
 
 namespace Identity.WebAPI.Middleware;
+
 public class ExceptionMiddleware
 {
-    private readonly RequestDelegate _next;    
+    private readonly RequestDelegate _next;
     private const string ContentType = "application/json";
     private const string Status500ErrorMessage = "Internal server error";
 
     public ExceptionMiddleware(RequestDelegate next)
     {
-        _next = next;        
+        _next = next;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
-    {        
+    {
         try
         {
             await _next(httpContext);

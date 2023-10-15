@@ -28,10 +28,10 @@ public class UsersController : ControllerBase
         return this.FromResult(result);
     }
 
-    /// <summary>   
+    /// <summary>
     /// Get all users
-    /// </summary>    
-    [HttpGet] 
+    /// </summary>
+    [HttpGet]
     public async Task<IActionResult> GetAllUsersAsync()
     {
         var result = await _userService.GetAllUsersAsync();
@@ -41,7 +41,7 @@ public class UsersController : ControllerBase
     /// <summary>
     /// Get user by id
     /// </summary>
-    [HttpGet("{id}")] 
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByIdAsync(int id)
     {
         var result = await _userService.GetUserByIdAsync(id);
@@ -52,7 +52,7 @@ public class UsersController : ControllerBase
     /// Delete user by id
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Policy = Policies.AdminOnly)]    
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> DeleteUserByIdAsync(int id)
     {
         var result = await _userService.DeleteUserByIdAsync(id);
