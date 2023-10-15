@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Ports/Repositories/" />
+  </ItemGroup>
+
 </Project>

@@ -1,8 +1,8 @@
-﻿using Identity.Application.Ports.Repositories;
-using Identity.Infrastructure.DatabaseContext;
+﻿using Identity.Infrastructure.DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Namespace;
 
 namespace Identity.Infrastructure.Extensions
 {
@@ -18,8 +18,7 @@ namespace Identity.Infrastructure.Extensions
             {
                 options.UseMySQL(connectionString);
             });
-
-            services.AddScoped<IAuthDBContext>(x => x.GetService<AuthDbContext>());
+            services.AddScoped<IAppUserRepository, AppUserRepository>();
         }
     }
 }

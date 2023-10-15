@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Identity.Application.Ports.Repositories;
 
 namespace Identity.Infrastructure.DatabaseContext
 {
-    public class AuthDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>, IAuthDBContext
+    public class AuthDbContext : IdentityDbContext<AppUser, IdentityRole<int>, int>
     {
         public AuthDbContext(DbContextOptions<AuthDbContext> options)
             : base(options) { }
@@ -51,11 +50,6 @@ namespace Identity.Infrastructure.DatabaseContext
             builder
                 .Entity<IdentityUserRole<int>>()
                 .HasData(new IdentityUserRole<int>() { RoleId = 2, UserId = 1 });
-        }
-
-        public async Task<int> SaveChangesAsync()
-        {
-            return await base.SaveChangesAsync();
         }
     }
 }

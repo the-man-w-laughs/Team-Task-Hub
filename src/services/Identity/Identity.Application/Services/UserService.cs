@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Identity.Application.Dtos;
-using Identity.Application.Ports.Repositories;
 using Identity.Application.Ports.Services;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
@@ -8,49 +7,40 @@ using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Namespace;
 
 namespace Identity.Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IMapper _mapper;
-        private readonly UserManager<AppUser> _userManager;
-        private readonly IAuthDBContext _authDbContext;
+        private readonly IAppUserRepository _appUserRepository;
 
-        public UserService(
-            IMapper mapper,
-            UserManager<AppUser> userManager,
-            IAuthDBContext authDbContext
-        )
+        public UserService(IMapper mapper, IAppUserRepository appUserRepository)
         {
             this._mapper = mapper;
-            this._userManager = userManager;
-            this._authDbContext = authDbContext;
+            this._appUserRepository = appUserRepository;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
-            var identityResult = await _userManager.CreateAsync(appUser, appUserDto.Password);
-
-            if (!identityResult.Succeeded)
+            try
             {
-                var errorMessage = string.Join(
-                    ", ",
-                    identityResult.Errors.Select(e => e.Description)
-                );
-                return new InvalidResult<int>($"Unable to create user: {errorMessage}");
+                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
             }
-
-            await _authDbContext.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                return new InvalidResult<int>(ex.Message);
+            }
 
             return new SuccessResult<int>(appUser.Id);
         }
 
         public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
         {
-            var users = await _userManager.Users.ToListAsync();
+            var users = await _appUserRepository.GetAllUsersAsync();
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
@@ -59,7 +49,7 @@ namespace Identity.Application.Services
 
         public async Task<Result<AppUserDto>> GetUserByIdAsync(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _appUserRepository.GetUserByIdAsync(id.ToString());
 
             if (user == null)
             {
@@ -73,30 +63,26 @@ namespace Identity.Application.Services
 
         public async Task<Result<AppUserDto>> DeleteUserByIdAsync(int id)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _appUserRepository.GetUserByIdAsync(id.ToString());
 
             if (user == null)
             {
                 return new InvalidResult<AppUserDto>("User not found.");
             }
 
-            if (await _userManager.IsInRoleAsync(user, Roles.AdminRole.Name!))
+            if (await _appUserRepository.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
             {
                 return new InvalidResult<AppUserDto>("Admins cannot delete themselves.");
             }
 
-            var identityResult = await _userManager.DeleteAsync(user);
-
-            if (!identityResult.Succeeded)
+            try
             {
-                var errorMessage = string.Join(
-                    ", ",
-                    identityResult.Errors.Select(e => e.Description)
-                );
-                return new InvalidResult<AppUserDto>($"Unable to delete user: {errorMessage}");
+                await _appUserRepository.DeleteUserAsync(user);
             }
-
-            await _authDbContext.SaveChangesAsync();
+            catch (Exception ex)
+            {
+                return new InvalidResult<AppUserDto>(ex.Message);
+            }
 
             var userDto = _mapper.Map<AppUserDto>(user);
 
