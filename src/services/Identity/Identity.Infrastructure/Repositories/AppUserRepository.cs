@@ -1,4 +1,3 @@
-using Google.Protobuf.WellKnownTypes;
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

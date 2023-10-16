@@ -1,8 +1,11 @@
 ﻿using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 
-namespace Identity.WebAPI.Extensions.Swagger
+namespace Shared.Extensions
 {
     public static class SwaggerExtensions
     {
@@ -52,13 +55,15 @@ namespace Identity.WebAPI.Extensions.Swagger
             });
         }
 
-        public static void UseSwaggerWithOAuth(this IApplicationBuilder app)
+        public static void UseSwaggerWithOAuth(this IApplicationBuilder app, IConfiguration config)
         {
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.OAuthClientId("client");
-                options.OAuthClientSecret("client");
+                string clientId = config["ClientSettings:ClientId"];
+                string clientSecret = config["ClientSettings:ClientSecret"];
+                options.OAuthClientId(clientId);
+                options.OAuthClientSecret(clientSecret);
             });
         }
     }

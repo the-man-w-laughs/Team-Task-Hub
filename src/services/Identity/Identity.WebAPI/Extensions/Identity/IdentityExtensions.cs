@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.IdentityModel.Logging;
-using System.Net;
 
 namespace Identity.WebAPI.Extensions.Identity
 {

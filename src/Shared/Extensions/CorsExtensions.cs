@@ -1,6 +1,7 @@
-namespace Identity.WebAPI.Extensions.Identity
-{
+using Microsoft.Extensions.DependencyInjection;
 
+namespace Shared.Extensions
+{
     public static class CorsExtensions
     {
         public static void ConfigureCors(this IServiceCollection services)
@@ -9,9 +10,7 @@ namespace Identity.WebAPI.Extensions.Identity
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.AllowAnyOrigin()
-                           .AllowAnyMethod()
-                           .AllowAnyHeader();
+                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                 });
             });
         }
