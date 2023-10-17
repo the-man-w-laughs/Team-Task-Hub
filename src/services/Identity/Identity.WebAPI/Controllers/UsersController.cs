@@ -5,7 +5,7 @@ using Identity.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace SocialNetwork.API.Controllers;
+namespace Identity.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

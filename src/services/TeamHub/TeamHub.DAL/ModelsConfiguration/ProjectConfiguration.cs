@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using TeamHub.DAL.Models;
+using TeamHub.DAL.Constraints;
 
 namespace TeamHub.DAL.ModelsConfiguration
 {
@@ -17,12 +18,16 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
             entity.Property(e => e.CreatorId).HasColumnName("creator_id");
-            entity.Property(e => e.Name).HasMaxLength(45).HasColumnName("name");
+            entity
+                .Property(e => e.Name)
+                .HasMaxLength(ProjectConstraints.maxNameLength)
+                .HasColumnName("name");
 
             entity
                 .HasOne(d => d.Creator)
                 .WithMany(p => p.Projects)
                 .HasForeignKey(d => d.CreatorId)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_projects_users1");
         }
     }

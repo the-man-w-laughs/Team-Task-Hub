@@ -2,7 +2,7 @@
 
 public partial class Comment
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
     public int UsersId { get; set; }
 

@@ -2,6 +2,7 @@ using Shared.Extensions;
 using Shared.Middleware;
 using TeamHub.DAL.DBContext;
 using TeamHub.DAL.Extensions;
+using TeamHub.BLL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ builder.Services.ConfigureSwagger(config);
 builder.Services.RegisterDalDependencies(config);
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
+builder.Services.RegisterValidators();
 
 var app = builder.Build();
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using TeamHub.DAL.Models;
+using TeamHub.DAL.Constraints;
 
 namespace TeamHub.DAL.ModelsConfiguration
 {
@@ -13,7 +14,10 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.ToTable("priority");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.Name).HasMaxLength(45).HasColumnName("name");
+            entity
+                .Property(e => e.Name)
+                .HasMaxLength(PriorityConstraints.maxNameLength)
+                .HasColumnName("name");
         }
     }
 }

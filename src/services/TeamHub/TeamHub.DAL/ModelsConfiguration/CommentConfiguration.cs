@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using TeamHub.DAL.Models;
+using TeamHub.DAL.Constraints;
 
 namespace TeamHub.DAL.ModelsConfiguration
 {
@@ -16,8 +17,11 @@ namespace TeamHub.DAL.ModelsConfiguration
 
             entity.HasIndex(e => e.UsersId, "fk_users_has_tasks_users1_idx");
 
-            entity.Property(e => e.Id).HasMaxLength(45).HasColumnName("id");
-            entity.Property(e => e.Content).HasMaxLength(256).HasColumnName("content");
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity
+                .Property(e => e.Content)
+                .HasMaxLength(CommentConstraints.maxContentLength)
+                .HasColumnName("content");
             entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
             entity.Property(e => e.TasksId).HasColumnName("tasks_id");
             entity.Property(e => e.UsersId).HasColumnName("users_id");
@@ -26,14 +30,14 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasOne(d => d.Tasks)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(d => d.TasksId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_users_has_tasks_tasks1");
 
             entity
                 .HasOne(d => d.Users)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(d => d.UsersId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_users_has_tasks_users1");
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace TeamHub.DAL.Models;
+﻿using TeamHub.DAL.Constraints;
+
+namespace TeamHub.DAL.Models;
 
 public partial class TaskModel
 {
@@ -8,7 +10,7 @@ public partial class TaskModel
 
     public int ProjectsId { get; set; }
 
-    public int PriorityId { get; set; }
+    public TaskPriorityEnum PriorityId { get; set; }
 
     public string Content { get; set; } = null!;
 

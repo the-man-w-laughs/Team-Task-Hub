@@ -1,5 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\TeamHub.DAL\TeamHub.DAL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.7.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.7.1" />
+    <PackageReference Include="MediatR" Version="12.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MediatR/CQRS/" />
+    <Folder Include="MediatR/CQRS/Comment/" />
+    <Folder Include="MediatR/CQRS/Comment/Commands/" />
+    <Folder Include="MediatR/CQRS/Comment/Commands/Create/" />
+    <Folder Include="MediatR/CQRS/Comment/Commands/Delete/" />
+    <Folder Include="MediatR/CQRS/Comment/Commands/Update/" />
+    <Folder Include="MediatR/CQRS/Comment/Queries/" />
+    <Folder Include="MediatR/CQRS/Project/" />
+    <Folder Include="MediatR/CQRS/TaskModel/" />
+    <Folder Include="MediatR/CQRS/TasksHandler/" />
+    <Folder Include="MediatR/CQRS/TeamMember/" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

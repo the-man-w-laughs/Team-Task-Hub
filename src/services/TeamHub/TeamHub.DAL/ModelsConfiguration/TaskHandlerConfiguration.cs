@@ -24,14 +24,14 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasOne(d => d.Tasks)
                 .WithMany(p => p.TasksHandlers)
                 .HasForeignKey(d => d.TasksId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_team_members_has_tasks_tasks1");
 
             entity
                 .HasOne(d => d.TeamMembers)
                 .WithMany(p => p.TasksHandlers)
                 .HasForeignKey(d => d.TeamMembersId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
+                .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_team_members_has_tasks_team_members1");
         }
     }
