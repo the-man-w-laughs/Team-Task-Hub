@@ -28,5 +28,5 @@ public partial class TaskModel
 
     public virtual Project Projects { get; set; } = null!;
 
-    public virtual ICollection<TasksHandler> TasksHandlers { get; set; } = new List<TasksHandler>();
+    public virtual ICollection<TaskHandler> TasksHandlers { get; set; } = new List<TaskHandler>();
 }

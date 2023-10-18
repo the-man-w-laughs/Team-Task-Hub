@@ -4,9 +4,9 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.DAL.ModelsConfiguration
 {
-    public class TaskHandlerConfiguration : IEntityTypeConfiguration<TasksHandler>
+    public class TaskHandlerConfiguration : IEntityTypeConfiguration<TaskHandler>
     {
-        public void Configure(EntityTypeBuilder<TasksHandler> entity)
+        public void Configure(EntityTypeBuilder<TaskHandler> entity)
         {
             entity.HasKey(e => e.Id).HasName("PRIMARY");
 

@@ -19,7 +19,7 @@ public partial class TeamHubDbContext : DbContext
 
     public virtual DbSet<Task> Tasks { get; set; }
 
-    public virtual DbSet<TasksHandler> TasksHandlers { get; set; }
+    public virtual DbSet<TaskHandler> TasksHandlers { get; set; }
 
     public virtual DbSet<TeamMember> TeamMembers { get; set; }
 

@@ -16,8 +16,8 @@ namespace TeamHub.BLL.Dtos
 
         public virtual ICollection<TaskModel> Tasks { get; set; } = new List<TaskModel>();
 
-        public virtual ICollection<TasksHandler> TasksHandlers { get; set; } =
-            new List<TasksHandler>();
+        public virtual ICollection<TaskHandler> TasksHandlers { get; set; } =
+            new List<TaskHandler>();
 
         public virtual User Users { get; set; } = null!;
     }

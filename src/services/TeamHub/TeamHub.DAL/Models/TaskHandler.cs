@@ -1,6 +1,6 @@
 ﻿namespace TeamHub.DAL.Models;
 
-public partial class TasksHandler
+public partial class TaskHandler
 {
     public int Id { get; set; }
 
