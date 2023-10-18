@@ -1,13 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.DBContext;
+using TeamHub.DAL.Repositories;
 
 namespace TeamHub.DAL.Extensions
 {
     public static class DalRegistrationExtensions
     {
-        public static void RegisterDalDependencies(
+        public static void RegisterDLLDependencies(
             this IServiceCollection services,
             IConfiguration configuration
         )
@@ -19,6 +21,8 @@ namespace TeamHub.DAL.Extensions
                     throw new InvalidOperationException("Connection string cannot be empty.");
                 builder.UseLazyLoadingProxies().UseMySQL(connectionString);
             });
+
+            services.AddScoped<IProjectRepository, ProjectRepository>();
         }
     }
 }

@@ -1,6 +1,4 @@
-using Identity.Domain.Entities;
-
-namespace Namespace;
+namespace Identity.Domain.Entities;
 
 public interface IAppUserRepository
 {

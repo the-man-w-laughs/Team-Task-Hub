@@ -21,7 +21,7 @@ public class AuthenticationBehaviour<TRequest, TResponse> : IPipelineBehavior<TR
     )
     {
         var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
-        if (userId is null or 0)
+        if (userId is null)
         {
             throw new AuthorizationException($"User with id {userId} was not found");
         }

@@ -11,7 +11,7 @@ public static class ClaimsPrincipalExtensions
             throw new ArgumentNullException(nameof(principal));
         }
 
-        var claim = principal.FindFirst(x => x.Type.Equals("sub"));
+        var claim = principal.FindFirst(x => x.Type.Equals(ClaimTypes.NameIdentifier));
         if (claim == null)
         {
             throw new InvalidOperationException("The 'sub' claim is not present in the principal.");

@@ -13,11 +13,9 @@ public partial class TeamHubDbContext : DbContext
 
     public virtual DbSet<Comment> Comments { get; set; }
 
-    public virtual DbSet<TaskPriority> Priorities { get; set; }
-
     public virtual DbSet<Project> Projects { get; set; }
 
-    public virtual DbSet<Task> Tasks { get; set; }
+    public virtual DbSet<TaskModel> Tasks { get; set; }
 
     public virtual DbSet<TaskHandler> TasksHandlers { get; set; }
 

@@ -5,21 +5,21 @@ using TeamHub.BLL.Extensions;
 
 namespace TeamHub.BLL.MediatR.CQRS.Comment.Commands;
 
-public class AddWordCollectionCommandHandler : IRequestHandler<CreateCommentCommand, CommentDto>
+public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AddWordCollectionCommandHandler(IHttpContextAccessor httpContextAccessor)
+    public CreateCommentCommandHandler(IHttpContextAccessor httpContextAccessor)
     {
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<CommentDto> Handle(
+    public async Task<CommentResponseDto> Handle(
         CreateCommentCommand request,
         CancellationToken cancellationToken
     )
     {
         var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
-        return new CommentDto();
+        return new CommentResponseDto();
     }
 }

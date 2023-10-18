@@ -3,9 +3,8 @@ using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
-using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
-using Namespace;
+using Shared.IdentityConstraints;
 
 namespace Identity.Application.Services
 {

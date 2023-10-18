@@ -13,8 +13,6 @@ namespace TeamHub.DAL.ModelsConfiguration
 
             entity.ToTable("tasks");
 
-            entity.HasIndex(e => e.PriorityId, "fk_tasks_priority1_idx");
-
             entity.HasIndex(e => e.ProjectsId, "fk_tasks_projects1_idx");
 
             entity.HasIndex(e => e.CreatorId, "fk_tasks_users1_idx");
@@ -28,7 +26,7 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.Property(e => e.CreatorId).HasColumnName("creator_id");
             entity.Property(e => e.Deadline).HasColumnType("datetime").HasColumnName("deadline");
             entity.Property(e => e.IsCompleted).HasColumnName("is_completed");
-            entity.Property(e => e.PriorityId).HasColumnName("priority_id").HasConversion<int>();
+            entity.Property(e => e.PriorityId).HasColumnName("priority_id");
             entity.Property(e => e.ProjectsId).HasColumnName("projects_id");
 
             entity
@@ -37,13 +35,6 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasForeignKey(d => d.CreatorId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_tasks_users1");
-
-            entity
-                .HasOne(d => d.Priority)
-                .WithMany(p => p.Tasks)
-                .HasForeignKey(d => d.PriorityId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("fk_tasks_priority1");
 
             entity
                 .HasOne(d => d.Projects)

@@ -2,7 +2,7 @@ using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace Namespace;
+namespace Identity.Infrastructure.Repositories;
 
 public class AppUserRepository : IAppUserRepository
 {

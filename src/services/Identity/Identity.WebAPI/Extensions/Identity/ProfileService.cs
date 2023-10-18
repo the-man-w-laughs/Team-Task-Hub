@@ -1,8 +1,8 @@
-﻿using Identity.Domain.Constraints;
-using Identity.Domain.Entities;
+﻿using Identity.Domain.Entities;
 using IdentityServer4.Models;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Identity;
+using Shared.IdentityConstraints;
 using System.Security.Claims;
 
 namespace Identity.WebAPI.Extensions.Identity

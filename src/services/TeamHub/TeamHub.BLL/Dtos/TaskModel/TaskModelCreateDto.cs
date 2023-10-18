@@ -1,6 +1,6 @@
 namespace TeamHub.BLL.Dtos
 {
-    public class TaskModelCreateDto
+    public class TaskModelRequestDto
     {
         public int ProjectsId { get; set; }
         public int PriorityId { get; set; }

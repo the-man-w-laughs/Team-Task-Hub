@@ -24,8 +24,6 @@ public partial class TaskModel
 
     public virtual TeamMember Creator { get; set; } = null!;
 
-    public virtual TaskPriority Priority { get; set; } = null!;
-
     public virtual Project Projects { get; set; } = null!;
 
     public virtual ICollection<TaskHandler> TasksHandlers { get; set; } = new List<TaskHandler>();

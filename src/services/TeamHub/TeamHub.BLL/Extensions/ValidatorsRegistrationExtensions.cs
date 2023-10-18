@@ -8,7 +8,7 @@ namespace TeamHub.BLL.Extensions
     {
         public static void RegisterValidators(this IServiceCollection services)
         {
-            services.AddValidatorsFromAssemblyContaining<ProjectCreateDtoValidator>();
+            services.AddValidatorsFromAssemblyContaining<ProjectRequestDtoValidator>();
         }
     }
 }

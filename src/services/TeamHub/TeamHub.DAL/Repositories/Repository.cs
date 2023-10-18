@@ -2,7 +2,6 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.DBContext;
-using TeamHub.DAL.Models;
 
 namespace TeamHub.DAL.Repositories;
 

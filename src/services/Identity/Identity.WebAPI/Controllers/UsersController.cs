@@ -1,9 +1,9 @@
 ﻿using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
-using Identity.Domain.Constraints;
 using Identity.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.IdentityConstraints;
 
 namespace Identity.WebAPI.Controllers;
 

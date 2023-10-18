@@ -7,6 +7,6 @@ public class CreateCommentCommandValidator : AbstractValidator<CreateCommentComm
 {
     public CreateCommentCommandValidator()
     {
-        RuleFor(x => x.CommentCreateDto).SetValidator(new CommentCreateDtoValidator());
+        RuleFor(x => x.CommentCreateDto).SetValidator(new CommentRequestDtoValidator());
     }
 }

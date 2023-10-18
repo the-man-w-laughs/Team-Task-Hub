@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 
 namespace Shared.Extensions
 {
     public static class SwaggerExtensions
     {
-        public static void ConfigureSwagger(this IServiceCollection services, IConfiguration config)
+        public static void ConfigureSwagger(
+            this IServiceCollection services,
+            IConfiguration config,
+            string assemblyName
+        )
         {
             services.AddSwaggerGen(options =>
             {
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlFile = $"{assemblyName}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
 
