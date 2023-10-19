@@ -19,7 +19,7 @@ namespace TeamHub.DAL.Extensions
                 var connectionString = configuration.GetConnectionString("Default");
                 if (string.IsNullOrWhiteSpace(connectionString))
                     throw new InvalidOperationException("Connection string cannot be empty.");
-                builder.UseLazyLoadingProxies().UseMySQL(connectionString);
+                builder.UseLazyLoadingProxies().UseNpgsql(connectionString);
             });
 
             services.AddScoped<IProjectRepository, ProjectRepository>();

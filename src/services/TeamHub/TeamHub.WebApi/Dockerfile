@@ -1,8 +1,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
-EXPOSE 5000
+EXPOSE 5052
 
-ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_URLS=http://+:5052
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-dotnet-configure-containers
@@ -12,17 +12,17 @@ USER appuser
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG configuration=Release
 WORKDIR /src
-COPY ["src/services/Identity/Identity.WebAPI/Identity.WebAPI.csproj", "src/services/Identity/Identity.WebAPI/"]
-RUN dotnet restore "src/services/Identity/Identity.WebAPI/Identity.WebAPI.csproj"
+COPY ["src/services/TeamHub/TeamHub.WebApi/TeamHub.WebApi.csproj", "src/services/TeamHub/TeamHub.WebApi/"]
+RUN dotnet restore "src/services/TeamHub/TeamHub.WebApi/TeamHub.WebApi.csproj"
 COPY . .
-WORKDIR "/src/src/services/Identity/Identity.WebAPI"
-RUN dotnet build "Identity.WebAPI.csproj" -c $configuration -o /app/build
+WORKDIR "/src/src/services/TeamHub/TeamHub.WebApi"
+RUN dotnet build "TeamHub.WebApi.csproj" -c $configuration -o /app/build
 
 FROM build AS publish
 ARG configuration=Release
-RUN dotnet publish "Identity.WebAPI.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "TeamHub.WebApi.csproj" -c $configuration -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Identity.WebAPI.dll"]
+ENTRYPOINT ["dotnet", "TeamHub.WebApi.dll"]

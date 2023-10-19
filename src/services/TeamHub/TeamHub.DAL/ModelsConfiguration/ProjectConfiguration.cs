@@ -9,14 +9,16 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<Project> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
-
+            entity.HasKey(e => e.Id);
             entity.ToTable("projects");
 
             entity.HasIndex(e => e.CreatorId, "fk_projects_users1_idx");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
             entity.Property(e => e.CreatorId).HasColumnName("creator_id");
             entity
                 .Property(e => e.Name)

@@ -8,7 +8,7 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<TeamMember> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("team_members");
 
@@ -17,7 +17,10 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.HasIndex(e => e.UsersId, "fk_team_members_users_idx");
 
             entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
             entity.Property(e => e.ProjectsId).HasColumnName("projects_id");
             entity.Property(e => e.UsersId).HasColumnName("users_id");
 

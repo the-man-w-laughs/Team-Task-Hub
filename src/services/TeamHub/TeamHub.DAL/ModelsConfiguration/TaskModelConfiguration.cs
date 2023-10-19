@@ -9,7 +9,7 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<TaskModel> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("tasks");
 
@@ -22,9 +22,12 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .Property(e => e.Content)
                 .HasMaxLength(TaskModelConstraints.maxContentLength)
                 .HasColumnName("content");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
             entity.Property(e => e.CreatorId).HasColumnName("creator_id");
-            entity.Property(e => e.Deadline).HasColumnType("datetime").HasColumnName("deadline");
+            entity.Property(e => e.Deadline).HasColumnType("timestamp").HasColumnName("deadline");
             entity.Property(e => e.IsCompleted).HasColumnName("is_completed");
             entity.Property(e => e.PriorityId).HasColumnName("priority_id");
             entity.Property(e => e.ProjectsId).HasColumnName("projects_id");

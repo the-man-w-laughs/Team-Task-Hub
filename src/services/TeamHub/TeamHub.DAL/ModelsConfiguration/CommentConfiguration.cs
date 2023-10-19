@@ -9,7 +9,7 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<Comment> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("comments");
 
@@ -22,7 +22,10 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .Property(e => e.Content)
                 .HasMaxLength(CommentConstraints.maxContentLength)
                 .HasColumnName("content");
-            entity.Property(e => e.CreatedAt).HasColumnType("datetime").HasColumnName("created_at");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
             entity.Property(e => e.TasksId).HasColumnName("tasks_id");
             entity.Property(e => e.UsersId).HasColumnName("users_id");
 

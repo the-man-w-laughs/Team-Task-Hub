@@ -9,7 +9,7 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<User> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("users");
 
@@ -18,6 +18,10 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .Property(e => e.Email)
                 .HasMaxLength(UserConstraints.EmailMaxLength)
                 .HasColumnName("email");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
         }
     }
 }

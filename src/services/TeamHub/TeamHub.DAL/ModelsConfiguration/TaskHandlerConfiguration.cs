@@ -8,7 +8,7 @@ namespace TeamHub.DAL.ModelsConfiguration
     {
         public void Configure(EntityTypeBuilder<TaskHandler> entity)
         {
-            entity.HasKey(e => e.Id).HasName("PRIMARY");
+            entity.HasKey(e => e.Id);
 
             entity.ToTable("tasks_handlers");
 
@@ -19,6 +19,10 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.TasksId).HasColumnName("tasks_id");
             entity.Property(e => e.TeamMembersId).HasColumnName("team_members_id");
+            entity
+                .Property(e => e.CreatedAt)
+                .HasColumnType("timestamp")
+                .HasColumnName("created_at");
 
             entity
                 .HasOne(d => d.Tasks)
