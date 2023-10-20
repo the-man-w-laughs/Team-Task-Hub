@@ -4,9 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.MediatR.CQRS.Projects.Commands;
 using TeamHub.BLL.MediatR.CQRS.Projects.Queries;
+using TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
+using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
+using TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
+using TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;
 
 namespace TeamHub.WebApi.controllers;
 
+/// <summary>
+/// Controller for managing projects.
+/// </summary>
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
@@ -14,6 +21,9 @@ public class ProjectsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
+    /// <summary>
+    /// Constructor for ProjectsController.
+    /// </summary>
     public ProjectsController(IMediator mediator)
     {
         _mediator = mediator;
@@ -33,12 +43,12 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Get Project
+    /// Get Project By Id
     /// </summary>
     [HttpGet("{projectId:int}")]
-    public async Task<IActionResult> GetProject([FromRoute] int projectId)
+    public async Task<IActionResult> GetProjectById([FromRoute] int projectId)
     {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new GetProjectByIdQuery(projectId);
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -63,7 +73,7 @@ public class ProjectsController : ControllerBase
         [FromBody] ProjectRequestDto projectRequestDto
     )
     {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new UpdateProjectCommand(projectId, projectRequestDto);
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -74,35 +84,7 @@ public class ProjectsController : ControllerBase
     [HttpDelete("{projectId:int}")]
     public async Task<IActionResult> DeleteProject([FromRoute] int projectId)
     {
-        var command = new GetAllUsersProjectsQuery();
-        var result = await _mediator.Send(command);
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Create New Task
-    /// </summary>
-    [HttpPost("{projectId:int}/Tasks")]
-    public async Task<IActionResult> CreateNewTaskModel(
-        [FromRoute] int projectId,
-        [FromBody] TaskModelRequestDto taskModelRequestDto
-    )
-    {
-        var command = new GetAllUsersProjectsQuery();
-        var result = await _mediator.Send(command);
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Get All Project tasks
-    /// </summary>
-    [HttpGet("{projectId:int}/Tasks")]
-    public async Task<IActionResult> GetAllProjectsTaskModels(
-        [FromRoute] int projectId,
-        [FromBody] TaskModelRequestDto taskModelRequestDto
-    )
-    {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new DeleteProjectCommand(projectId);
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -113,11 +95,10 @@ public class ProjectsController : ControllerBase
     [HttpPost("{projectId:int}/TeamMembers/{userId:int}")]
     public async Task<IActionResult> CreateNewTeamMember(
         [FromRoute] int projectId,
-        [FromRoute] int userId,
-        [FromBody] TeamMemberRequestDto teamMemberRequestDto
+        [FromRoute] int userId
     )
     {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new CreateTeamMemberCommand(projectId, userId);
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -128,7 +109,7 @@ public class ProjectsController : ControllerBase
     [HttpGet("{projectId:int}/TeamMembers")]
     public async Task<IActionResult> GetAllTeamMembers([FromRoute] int projectId)
     {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new GetAllProjectsTeamMembersQuery(projectId);
         var result = await _mediator.Send(command);
         return Ok(result);
     }
@@ -142,9 +123,33 @@ public class ProjectsController : ControllerBase
         [FromRoute] int userId
     )
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new DeleteTeamMemberCommand(projectId, userId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Create New Task
+    /// </summary>
+    [HttpPost("{projectId:int}/Tasks")]
+    public async Task<IActionResult> CreateNewTaskModel(
+        [FromRoute] int projectId,
+        [FromBody] TaskModelRequestDto taskModelRequestDto
+    )
+    {
+        var command = new CreateTaskCommand(projectId, taskModelRequestDto);
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get All Project tasks
+    /// </summary>
+    [HttpGet("{projectId:int}/Tasks")]
+    public async Task<IActionResult> GetAllProjectsTaskModels([FromRoute] int projectId)
+    {
+        var command = new GetAllProjectsTasksQuery(projectId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 }

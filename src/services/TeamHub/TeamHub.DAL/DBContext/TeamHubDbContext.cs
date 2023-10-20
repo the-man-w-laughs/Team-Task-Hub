@@ -6,26 +6,26 @@ namespace TeamHub.DAL.DBContext;
 
 public partial class TeamHubDbContext : DbContext
 {
-    public TeamHubDbContext() { }
+    public DbSet<Comment> Comments { get; set; }
 
-    public TeamHubDbContext(DbContextOptions<TeamHubDbContext> options)
-        : base(options) { }
+    public DbSet<Project> Projects { get; set; }
 
-    public virtual DbSet<Comment> Comments { get; set; }
+    public DbSet<TaskModel> Tasks { get; set; }
 
-    public virtual DbSet<Project> Projects { get; set; }
+    public DbSet<TaskHandler> TasksHandlers { get; set; }
 
-    public virtual DbSet<TaskModel> Tasks { get; set; }
+    public DbSet<TeamMember> TeamMembers { get; set; }
 
-    public virtual DbSet<TaskHandler> TasksHandlers { get; set; }
+    public DbSet<User> Users { get; set; }
 
-    public virtual DbSet<TeamMember> TeamMembers { get; set; }
-
-    public virtual DbSet<User> Users { get; set; }
+    public TeamHubDbContext(DbContextOptions options)
+        : base(options)
+    {
+        Database.EnsureCreated();
+    }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

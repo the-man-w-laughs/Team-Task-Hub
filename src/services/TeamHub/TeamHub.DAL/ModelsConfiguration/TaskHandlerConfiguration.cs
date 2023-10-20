@@ -14,11 +14,11 @@ namespace TeamHub.DAL.ModelsConfiguration
 
             entity.HasIndex(e => e.TasksId, "fk_team_members_has_tasks_tasks1_idx");
 
-            entity.HasIndex(e => e.TeamMembersId, "fk_team_members_has_tasks_team_members1_idx");
+            entity.HasIndex(e => e.TeamMemberId, "fk_team_members_has_tasks_team_members1_idx");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity.Property(e => e.TasksId).HasColumnName("tasks_id");
-            entity.Property(e => e.TeamMembersId).HasColumnName("team_members_id");
+            entity.Property(e => e.TeamMemberId).HasColumnName("team_members_id");
             entity
                 .Property(e => e.CreatedAt)
                 .HasColumnType("timestamp")
@@ -32,9 +32,9 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasConstraintName("fk_team_members_has_tasks_tasks1");
 
             entity
-                .HasOne(d => d.TeamMembers)
+                .HasOne(d => d.TeamMember)
                 .WithMany(p => p.TasksHandlers)
-                .HasForeignKey(d => d.TeamMembersId)
+                .HasForeignKey(d => d.TeamMemberId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_team_members_has_tasks_team_members1");
         }

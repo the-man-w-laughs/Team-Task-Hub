@@ -32,6 +32,7 @@ public class UsersController : ControllerBase
     /// Get all users
     /// </summary>
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllUsersAsync()
     {
         var result = await _userService.GetAllUsersAsync();
@@ -42,6 +43,7 @@ public class UsersController : ControllerBase
     /// Get user by id
     /// </summary>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetUserByIdAsync(int id)
     {
         var result = await _userService.GetUserByIdAsync(id);

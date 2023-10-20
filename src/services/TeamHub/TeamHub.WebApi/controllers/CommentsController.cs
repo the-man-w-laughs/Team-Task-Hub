@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TeamHub.BLL.Dtos;
+using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
+using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 
 namespace TeamHub.WebApi.controllers;
 
@@ -22,22 +25,23 @@ public class CommentsController : ControllerBase
     [HttpGet("{commentId:int}")]
     public async Task<IActionResult> GetComment([FromRoute] int commentId)
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new GetCommentByIdQuery(commentId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
     /// Update Comment
     /// </summary>
     [HttpPut("{commentId:int}")]
-    public async Task<IActionResult> UpdateComment([FromRoute] int commentId)
+    public async Task<IActionResult> UpdateComment(
+        [FromRoute] int commentId,
+        [FromBody] CommentRequestDto commentRequestDto
+    )
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new UpdateCommentCommand(commentId, commentRequestDto);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
@@ -46,9 +50,8 @@ public class CommentsController : ControllerBase
     [HttpDelete("{commentId:int}")]
     public async Task<IActionResult> DeleteComment([FromRoute] int commentId)
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new DeleteCommentCommand(commentId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 }

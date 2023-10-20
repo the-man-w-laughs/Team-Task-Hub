@@ -7,12 +7,12 @@ public interface IRepository<TEntity>
 {
     Task<List<TEntity>> GetAllAsync();
     Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> where);
-    Task<TEntity?> GetByIdAsync(uint id);
+    Task<TEntity?> GetByIdAsync(int id);
     Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where);
     Task<TEntity> AddAsync(TEntity entity);
     void Update(TEntity entity);
     void Delete(TEntity entity);
-    Task<TEntity?> DeleteById(uint id);
+    Task<TEntity?> DeleteByIdAsync(int id);
     Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where);
     Task SaveAsync();
 }

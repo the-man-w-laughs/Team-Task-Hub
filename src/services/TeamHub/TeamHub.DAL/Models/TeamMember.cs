@@ -4,9 +4,9 @@ public partial class TeamMember
 {
     public int Id { get; set; }
 
-    public int UsersId { get; set; }
+    public int UserId { get; set; }
 
-    public int ProjectsId { get; set; }
+    public int ProjectId { get; set; }
 
     public DateTime CreatedAt { get; set; }
 
@@ -16,5 +16,5 @@ public partial class TeamMember
 
     public virtual ICollection<TaskHandler> TasksHandlers { get; set; } = new List<TaskHandler>();
 
-    public virtual User Users { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

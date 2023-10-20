@@ -1,11 +1,9 @@
 using Shared.Extensions;
-using TeamHub.DAL.DBContext;
 using TeamHub.DAL.Extensions;
 using TeamHub.BLL.Extensions;
 using TeamHub.WebApi.Middleweres;
 using TeamHub.BLL;
 using System.Reflection;
-using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,19 +12,17 @@ var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger(config, assemblyName);
-builder.Services.RegisterDLLDependencies(config);
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
 builder.Services.RegisterValidators();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-builder.Services.ConfigureMediatR();
-builder.Services.RegisterBLLDependencies();
 builder.Services.ConfigureAuthentication(config);
 builder.Services.ConfigureAuthorization();
+builder.Services.RegisterDLLDependencies(config);
+builder.Services.RegisterAutomapperProfiles();
+builder.Services.ConfigureMediatR();
 
 var app = builder.Build();
-
-app.InitializeDatabase<TeamHubDbContext>();
 
 app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();

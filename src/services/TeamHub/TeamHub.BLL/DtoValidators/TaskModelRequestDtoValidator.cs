@@ -9,9 +9,9 @@ public class TaskModelRequestDtoValidator : AbstractValidator<TaskModelRequestDt
 {
     public TaskModelRequestDtoValidator()
     {
-        RuleFor(dto => dto.ProjectsId).NotEmpty().WithMessage("Project ID is required.");
-
-        RuleFor(dto => dto.PriorityId).IsInEnum().WithMessage("Invalid priority value.");
+        RuleFor(dto => dto.PriorityId)
+            .Must(priorityId => Enum.IsDefined(typeof(TaskPriorityEnum), priorityId))
+            .WithMessage("Invalid priority value.");
 
         var maxContentLength = TaskModelConstraints.maxContentLength;
         RuleFor(dto => dto.Content)

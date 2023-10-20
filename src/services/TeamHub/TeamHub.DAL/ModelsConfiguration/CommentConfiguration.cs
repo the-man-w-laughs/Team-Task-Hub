@@ -15,7 +15,7 @@ namespace TeamHub.DAL.ModelsConfiguration
 
             entity.HasIndex(e => e.TasksId, "fk_users_has_tasks_tasks1_idx");
 
-            entity.HasIndex(e => e.UsersId, "fk_users_has_tasks_users1_idx");
+            entity.HasIndex(e => e.AuthorId, "fk_users_has_tasks_users1_idx");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity
@@ -27,7 +27,7 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasColumnType("timestamp")
                 .HasColumnName("created_at");
             entity.Property(e => e.TasksId).HasColumnName("tasks_id");
-            entity.Property(e => e.UsersId).HasColumnName("users_id");
+            entity.Property(e => e.AuthorId).HasColumnName("users_id");
 
             entity
                 .HasOne(d => d.Tasks)
@@ -39,7 +39,7 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity
                 .HasOne(d => d.Users)
                 .WithMany(p => p.Comments)
-                .HasForeignKey(d => d.UsersId)
+                .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_users_has_tasks_users1");
         }

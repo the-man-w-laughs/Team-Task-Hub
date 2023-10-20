@@ -12,14 +12,14 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.HasKey(e => e.Id);
             entity.ToTable("projects");
 
-            entity.HasIndex(e => e.CreatorId, "fk_projects_users1_idx");
+            entity.HasIndex(e => e.AuthorId, "fk_projects_users1_idx");
 
             entity.Property(e => e.Id).HasColumnName("id");
             entity
                 .Property(e => e.CreatedAt)
                 .HasColumnType("timestamp")
                 .HasColumnName("created_at");
-            entity.Property(e => e.CreatorId).HasColumnName("creator_id");
+            entity.Property(e => e.AuthorId).HasColumnName("creator_id");
             entity
                 .Property(e => e.Name)
                 .HasMaxLength(ProjectConstraints.maxNameLength)
@@ -28,7 +28,7 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity
                 .HasOne(d => d.Creator)
                 .WithMany(p => p.Projects)
-                .HasForeignKey(d => d.CreatorId)
+                .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("fk_projects_users1");
         }

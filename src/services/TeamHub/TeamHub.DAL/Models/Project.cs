@@ -4,7 +4,7 @@ public partial class Project
 {
     public int Id { get; set; }
 
-    public int CreatorId { get; set; }
+    public int AuthorId { get; set; }
 
     public string Name { get; set; } = null!;
 

@@ -1,6 +1,5 @@
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using TeamHub.BLL.Extensions;
 
 namespace TeamHub.BLL.MediatR.Pipeline;
@@ -24,6 +23,7 @@ public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TReque
         {
             validator.ValidateAndThrowCustomException(request);
         }
+
         return await next();
     }
 }

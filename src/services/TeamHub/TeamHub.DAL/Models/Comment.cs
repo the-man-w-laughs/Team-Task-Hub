@@ -4,7 +4,7 @@ public partial class Comment
 {
     public int Id { get; set; }
 
-    public int UsersId { get; set; }
+    public int AuthorId { get; set; }
 
     public int TasksId { get; set; }
 

@@ -2,8 +2,12 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.MediatR.CQRS.Projects.Commands;
-using TeamHub.BLL.MediatR.CQRS.Projects.Queries;
+using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
+using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
+using TeamHub.BLL.MediatR.CQRS.TaskHandlers.Commands;
+using TeamHub.BLL.MediatR.CQRS.TaskHandlers.Queries;
+using TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
+using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 
 namespace TeamHub.WebApi.controllers;
 
@@ -20,39 +24,14 @@ public class TaskModelController : ControllerBase
     }
 
     /// <summary>
-    /// Create Tasks Comment
-    /// </summary>
-    [HttpPost("{taskId:int}/comments")]
-    public async Task<IActionResult> CreateNewTasksComment([FromRoute] int taskId)
-    {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
-    }
-
-    /// <summary>
-    /// Get All Tasks Comments
-    /// </summary>
-    [HttpGet("{taskId:int}/comments")]
-    public async Task<IActionResult> GetAllTasksComments([FromRoute] int taskId)
-    {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
-    }
-
-    /// <summary>
     /// Get Task
     /// </summary>
     [HttpGet("{taskId:int}")]
     public async Task<IActionResult> GetTask([FromRoute] int taskId)
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new GetTaskByIdQuery(taskId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
@@ -64,10 +43,9 @@ public class TaskModelController : ControllerBase
         [FromBody] TaskModelRequestDto taskModelRequestDto
     )
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new UpdateTaskCommand(taskId, taskModelRequestDto);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
@@ -76,25 +54,23 @@ public class TaskModelController : ControllerBase
     [HttpDelete("{taskId:int}")]
     public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new DeleteTaskCommand(taskId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
     /// Create Task Handler
     /// </summary>
-    [HttpPost("{taskId:int}/TaskHandlers")]
+    [HttpPost("{taskId:int}/TaskHandlers/{userId}")]
     public async Task<IActionResult> CreateTaskHandler(
         [FromRoute] int taskId,
-        [FromBody] TasksHandlerRequestDto tasksHandlerRequestDto
+        [FromRoute] int userId
     )
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new CreateTaskHandlerCommand(taskId, userId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
@@ -103,10 +79,9 @@ public class TaskModelController : ControllerBase
     [HttpGet("{taskId:int}/TaskHandlers")]
     public async Task<IActionResult> GetAllTaskHandlers([FromRoute] int taskId)
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new GetAllTaskHandlersQuery(taskId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 
     /// <summary>
@@ -118,9 +93,34 @@ public class TaskModelController : ControllerBase
         [FromRoute] int userId
     )
     {
-        // var command = new CreateProjectCommand(projectRequestDto);
-        // var result = await _mediator.Send(command);
-        // return Ok(result);
-        return Ok();
+        var command = new DeleteTaskHandlerCommand(taskId, userId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Create Tasks Comment
+    /// </summary>
+    [HttpPost("{taskId:int}/comments")]
+    public async Task<IActionResult> CreateNewTasksComment(
+        [FromRoute] int taskId,
+        [FromBody] CommentRequestDto commentRequestDto
+    )
+    {
+        var command = new CreateCommentCommand(taskId, commentRequestDto);
+        var result = await _mediator.Send(command);
+
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get All Tasks Comments
+    /// </summary>
+    [HttpGet("{taskId:int}/comments")]
+    public async Task<IActionResult> GetAllTasksComments([FromRoute] int taskId)
+    {
+        var command = new GetAllTasksCommentsQuery(taskId);
+        var result = await _mediator.Send(command);
+        return Ok(result);
     }
 }

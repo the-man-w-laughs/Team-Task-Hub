@@ -3,12 +3,11 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.AutoMapperProfiles
 {
-    public class ProjectsProfile : BaseProfile
+    public class UsersProfile : BaseProfile
     {
-        public ProjectsProfile()
+        public UsersProfile()
         {
-            CreateMap<ProjectRequestDto, Project>();
-            CreateMap<Project, ProjectResponseDto>();
+            CreateMap<User, UserResponseDto>();
         }
     }
 }
