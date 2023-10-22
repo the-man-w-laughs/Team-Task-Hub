@@ -31,6 +31,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new GetTaskByIdQuery(taskId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -45,6 +46,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new UpdateTaskCommand(taskId, taskModelRequestDto);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -56,6 +58,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new DeleteTaskCommand(taskId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -70,6 +73,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new CreateTaskHandlerCommand(taskId, userId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -81,6 +85,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new GetAllTaskHandlersQuery(taskId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -95,6 +100,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new DeleteTaskHandlerCommand(taskId, userId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -121,6 +127,7 @@ public class TaskModelController : ControllerBase
     {
         var command = new GetAllTasksCommentsQuery(taskId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 }

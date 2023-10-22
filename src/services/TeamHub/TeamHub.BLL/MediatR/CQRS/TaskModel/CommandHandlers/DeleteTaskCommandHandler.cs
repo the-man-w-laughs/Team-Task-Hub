@@ -26,15 +26,10 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
 
     public async Task<int> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
-        var task = await _taskModelRepository.GetByIdAsync(request.TaskId);
+        var userId = _httpContextAccessor.GetUserId();
+        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId);
 
-        if (task == null)
-        {
-            throw new NotFoundException($"Cannot find task with id {request.TaskId}");
-        }
-
-        if (userId != task.TeamMember.UserId && userId != task.Projects.AuthorId)
+        if (userId != task.TeamMember.UserId && userId != task.Project.AuthorId)
         {
             throw new ForbiddenException(
                 $"User with id {userId} cannot delete tesk with id {task.Id}."

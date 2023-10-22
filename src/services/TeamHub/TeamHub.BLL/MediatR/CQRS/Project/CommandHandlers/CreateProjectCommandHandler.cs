@@ -27,7 +27,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
 
     public async Task<int> Handle(CreateProjectCommand request, CancellationToken cancellationToken)
     {
-        var userId = (_httpContextAccessor?.HttpContext?.User.GetUserId())!.Value;
+        var userId = _httpContextAccessor.GetUserId();
 
         var projectToAdd = _mapper.Map<Project>(request.ProjectRequestDto);
 

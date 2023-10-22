@@ -20,33 +20,29 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
     )
     {
         _httpContextAccessor = httpContextAccessor;
-        this._mapper = mapper;
-        this._commentRepository = commentRepository;
+        _mapper = mapper;
+        _commentRepository = commentRepository;
     }
 
     public async Task<int> Handle(UpdateCommentCommand request, CancellationToken cancellationToken)
     {
-        var userId = (_httpContextAccessor?.HttpContext?.User.GetUserId())!.Value;
+        var userId = _httpContextAccessor.GetUserId();
+        ;
 
-        var existingComment = await _commentRepository.GetByIdAsync(request.CommentId);
+        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
 
-        if (existingComment == null)
-        {
-            throw new NotFoundException($"Cannot find comment with id {request.CommentId}.");
-        }
-
-        if (userId != existingComment.AuthorId)
+        if (userId != comment.AuthorId)
         {
             throw new ForbiddenException(
-                $"User with id {userId} cannot delete comment with id {existingComment.Id}."
+                $"User with id {userId} doesn't have rights to alter comment with id {comment.Id}."
             );
         }
 
-        _mapper.Map(request.CommentRequestDto, existingComment);
+        _mapper.Map(request.CommentRequestDto, comment);
 
-        _commentRepository.Update(existingComment);
+        _commentRepository.Update(comment);
         await _commentRepository.SaveAsync();
 
-        return existingComment.Id;
+        return comment.Id;
     }
 }

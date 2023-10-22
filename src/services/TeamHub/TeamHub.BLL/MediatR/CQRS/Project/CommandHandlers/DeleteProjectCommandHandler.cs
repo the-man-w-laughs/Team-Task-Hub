@@ -22,18 +22,14 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
 
     public async Task<int> Handle(DeleteProjectCommand request, CancellationToken cancellationToken)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var userId = _httpContextAccessor.GetUserId();
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
-        }
+        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
 
         if (userId != project.AuthorId)
         {
             throw new ForbiddenException(
-                $"User with id {userId} cannot delete project with id {project.Id}."
+                $"User with id {userId} doesn't have rights to alter project with id {project.Id}."
             );
         }
 

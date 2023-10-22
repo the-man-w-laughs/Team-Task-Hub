@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
@@ -33,25 +32,11 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, int>
 
     public async Task<int> Handle(CreateTaskCommand request, CancellationToken cancellationToken)
     {
-        var userId = (_httpContextAccessor?.HttpContext?.User.GetUserId())!.Value;
+        var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Project with ID {request.ProjectId} not found.");
-        }
-
-        var teamMember = await _teamMemberRepository.GetAsync(
-            teamMember => teamMember.UserId == userId && teamMember.ProjectId == request.ProjectId
-        );
-
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} cannot add task to the project {request.ProjectId}."
-            );
-        }
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
         var taskToAdd = _mapper.Map<TaskModel>(request.TaskModelRequestDto);
         taskToAdd.ProjectId = request.ProjectId;

@@ -28,13 +28,21 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
         CancellationToken cancellationToken
     )
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
+        var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
-        if (project == null)
+        var teamMemberToDelete = await _teamMemberRepository.GetTeamMemberAsync(
+            request.UserId,
+            request.ProjectId
+        );
+
+        if (teamMemberToDelete == null)
         {
-            throw new NotFoundException($"Project with id {request.ProjectId} was not found.");
+            throw new WrongActionException(
+                $"User with id {request.UserId} is NOT a part of project with id {request.ProjectId}."
+            );
         }
 
         if (project.AuthorId != userId && userId != request.UserId)
@@ -51,17 +59,6 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
             );
         }
 
-        var teamMemberToDelete = await _teamMemberRepository.GetAsync(
-            teamMember =>
-                teamMember.UserId == request.UserId && teamMember.ProjectId == request.ProjectId
-        );
-
-        if (teamMemberToDelete == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {request.UserId} is not a team member of project with id {request.ProjectId}."
-            );
-        }
         _teamMemberRepository.Delete(teamMemberToDelete);
         await _teamMemberRepository.SaveAsync();
 

@@ -22,18 +22,14 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
 
     public async Task<int> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
-        var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+        var userId = _httpContextAccessor.GetUserId();
 
-        if (comment == null)
-        {
-            throw new NotFoundException($"Cannot find comment with id {request.CommentId}");
-        }
+        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
 
         if (userId != comment.AuthorId)
         {
             throw new ForbiddenException(
-                $"User with id {userId} cannot delete comment with id {comment.Id}."
+                $"User with id {userId} doesn't have rights to alter comment with id {comment.Id}."
             );
         }
 

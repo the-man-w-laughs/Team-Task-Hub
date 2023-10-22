@@ -40,7 +40,7 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasConstraintName("fk_tasks_users1");
 
             entity
-                .HasOne(d => d.Projects)
+                .HasOne(d => d.Project)
                 .WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade)

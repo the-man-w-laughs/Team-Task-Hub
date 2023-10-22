@@ -27,6 +27,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
                 var user = member.TeamMember.User;
                 users.Add(user);
             }
+
             return users;
         }
     }

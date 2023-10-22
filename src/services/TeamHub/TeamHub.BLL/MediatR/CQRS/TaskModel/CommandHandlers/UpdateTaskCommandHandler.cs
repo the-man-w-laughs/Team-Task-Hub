@@ -26,27 +26,22 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
 
     public async Task<int> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {
-        var userId = (_httpContextAccessor?.HttpContext?.User.GetUserId())!.Value;
+        var userId = _httpContextAccessor.GetUserId();
 
-        var existingTask = await _taskModelRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId);
 
-        if (existingTask == null)
-        {
-            throw new NotFoundException($"Cannot find comment with id {request.TaskId}.");
-        }
-
-        if (userId != existingTask.TeamMember.UserId)
+        if (userId != task.TeamMember.UserId)
         {
             throw new ForbiddenException(
-                $"User with id {userId} cannot delete comment with id {existingTask.Id}."
+                $"User with id {userId} doesnt have rights to alter comment with id {task.Id}."
             );
         }
 
-        _mapper.Map(request.TaskModelRequestDto, existingTask);
+        _mapper.Map(request.TaskModelRequestDto, task);
 
-        _taskModelRepository.Update(existingTask);
+        _taskModelRepository.Update(task);
         await _taskModelRepository.SaveAsync();
 
-        return existingTask.Id;
+        return task.Id;
     }
 }

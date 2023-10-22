@@ -14,6 +14,7 @@ public class TaskModelRequestDtoValidator : AbstractValidator<TaskModelRequestDt
             .WithMessage("Invalid priority value.");
 
         var maxContentLength = TaskModelConstraints.maxContentLength;
+
         RuleFor(dto => dto.Content)
             .NotEmpty()
             .WithMessage("Content is required.")

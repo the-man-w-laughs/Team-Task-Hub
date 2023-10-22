@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
@@ -34,32 +33,17 @@ public class GetAllProjectsTeamMembersQueryHandler
         CancellationToken cancellationToken
     )
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
+        var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetAsync(project => project.Id == request.ProjectId);
-
-        if (project == null)
-        {
-            throw new NotFoundException($"Project with id {request.ProjectId} is not found.");
-        }
-
-        var teamMember = await _teamMemberRepository.GetAsync(
-            teamMember => teamMember.UserId == userId && teamMember.ProjectId == request.ProjectId
-        );
-
-        if (teamMember == null)
-        {
-            throw new WrongActionException(
-                $"User with id {userId} is not a team member of project with id {request.ProjectId}."
-            );
-        }
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
         var teamMembers = await _teamMemberRepository.GetAllAsync(
             teamMember => teamMember.ProjectId == request.ProjectId
         );
 
         var usersResponseDto = teamMembers.Select(
-            user => _mapper.Map<UserResponseDto>(teamMember.User)
+            teamMember => _mapper.Map<UserResponseDto>(teamMember.User)
         );
 
         return usersResponseDto;

@@ -1,27 +1,33 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
+using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 
-public class GetCommentByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskModelResponseDto>
+public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskModelResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IProjectRepository _projectRepository;
     private readonly ITaskModelRepository _taskRepository;
+    private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
 
-    public GetCommentByIdQueryHandler(
+    public GetTaskByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
+        IProjectRepository projectRepository,
         ITaskModelRepository taskRepository,
+        ITeamMemberRepository teamMemberRepository,
         IMapper mapper
     )
     {
         _taskRepository = taskRepository;
+        _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
+        _projectRepository = projectRepository;
     }
 
     public async Task<TaskModelResponseDto> Handle(
@@ -29,14 +35,14 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, Task
         CancellationToken cancellationToken
     )
     {
-        var project = await _taskRepository.GetByIdAsync(request.TaskId);
+        var userId = _httpContextAccessor.GetUserId();
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Comment with ID {request.TaskId} not found.");
-        }
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
 
-        var response = _mapper.Map<TaskModelResponseDto>(project);
+        await _projectRepository.GetProjectByIdAsync(task.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+
+        var response = _mapper.Map<TaskModelResponseDto>(task);
 
         return response;
     }

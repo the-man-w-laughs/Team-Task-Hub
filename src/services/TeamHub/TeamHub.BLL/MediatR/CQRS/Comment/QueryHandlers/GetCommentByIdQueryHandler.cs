@@ -1,8 +1,8 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
+using TeamHub.BLL.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 
@@ -12,15 +12,18 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICommentRepository _commentRepository;
+    private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
 
     public GetCommentByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         ICommentRepository commentRepository,
+        ITeamMemberRepository teamMemberRepository,
         IMapper mapper
     )
     {
         _commentRepository = commentRepository;
+        _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -30,13 +33,12 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
         CancellationToken cancellationToken
     )
     {
-        var project = await _commentRepository.GetByIdAsync(request.commentId);
+        var userId = _httpContextAccessor.GetUserId();
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Comment with ID {request.commentId} not found.");
-        }
-        var response = _mapper.Map<CommentResponseDto>(project);
+        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, comment.Task.ProjectId);
+
+        var response = _mapper.Map<CommentResponseDto>(comment);
 
         return response;
     }

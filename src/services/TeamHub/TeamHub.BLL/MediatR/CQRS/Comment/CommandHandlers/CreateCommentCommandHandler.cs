@@ -12,25 +12,35 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ICommentRepository _commentRepository;
+    private readonly ITeamMemberRepository _teamMemberRepository;
+    private readonly ITaskModelRepository _taskRepository;
 
     public CreateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
-        ICommentRepository commentRepository
+        ICommentRepository commentRepository,
+        ITeamMemberRepository teamMemberRepository,
+        ITaskModelRepository taskRepository
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _commentRepository = commentRepository;
+        _teamMemberRepository = teamMemberRepository;
+        _taskRepository = taskRepository;
     }
 
     public async Task<int> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
-        var userId = (_httpContextAccessor?.HttpContext?.User.GetUserId())!.Value;
+        var userId = _httpContextAccessor.GetUserId();
+
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
 
         var commentToAdd = _mapper.Map<Comment>(request.CommentRequestDto);
 
         commentToAdd.AuthorId = userId;
+        commentToAdd.TasksId = request.TaskId;
         commentToAdd.CreatedAt = DateTime.Now;
 
         var addedComment = await _commentRepository.AddAsync(commentToAdd);

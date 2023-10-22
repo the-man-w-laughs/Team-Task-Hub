@@ -30,7 +30,7 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.Property(e => e.AuthorId).HasColumnName("users_id");
 
             entity
-                .HasOne(d => d.Tasks)
+                .HasOne(d => d.Task)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(d => d.TasksId)
                 .OnDelete(DeleteBehavior.Cascade)

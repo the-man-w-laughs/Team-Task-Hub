@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
@@ -37,27 +36,11 @@ public class GetAllProjectsTeamMembersQueryHandler
         CancellationToken cancellationToken
     )
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
+        var userId = _httpContextAccessor.GetUserId();
 
-        // Check if the requested task exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
-
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
-
-        // Check if the user is a team member of the task's project.
-        var teamMember = await _teamMemberRepository.GetAsync(
-            teamMember => teamMember.UserId == userId && teamMember.ProjectId == task.ProjectId
-        );
-
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} cannot get any task handlers for task with id {request.TaskId}."
-            );
-        }
+        // Check if the requested task exists and current users team member exists.
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
 
         var taskHandlers = await _taskHandlerRepository.GetAllAsync(
             teamMember => teamMember.TasksId == request.TaskId

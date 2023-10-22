@@ -33,31 +33,20 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
         CancellationToken cancellationToken
     )
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
+        var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Project with id {request.ProjectId} was not found.");
-        }
-
-        if (project.AuthorId != userId)
-        {
-            throw new ForbiddenException(
-                $"User with id {request.UserId} the author of project with id {request.ProjectId}."
-            );
-        }
-
-        var teamMember = await _teamMemberRepository.GetAsync(
-            teamMember =>
-                teamMember.UserId == request.UserId && teamMember.ProjectId == request.ProjectId
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            request.UserId,
+            request.ProjectId
         );
 
         if (teamMember != null)
         {
             throw new WrongActionException(
-                $"User with id {request.UserId} is already in the project with id {request.ProjectId}."
+                $"User with id {request.UserId} is already a part of project with id {request.ProjectId}."
             );
         }
 

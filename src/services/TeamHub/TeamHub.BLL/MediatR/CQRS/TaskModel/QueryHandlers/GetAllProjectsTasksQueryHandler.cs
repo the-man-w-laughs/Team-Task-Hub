@@ -1,7 +1,6 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
@@ -14,17 +13,20 @@ public class GetAllProjectsTasksQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITaskModelRepository _taskRepository;
     private readonly IProjectRepository _projectRepository;
+    private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
 
     public GetAllProjectsTasksQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         ITaskModelRepository taskTepository,
         IProjectRepository projectRepository,
+        ITeamMemberRepository teamMemberRepository,
         IMapper mapper
     )
     {
         _taskRepository = taskTepository;
         _projectRepository = projectRepository;
+        _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -34,14 +36,10 @@ public class GetAllProjectsTasksQueryHandler
         CancellationToken cancellationToken
     )
     {
-        var userId = _httpContextAccessor?.HttpContext?.User.GetUserId();
+        var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetAsync(project => project.Id == request.ProjectId);
-
-        if (project == null)
-        {
-            throw new NotFoundException($"Project with id {request.ProjectId} is not found.");
-        }
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
         var projectTasks = await _taskRepository.GetAllAsync(
             task => task.ProjectId == request.ProjectId

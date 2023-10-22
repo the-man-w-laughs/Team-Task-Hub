@@ -39,6 +39,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new CreateProjectCommand(projectRequestDto);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -50,6 +51,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new GetProjectByIdQuery(projectId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -61,6 +63,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new GetAllUsersProjectsQuery();
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -75,6 +78,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new UpdateProjectCommand(projectId, projectRequestDto);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -86,6 +90,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new DeleteProjectCommand(projectId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -100,6 +105,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new CreateTeamMemberCommand(projectId, userId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -111,6 +117,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new GetAllProjectsTeamMembersQuery(projectId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -125,6 +132,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new DeleteTeamMemberCommand(projectId, userId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -139,6 +147,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new CreateTaskCommand(projectId, taskModelRequestDto);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -150,6 +159,7 @@ public class ProjectsController : ControllerBase
     {
         var command = new GetAllProjectsTasksQuery(projectId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 }

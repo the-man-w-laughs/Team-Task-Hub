@@ -12,7 +12,7 @@ public partial class Comment
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual TaskModel Tasks { get; set; } = null!;
+    public virtual TaskModel Task { get; set; } = null!;
 
     public virtual User Users { get; set; } = null!;
 }

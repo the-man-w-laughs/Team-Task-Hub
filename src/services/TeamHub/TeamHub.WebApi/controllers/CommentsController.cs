@@ -27,6 +27,7 @@ public class CommentsController : ControllerBase
     {
         var command = new GetCommentByIdQuery(commentId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -41,6 +42,7 @@ public class CommentsController : ControllerBase
     {
         var command = new UpdateCommentCommand(commentId, commentRequestDto);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 
@@ -52,6 +54,7 @@ public class CommentsController : ControllerBase
     {
         var command = new DeleteCommentCommand(commentId);
         var result = await _mediator.Send(command);
+
         return Ok(result);
     }
 }
