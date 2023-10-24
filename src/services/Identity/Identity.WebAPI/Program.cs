@@ -2,9 +2,9 @@ using Identity.Infrastructure.Extensions;
 using Identity.WebAPI.Extensions.Identity;
 using Identity.Application;
 using Shared.Extensions;
-using Shared.Middleware;
 using Identity.Infrastructure.DbContext;
 using System.Reflection;
+using Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 

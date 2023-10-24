@@ -1,36 +1,81 @@
-﻿using Microsoft.AspNetCore.Http;
 using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
+using Shared.Exceptions;
 
-namespace Shared.Middleware
+namespace Shared.Middleware;
+
+public class ExceptionMiddleware
 {
-    public class ExceptionMiddleware
+    private readonly RequestDelegate _next;
+
+    public ExceptionMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-        private const string ContentType = "application/json";
-        private const string Status500ErrorMessage = "Internal server error";
+        _next = next;
+    }
 
-        public ExceptionMiddleware(RequestDelegate next)
+    public async Task InvokeAsync(HttpContext httpContext)
+    {
+        await _next(httpContext);
+        try { }
+        catch (Exception ex)
         {
-            _next = next;
+            await HandleExceptionAsync(httpContext, ex);
         }
+    }
 
-        public async Task InvokeAsync(HttpContext httpContext)
+    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    {
+        context.Response.ContentType = "application/json";
+        switch (exception)
         {
-            try
+            case AuthorizationException:
             {
-                await _next(httpContext);
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                var message = exception.Message.IsNullOrEmpty()
+                    ? "Access denied"
+                    : exception.Message;
+                await context.Response.WriteAsync(message);
+                break;
             }
-            catch (Exception ex)
+            case NotFoundException:
             {
-                await HandleExceptionAsync(httpContext, ex);
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                var message = exception.Message.IsNullOrEmpty() ? "Not found" : exception.Message;
+                await context.Response.WriteAsync(message);
+                break;
             }
-        }
-
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
-            context.Response.ContentType = ContentType;
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            await context.Response.WriteAsync(exception.Message);
+            case ForbiddenException:
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                var message = exception.Message.IsNullOrEmpty() ? "Forbidden" : exception.Message;
+                await context.Response.WriteAsync(message);
+                break;
+            }
+            case CustomValidationException:
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var message = exception.Message.IsNullOrEmpty()
+                    ? "Validation error"
+                    : exception.Message;
+                await context.Response.WriteAsync(message);
+                break;
+            }
+            case WrongActionException:
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                var message = exception.Message.IsNullOrEmpty()
+                    ? "Wrong Action"
+                    : exception.Message;
+                await context.Response.WriteAsync(message);
+                break;
+            }
+            default:
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                await context.Response.WriteAsync("Internal server error");
+                break;
+            }
         }
     }
 }

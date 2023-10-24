@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace TeamHub.DAL.Contracts.Repositories;
+namespace Shared.Repository.Sql;
 
 public interface IRepository<TEntity>
     where TEntity : class, new()

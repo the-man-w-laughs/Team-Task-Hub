@@ -1,9 +1,9 @@
 using Shared.Extensions;
 using TeamHub.DAL.Extensions;
 using TeamHub.BLL.Extensions;
-using TeamHub.WebApi.Middleweres;
 using TeamHub.BLL;
 using System.Reflection;
+using Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 

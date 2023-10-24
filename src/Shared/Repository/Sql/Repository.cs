@@ -1,53 +1,54 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using TeamHub.DAL.Contracts.Repositories;
-using TeamHub.DAL.DBContext;
 
-namespace TeamHub.DAL.Repositories;
+namespace Shared.Repository.Sql;
 
-public abstract class Repository<TEntity> : IRepository<TEntity>
+public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
     where TEntity : class, new()
+    where TDbContext : DbContext
 {
-    protected readonly TeamHubDbContext TeamHubDbContext;
+    protected readonly TDbContext DbContext;
+    private readonly DbSet<TEntity> _table;
 
-    protected Repository(TeamHubDbContext socialNetworkContext)
+    protected Repository(TDbContext dbContext)
     {
-        TeamHubDbContext = socialNetworkContext;
+        DbContext = dbContext;
+        _table = dbContext.Set<TEntity>();
     }
 
     public virtual async Task<List<TEntity>> GetAllAsync()
     {
-        return await TeamHubDbContext.Set<TEntity>().ToListAsync();
+        return await _table.ToListAsync();
     }
 
     public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> where)
     {
-        return await TeamHubDbContext.Set<TEntity>().Where(where).ToListAsync();
+        return await _table.Where(where).ToListAsync();
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(int id)
     {
-        return await TeamHubDbContext.Set<TEntity>().FindAsync(id);
+        return await _table.FindAsync(id);
     }
 
     public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where)
     {
-        return await TeamHubDbContext.Set<TEntity>().FirstOrDefaultAsync(where);
+        return await _table.FirstOrDefaultAsync(where);
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)
     {
-        return (await TeamHubDbContext.AddAsync(entity)).Entity;
+        return (await DbContext.AddAsync(entity)).Entity;
     }
 
     public virtual void Update(TEntity entity)
     {
-        TeamHubDbContext.Entry(entity).State = EntityState.Modified;
+        DbContext.Entry(entity).State = EntityState.Modified;
     }
 
     public virtual void Delete(TEntity entity)
     {
-        TeamHubDbContext.Set<TEntity>().Remove(entity);
+        DbContext.Set<TEntity>().Remove(entity);
     }
 
     public virtual async Task<TEntity?> DeleteByIdAsync(int id)
@@ -65,11 +66,11 @@ public abstract class Repository<TEntity> : IRepository<TEntity>
     public virtual async Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where)
     {
         var entities = await GetAllAsync(where);
-        TeamHubDbContext.Set<TEntity>().RemoveRange(entities);
+        _table.RemoveRange(entities);
     }
 
     public virtual async Task SaveAsync()
     {
-        await TeamHubDbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync();
     }
 }

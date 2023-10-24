@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
-namespace TeamHub.BLL.Extensions;
+namespace Shared.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
