@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 

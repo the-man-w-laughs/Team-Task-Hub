@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ReportHub.BLL.Contracts;
 
 namespace ReportHub.WebApi.controllers;
 
@@ -11,17 +12,23 @@ namespace ReportHub.WebApi.controllers;
 [Route("api/[controller]")]
 public class ReportsController : ControllerBase
 {
+    private readonly IProjectReportInfoService _projectReportInfoService;
+
     /// <summary>
     /// Constructor for ReportsController.
     /// </summary>
-    public ReportsController() { }
+    public ReportsController(IProjectReportInfoService projectReportInfoService)
+    {
+        this._projectReportInfoService = projectReportInfoService;
+    }
 
     /// <summary>
-    /// Get new Project
+    /// Get latest project report
     /// </summary>
-    [HttpGet("new")]
-    public async Task<IActionResult> GetNewReport()
+    [HttpGet("{projectId}/latest")]
+    public async Task<IActionResult> GetLatestProjectReportById([FromRoute] int projectId)
     {
-        return Ok("WOW");
+        var result = await _projectReportInfoService.GetLatestProjectReportById(projectId);
+        return Ok(result);
     }
 }

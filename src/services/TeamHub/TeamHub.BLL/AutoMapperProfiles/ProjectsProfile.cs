@@ -16,6 +16,15 @@ namespace TeamHub.BLL.AutoMapperProfiles
                             src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
                         )
                 );
+
+            CreateMap<Project, FullProjectResponseDto>()
+                .ForMember(
+                    project => project.TeamMembers,
+                    expression =>
+                        expression.MapFrom(
+                            src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
+                        )
+                );
         }
 
         private List<User> GetUsersList(ICollection<TeamMember> teamMembers)

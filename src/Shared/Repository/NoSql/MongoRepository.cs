@@ -55,6 +55,18 @@ namespace Shared.Repository.NoSql
             return await _mongoCollection.Find(filterDefinition).ToListAsync(cancellationToken);
         }
 
+        public async Task<TEntity> GetOneAsync(
+            Expression<Func<TEntity, bool>> filter,
+            CancellationToken cancellationToken = default
+        )
+        {
+            var filterDefinition = Builders<TEntity>.Filter.Where(filter);
+            return await _mongoCollection
+                .Find(filterDefinition)
+                .Limit(1)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         public async Task<TEntity> GetByIdAsync(
             string id,
             CancellationToken cancellationToken = default

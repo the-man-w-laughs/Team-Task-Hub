@@ -3,42 +3,42 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
-using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 
-public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, CommentResponseDto>
+public class GetFullProjectByIdQueryHandler
+    : IRequestHandler<GetFullProjectByIdQuery, FullProjectResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ICommentRepository _commentRepository;
+    private readonly IProjectRepository _projectRepository;
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
 
-    public GetCommentByIdQueryHandler(
+    public GetFullProjectByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
-        ICommentRepository commentRepository,
+        IProjectRepository projectRepository,
         ITeamMemberRepository teamMemberRepository,
         IMapper mapper
     )
     {
-        _commentRepository = commentRepository;
+        _projectRepository = projectRepository;
         _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<CommentResponseDto> Handle(
-        GetCommentByIdQuery request,
+    public async Task<FullProjectResponseDto> Handle(
+        GetFullProjectByIdQuery request,
         CancellationToken cancellationToken
     )
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, comment.Task.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
 
-        var response = _mapper.Map<CommentResponseDto>(comment);
+        var response = _mapper.Map<FullProjectResponseDto>(project);
 
         return response;
     }

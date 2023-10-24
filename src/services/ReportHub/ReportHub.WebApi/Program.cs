@@ -3,6 +3,7 @@ using Shared.Extensions;
 using Shared.Middleware;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Extensions;
+using ReportHub.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +20,8 @@ builder.Services.ConfigureAuthorization();
 builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureServices();
 builder.Services.RegisterAutomapperProfiles();
+
+builder.Services.ConfigureHttpClient();
 
 var app = builder.Build();
 

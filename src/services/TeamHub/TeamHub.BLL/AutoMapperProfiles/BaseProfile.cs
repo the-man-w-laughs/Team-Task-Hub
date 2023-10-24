@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 
-namespace ReportHub.BLL.AutoMapperProfiles
+namespace TeamHub.BLL.AutoMapperProfiles
 {
     public class BaseProfile : Profile
     {

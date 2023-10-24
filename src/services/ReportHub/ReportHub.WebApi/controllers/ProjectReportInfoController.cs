@@ -25,10 +25,20 @@ public class ProjectReportInfoController : ControllerBase
     /// <summary>
     /// Get all users project info
     /// </summary>
-    [HttpGet("new")]
+    [HttpGet("local")]
     public async Task<IActionResult> GetAllProjectInfo()
     {
         var result = await _projectReportInfoService.GetAllUsersProjectReportInfo();
+        return Ok(result);
+    }
+
+    /// <summary>
+    /// Get all users project info
+    /// </summary>
+    [HttpGet("{projectId}/external")]
+    public async Task<IActionResult> GetAllProjectByIdInfo([FromRoute] int projectId)
+    {
+        var result = await _projectReportInfoService.GetProjectsDataById(projectId);
         return Ok(result);
     }
 }
