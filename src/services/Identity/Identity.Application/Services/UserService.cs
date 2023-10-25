@@ -28,7 +28,11 @@ namespace Identity.Application.Services
 
             try
             {
-                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
+                var identityResult = await _appUserRepository.CreateUserAsync(
+                    appUser,
+                    appUserDto.Password
+                );
+                HandleIdentityResult("Create user", identityResult);
             }
             catch (Exception ex)
             {
@@ -77,7 +81,8 @@ namespace Identity.Application.Services
 
             try
             {
-                await _appUserRepository.DeleteUserAsync(user);
+                var identityResult = await _appUserRepository.DeleteUserAsync(user);
+                HandleIdentityResult("Delete user", identityResult);
             }
             catch (Exception ex)
             {
@@ -87,6 +92,16 @@ namespace Identity.Application.Services
             var userDto = _mapper.Map<AppUserDto>(user);
 
             return new SuccessResult<AppUserDto>(userDto);
+        }
+
+        private void HandleIdentityResult(string action, IdentityResult identityResult)
+        {
+            if (!identityResult.Succeeded)
+            {
+                throw new Exception(
+                    $"Failed to {action}: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
+                );
+            }
         }
     }
 }
