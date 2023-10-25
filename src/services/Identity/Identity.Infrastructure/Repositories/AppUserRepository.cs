@@ -11,7 +11,7 @@ public class AppUserRepository : IAppUserRepository
 
     public AppUserRepository(UserManager<AppUser> userManager)
     {
-        this._userManager = userManager;
+        _userManager = userManager;
     }
 
     public async Task<IdentityResult> CreateUserAsync(AppUser appUser, string password)
