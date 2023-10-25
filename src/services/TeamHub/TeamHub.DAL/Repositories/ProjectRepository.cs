@@ -9,17 +9,5 @@ namespace TeamHub.DAL.Repositories
     {
         public ProjectRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
-
-        public async Task<Project> GetProjectByIdAsync(int projectId)
-        {
-            var project = await GetByIdAsync(projectId);
-
-            if (project == null)
-            {
-                throw new NotFoundException($"Cannot find project with id {projectId}");
-            }
-
-            return project;
-        }
     }
 }

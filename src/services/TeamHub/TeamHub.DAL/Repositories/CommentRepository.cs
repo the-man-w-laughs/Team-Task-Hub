@@ -9,17 +9,5 @@ namespace TeamHub.DAL.Repositories
     {
         public CommentRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
-
-        public async Task<Comment> GetCommentByIdAsync(int commentId)
-        {
-            var comment = await GetByIdAsync(commentId);
-
-            if (comment == null)
-            {
-                throw new NotFoundException($"Cannot find comment with id {commentId}");
-            }
-
-            return comment;
-        }
     }
 }

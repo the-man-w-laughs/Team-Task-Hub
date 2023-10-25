@@ -24,7 +24,12 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
 
         if (userId != project.AuthorId)
         {

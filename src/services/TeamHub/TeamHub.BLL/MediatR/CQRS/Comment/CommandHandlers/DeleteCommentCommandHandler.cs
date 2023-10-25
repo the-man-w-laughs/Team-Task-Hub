@@ -24,7 +24,12 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
+        var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+
+        if (comment == null)
+        {
+            throw new NotFoundException($"Cannot find comment with id {request.CommentId}");
+        }
 
         if (userId != comment.AuthorId)
         {

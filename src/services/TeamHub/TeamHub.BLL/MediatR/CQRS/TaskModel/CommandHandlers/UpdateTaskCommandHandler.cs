@@ -11,7 +11,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly ITaskModelRepository _taskModelRepository;
+    private readonly ITaskModelRepository _taskRepository;
 
     public UpdateTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -21,14 +21,20 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
-        _taskModelRepository = taskRepository;
+        _taskRepository = taskRepository;
     }
 
     public async Task<int> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId);
+        // Check if the requested task exists and current users team member exists.
+        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+
+        if (task == null)
+        {
+            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
+        }
 
         if (userId != task.TeamMember.UserId)
         {
@@ -39,8 +45,8 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
 
         _mapper.Map(request.TaskModelRequestDto, task);
 
-        _taskModelRepository.Update(task);
-        await _taskModelRepository.SaveAsync();
+        _taskRepository.Update(task);
+        await _taskRepository.SaveAsync();
 
         return task.Id;
     }

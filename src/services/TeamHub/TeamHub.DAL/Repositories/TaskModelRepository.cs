@@ -9,17 +9,5 @@ namespace TeamHub.DAL.Repositories
     {
         public TaskModelRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
-
-        public async Task<TaskModel> GetTaskByIdAsync(int taskId)
-        {
-            var task = await GetByIdAsync(taskId);
-
-            if (task == null)
-            {
-                throw new NotFoundException($"Task with id {taskId} was not found.");
-            }
-
-            return task;
-        }
     }
 }

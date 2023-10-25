@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
@@ -34,8 +35,22 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
+
+        var projectId = request.ProjectId;
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, projectId);
+
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {projectId}."
+            );
+        }
 
         var response = _mapper.Map<ProjectResponseDto>(project);
 

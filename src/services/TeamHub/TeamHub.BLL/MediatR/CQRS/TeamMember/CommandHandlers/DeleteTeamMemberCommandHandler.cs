@@ -30,8 +30,21 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
+
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {request.ProjectId}."
+            );
+        }
 
         var teamMemberToDelete = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,

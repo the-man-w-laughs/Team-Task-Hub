@@ -15,8 +15,8 @@ namespace Identity.Application.Services
 
         public UserService(IMapper mapper, IAppUserRepository appUserRepository)
         {
-            this._mapper = mapper;
-            this._appUserRepository = appUserRepository;
+            _mapper = mapper;
+            _appUserRepository = appUserRepository;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
