@@ -97,7 +97,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Create New Team Member
     /// </summary>
-    [HttpPost("{projectId:int}/TeamMembers/{userId:int}")]
+    [HttpPost("{projectId:int}/members/{userId:int}")]
     public async Task<IActionResult> CreateNewTeamMember(
         [FromRoute] int projectId,
         [FromRoute] int userId
@@ -112,7 +112,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Get All TeamMembers
     /// </summary>
-    [HttpGet("{projectId:int}/TeamMembers")]
+    [HttpGet("{projectId:int}/members")]
     public async Task<IActionResult> GetAllTeamMembers([FromRoute] int projectId)
     {
         var command = new GetAllProjectsTeamMembersQuery(projectId);
@@ -124,7 +124,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Delete TeamMember
     /// </summary>
-    [HttpDelete("{projectId:int}/TeamMembers/{userId:int}")]
+    [HttpDelete("{projectId:int}/members/{userId:int}")]
     public async Task<IActionResult> DeleteTeamMember(
         [FromRoute] int projectId,
         [FromRoute] int userId
@@ -139,7 +139,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Create New Task
     /// </summary>
-    [HttpPost("{projectId:int}/Tasks")]
+    [HttpPost("{projectId:int}/tasks")]
     public async Task<IActionResult> CreateNewTaskModel(
         [FromRoute] int projectId,
         [FromBody] TaskModelRequestDto taskModelRequestDto
@@ -154,7 +154,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Get All Project tasks
     /// </summary>
-    [HttpGet("{projectId:int}/Tasks")]
+    [HttpGet("{projectId:int}/tasks")]
     public async Task<IActionResult> GetAllProjectsTaskModels([FromRoute] int projectId)
     {
         var command = new GetAllProjectsTasksQuery(projectId);

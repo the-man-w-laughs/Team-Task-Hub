@@ -65,7 +65,7 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Create Task Handler
     /// </summary>
-    [HttpPost("{taskId:int}/TaskHandlers/{userId}")]
+    [HttpPost("{taskId:int}/handlers/{userId}")]
     public async Task<IActionResult> CreateTaskHandler(
         [FromRoute] int taskId,
         [FromRoute] int userId
@@ -80,7 +80,7 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Get All Task Handlers
     /// </summary>
-    [HttpGet("{taskId:int}/TaskHandlers")]
+    [HttpGet("{taskId:int}/handlers")]
     public async Task<IActionResult> GetAllTaskHandlers([FromRoute] int taskId)
     {
         var command = new GetAllTaskHandlersQuery(taskId);
@@ -92,7 +92,7 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Delete Task Handler
     /// </summary>
-    [HttpDelete("{taskId:int}/TaskHandlers/{userId:int}")]
+    [HttpDelete("{taskId:int}/handlers/{userId:int}")]
     public async Task<IActionResult> DeleteTaskHandler(
         [FromRoute] int taskId,
         [FromRoute] int userId

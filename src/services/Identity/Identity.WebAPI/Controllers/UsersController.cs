@@ -25,6 +25,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> CreateNewUserAsync(AppUserRegisterDto appUserRegisterDto)
     {
         var result = await _userService.AddUserAsync(appUserRegisterDto);
+
         return this.FromResult(result);
     }
 
@@ -36,6 +37,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetAllUsersAsync()
     {
         var result = await _userService.GetAllUsersAsync();
+
         return this.FromResult(result);
     }
 
@@ -47,6 +49,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> GetUserByIdAsync(int id)
     {
         var result = await _userService.GetUserByIdAsync(id);
+
         return this.FromResult(result);
     }
 
@@ -58,6 +61,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUserByIdAsync(int id)
     {
         var result = await _userService.DeleteUserByIdAsync(id);
+
         return this.FromResult(result);
     }
 }
