@@ -22,8 +22,6 @@ builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureMinio(config);
 
-// builder.Services.RegisterCustomConstraint();
-
 builder.Services.ConfigureHttpClient(config);
 
 var app = builder.Build();

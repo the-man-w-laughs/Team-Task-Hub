@@ -147,6 +147,7 @@ namespace ReportHub.BLL.services
             var request = new HttpRequestMessage(HttpMethod.Get, $"api/Projects/{projectId}/full");
 
             var headers = _httpContextAccessor.HttpContext.Request.Headers;
+
             foreach (var header in headers)
             {
                 request.Headers.Add(header.Key, header.Value.ToString());
@@ -158,6 +159,7 @@ namespace ReportHub.BLL.services
 
             FullProjectResponseDto fullProjectResponseDto =
                 await response.Content.ReadAsAsync<FullProjectResponseDto>();
+
             return fullProjectResponseDto;
         }
     }
