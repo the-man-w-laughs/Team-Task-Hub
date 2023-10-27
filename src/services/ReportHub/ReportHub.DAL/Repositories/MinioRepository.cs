@@ -55,6 +55,7 @@ public class MinioRepository : IMinioRepository
     {
         string bucketName = _minioConfig.BucketName;
         MemoryStream stream = new MemoryStream();
+
         var result = await _minioClient.GetObjectAsync(
             new GetObjectArgs()
                 .WithBucket(bucketName)
@@ -62,6 +63,7 @@ public class MinioRepository : IMinioRepository
                 .WithCallbackStream(inputStream => inputStream.CopyTo(stream))
         );
         stream.Seek(0, SeekOrigin.Begin);
+
         return stream;
     }
 
@@ -71,6 +73,7 @@ public class MinioRepository : IMinioRepository
         await _minioClient.RemoveObjectAsync(
             new RemoveObjectArgs().WithBucket(bucketName).WithObject(objectName)
         );
+
         return objectName;
     }
 }
