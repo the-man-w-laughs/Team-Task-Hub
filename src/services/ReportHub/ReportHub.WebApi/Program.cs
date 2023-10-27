@@ -17,11 +17,14 @@ builder.Services.ConfigureCors();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.ConfigureAuthentication(config);
 builder.Services.ConfigureAuthorization();
-builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureServices();
 builder.Services.RegisterAutomapperProfiles();
+builder.Services.ConfigureMongoDb(config);
+builder.Services.ConfigureMinio(config);
 
-builder.Services.ConfigureHttpClient();
+// builder.Services.RegisterCustomConstraint();
+
+builder.Services.ConfigureHttpClient(config);
 
 var app = builder.Build();
 

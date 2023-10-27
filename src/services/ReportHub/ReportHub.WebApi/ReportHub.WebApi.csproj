@@ -9,6 +9,10 @@
     <Folder Include="controllers/" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Minio" Version="6.0.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>

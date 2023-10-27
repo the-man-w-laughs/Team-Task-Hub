@@ -37,6 +37,17 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
 
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    command: [ "server", "/data", "--console-address", ":9090" ]
+    environment:
+      MINIO_ACCESS_KEY: miniouser
+      MINIO_SECRET_KEY: miniopass
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+
   identitywebapi:
     container_name: identitywebapi
     depends_on:
@@ -68,6 +79,26 @@ services:
         - configuration=Debug
     ports:
       - 5052:5052
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ./keys/signing_key.pfx:/app/signing_key.pfx
+    restart: always
+
+  reportwebapi:
+    container_name: reportwebapi
+    depends_on:
+      - minio
+      - mongodb
+    image: reportwebapi
+    build:
+      context: .
+      dockerfile: src/services/ReportHub/ReportHub.WebApi/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5007:5007
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     volumes:

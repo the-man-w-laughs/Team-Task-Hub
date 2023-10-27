@@ -7,14 +7,15 @@ using TeamHub.DAL.Repositories;
 
 namespace ReportHub.DAL.Extensions;
 
-public static class DalRegistrationExtensions
+public static class MongoRegistrationExtensions
 {
     public static IServiceCollection ConfigureMongoDb(
         this IServiceCollection services,
         IConfiguration configuration
     )
     {
-        services.Configure<MongoDbSettings<ProjectReportInfo>>(configuration.GetSection("MongoDb"));
+        var section = configuration.GetSection("MongoDb");
+        services.Configure<MongoDbSettings<ProjectReportInfo>>(section);
         services.AddSingleton<IMongoDbSeeder<ProjectReportInfo>, ProjectReportInfoSeeder>();
         services.AddScoped<IProjectReportInfoRepository, ProjectReportInfoRepository>();
 

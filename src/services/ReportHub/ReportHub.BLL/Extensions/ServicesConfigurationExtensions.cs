@@ -9,6 +9,7 @@ public static class ServicesConfigurationExtensions
     public static IServiceCollection ConfigureServices(this IServiceCollection services)
     {
         services.AddScoped<IProjectReportInfoService, ProjectReportInfoService>();
+        services.AddScoped<IProjectReportService, ProjectReportService>();
 
         return services;
     }

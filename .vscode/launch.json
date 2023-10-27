@@ -35,7 +35,7 @@
             "request": "launch",
             "preLaunchTask": "docker-run: debug",
             "netCore": {
-                "appProject": "${workspaceFolder}/src/services/Identity/Identity.WebAPI/Identity.WebAPI.csproj"
+                "appProject": "${workspaceFolder}/src/services/ReportHub/ReportHub.WebApi/ReportHub.WebApi.csproj"
             }
         }
     ]
