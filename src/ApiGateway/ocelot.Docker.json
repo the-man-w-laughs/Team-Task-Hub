@@ -6,7 +6,7 @@
             "DownstreamHostAndPorts": [
                 {
                     "Host": "localhost",
-                    "Port": 5100
+                    "Port": 5000
                 }
             ],
             "UpstreamPathTemplate": "/api/contacts/{everything}",
