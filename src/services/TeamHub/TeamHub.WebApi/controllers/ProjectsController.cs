@@ -8,6 +8,7 @@ using TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
 using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;
+using ZstdSharp.Unsafe;
 
 namespace TeamHub.WebApi.controllers;
 
@@ -59,9 +60,12 @@ public class ProjectsController : ControllerBase
     /// Get All Users Projects
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersProjecsAsync()
+    public async Task<IActionResult> GetAllUsersProjecsAsync(
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllUsersProjectsQuery();
+        var command = new GetAllUsersProjectsQuery(offset, limit);
         var result = await _mediator.Send(command);
 
         return Ok(result);
@@ -113,9 +117,13 @@ public class ProjectsController : ControllerBase
     /// Get All TeamMembers
     /// </summary>
     [HttpGet("{projectId:int}/members")]
-    public async Task<IActionResult> GetAllTeamMembers([FromRoute] int projectId)
+    public async Task<IActionResult> GetAllTeamMembers(
+        [FromRoute] int projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllProjectsTeamMembersQuery(projectId);
+        var command = new GetAllProjectsTeamMembersQuery(projectId, offset, limit);
         var result = await _mediator.Send(command);
 
         return Ok(result);
@@ -155,9 +163,13 @@ public class ProjectsController : ControllerBase
     /// Get All Project tasks
     /// </summary>
     [HttpGet("{projectId:int}/tasks")]
-    public async Task<IActionResult> GetAllProjectsTaskModels([FromRoute] int projectId)
+    public async Task<IActionResult> GetAllProjectsTaskModels(
+        [FromRoute] int projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllProjectsTasksQuery(projectId);
+        var command = new GetAllProjectsTasksQuery(projectId, offset, limit);
         var result = await _mediator.Send(command);
 
         return Ok(result);

@@ -56,7 +56,9 @@ public class GetAllProjectsTasksQueryHandler
         }
 
         var projectTasks = await _taskRepository.GetAllAsync(
-            task => task.ProjectId == request.ProjectId
+            task => task.ProjectId == request.ProjectId,
+            request.Offset,
+            request.Limit
         );
 
         var tasksResponseDtos = projectTasks.Select(

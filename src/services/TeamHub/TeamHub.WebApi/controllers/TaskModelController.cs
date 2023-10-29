@@ -81,9 +81,13 @@ public class TaskModelController : ControllerBase
     /// Get All Task Handlers
     /// </summary>
     [HttpGet("{taskId:int}/handlers")]
-    public async Task<IActionResult> GetAllTaskHandlers([FromRoute] int taskId)
+    public async Task<IActionResult> GetAllTaskHandlers(
+        [FromRoute] int taskId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllTaskHandlersQuery(taskId);
+        var command = new GetAllTaskHandlersQuery(taskId, offset, limit);
         var result = await _mediator.Send(command);
 
         return Ok(result);
@@ -123,9 +127,13 @@ public class TaskModelController : ControllerBase
     /// Get All Tasks Comments
     /// </summary>
     [HttpGet("{taskId:int}/comments")]
-    public async Task<IActionResult> GetAllTasksComments([FromRoute] int taskId)
+    public async Task<IActionResult> GetAllTasksComments(
+        [FromRoute] int taskId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllTasksCommentsQuery(taskId);
+        var command = new GetAllTasksCommentsQuery(taskId, offset, limit);
         var result = await _mediator.Send(command);
 
         return Ok(result);

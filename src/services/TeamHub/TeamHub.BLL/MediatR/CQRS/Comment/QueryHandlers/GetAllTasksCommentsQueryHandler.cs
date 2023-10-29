@@ -57,7 +57,9 @@ public class GetAllTasksCommentsQueryHandler
         }
 
         var taskComments = await _commentRepository.GetAllAsync(
-            comment => comment.TasksId == request.TaskId
+            comment => comment.TasksId == request.TaskId,
+            request.Offset,
+            request.Limit
         );
 
         var projectResponseDtos = taskComments.Select(

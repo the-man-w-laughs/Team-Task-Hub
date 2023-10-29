@@ -15,14 +15,23 @@ public abstract class Repository<TEntity> : IRepository<TEntity>
         TeamHubDbContext = socialNetworkContext;
     }
 
-    public virtual async Task<List<TEntity>> GetAllAsync()
+    public virtual async Task<List<TEntity>> GetAllAsync(int offset, int limit)
     {
-        return await TeamHubDbContext.Set<TEntity>().ToListAsync();
+        return await TeamHubDbContext.Set<TEntity>().Skip(offset).Take(limit).ToListAsync();
     }
 
-    public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> where)
+    public virtual async Task<List<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>> where,
+        int offset,
+        int limit
+    )
     {
-        return await TeamHubDbContext.Set<TEntity>().Where(where).ToListAsync();
+        return await TeamHubDbContext
+            .Set<TEntity>()
+            .Where(where)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(int id)
@@ -60,12 +69,6 @@ public abstract class Repository<TEntity> : IRepository<TEntity>
         }
 
         return entity;
-    }
-
-    public virtual async Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where)
-    {
-        var entities = await GetAllAsync(where);
-        TeamHubDbContext.Set<TEntity>().RemoveRange(entities);
     }
 
     public virtual async Task SaveAsync()
