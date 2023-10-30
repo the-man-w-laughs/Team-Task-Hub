@@ -56,18 +56,6 @@ public class ProjectsController : ControllerBase
     }
 
     /// <summary>
-    /// Get Project By Id
-    /// </summary>
-    [HttpGet("{projectId:int}/full")]
-    public async Task<IActionResult> GetFullProjectById([FromRoute] int projectId)
-    {
-        var command = new GetFullProjectByIdQuery(projectId);
-        var result = await _mediator.Send(command);
-
-        return Ok(result);
-    }
-
-    /// <summary>
     /// Get All Users Projects
     /// </summary>
     [HttpGet]

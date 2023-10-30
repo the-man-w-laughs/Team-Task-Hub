@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TeamHub.DAL.Constraints;
 using TeamHub.DAL.Models;
 
 namespace Identity.Infrastructure.DbContext.DbConfiguration;

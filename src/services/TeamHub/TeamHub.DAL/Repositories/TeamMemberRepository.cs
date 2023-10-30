@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Shared.Exceptions;
 using Shared.Repository.Sql;
 using TeamHub.DAL.Contracts.Repositories;
