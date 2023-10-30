@@ -7,7 +7,7 @@ namespace Shared.gRPC;
 public interface IFullProjectInfoService
 {
     [OperationContract]
-    Task<FullProjectInfoResponse> GetProjectTaskAsync(
+    Task<FullProjectInfoResponse> GetFullProjectInfoAsync(
         FullProjectInfoRequest fullProjectInfoRequest
     );
 }

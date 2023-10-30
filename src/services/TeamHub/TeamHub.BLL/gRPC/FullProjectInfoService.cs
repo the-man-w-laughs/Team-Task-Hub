@@ -1,9 +1,7 @@
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Shared.gRPC;
 using Shared.gRPC.FullProjectResponse;
 using TeamHub.DAL.Contracts.Repositories;
-using Shared.Extensions;
 
 namespace TeamHub.BLL.gRPC
 {
@@ -24,7 +22,7 @@ namespace TeamHub.BLL.gRPC
             _mapper = mapper;
         }
 
-        public async Task<FullProjectInfoResponse> GetProjectTaskAsync(
+        public async Task<FullProjectInfoResponse> GetFullProjectInfoAsync(
             FullProjectInfoRequest fullProjectInfoRequest
         )
         {
