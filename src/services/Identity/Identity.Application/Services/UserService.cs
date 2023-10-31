@@ -15,21 +15,24 @@ namespace Identity.Application.Services
 
         public UserService(IMapper mapper, IAppUserRepository appUserRepository)
         {
-            this._mapper = mapper;
-            this._appUserRepository = appUserRepository;
+            _mapper = mapper;
+            _appUserRepository = appUserRepository;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
-            try
+            var identityResult = await _appUserRepository.CreateUserAsync(
+                appUser,
+                appUserDto.Password
+            );
+
+            if (!identityResult.Succeeded)
             {
-                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
-            }
-            catch (Exception ex)
-            {
-                return new InvalidResult<int>(ex.Message);
+                return new InvalidResult<int>(
+                    $"Failed to add: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
+                );
             }
 
             return new SuccessResult<int>(appUser.Id);
@@ -72,13 +75,13 @@ namespace Identity.Application.Services
                 return new InvalidResult<AppUserDto>("Admins cannot delete themselves.");
             }
 
-            try
+            var identityResult = await _appUserRepository.DeleteUserAsync(user);
+
+            if (!identityResult.Succeeded)
             {
-                await _appUserRepository.DeleteUserAsync(user);
-            }
-            catch (Exception ex)
-            {
-                return new InvalidResult<AppUserDto>(ex.Message);
+                return new InvalidResult<AppUserDto>(
+                    $"Failed to delete: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
+                );
             }
 
             var userDto = _mapper.Map<AppUserDto>(user);
