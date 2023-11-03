@@ -24,7 +24,6 @@ public static class MinioRegistratiionExtensions
                 .WithEndpoint(settings.Endpoint)
                 .WithCredentials(settings.AccessKey, settings.SecretKey)
                 .Build();
-
             return minio;
         });
 

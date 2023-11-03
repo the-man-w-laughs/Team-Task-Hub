@@ -79,7 +79,6 @@ services:
         - configuration=Debug
     ports:
       - 5052:5052
-      - 5053:5053
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     volumes:
@@ -87,12 +86,12 @@ services:
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
 
-  reporthubwebapi:
-    container_name: reporthubwebapi
+  reportwebapi:
+    container_name: reportwebapi
     depends_on:
       - minio
       - mongodb
-    image: reporthubwebapi
+    image: reportwebapi
     build:
       context: .
       dockerfile: src/services/ReportHub/ReportHub.WebApi/Dockerfile
@@ -116,7 +115,7 @@ services:
       - mysql
       - identitywebapi
       - teamhubwebapi
-      - reporthubwebapi
+      - reportwebapi
     image: apigateway
     build:
       context: .

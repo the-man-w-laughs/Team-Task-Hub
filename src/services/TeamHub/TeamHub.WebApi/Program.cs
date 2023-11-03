@@ -21,14 +21,11 @@ builder.Services.ConfigureAuthorization();
 builder.Services.RegisterDLLDependencies(config);
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMediatR();
-builder.Services.ReristerRrpcService();
-builder.ConfigureWebHost();
 
 var app = builder.Build();
 
 app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();
-app.UseGrpcService();
 
 if (!app.Environment.IsProduction())
 {

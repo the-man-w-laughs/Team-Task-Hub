@@ -40,7 +40,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "reporthubwebapi",
+                    "Host": "reportwebapi",
                     "Port": 5007
                 }
             ],
@@ -81,7 +81,7 @@
                 {
                     "Name": "Reporthub API",
                     "Version": "v1",
-                    "Url": "http://reporthubwebapi:5007/swagger/v1/swagger.json"
+                    "Url": "http://reportwebapi:5007/swagger/v1/swagger.json"
                 }
             ]
         }

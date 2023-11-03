@@ -3,13 +3,12 @@ using Microsoft.AspNetCore.Http;
 using Shared.Extensions;
 using ReportHub.BLL.Contracts;
 using ReportHub.DAL.Models;
+using TeamHub.BLL.Dtos;
 using System.Text;
 using Shared.Exceptions;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Shared.gRPC.FullProjectResponse;
-using Shared.gRPC;
 
 namespace ReportHub.BLL.services
 {
@@ -18,22 +17,22 @@ namespace ReportHub.BLL.services
         private readonly IProjectReportInfoRepository _projectReportInfoRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMinioRepository _minioRepository;
-        private readonly IFullProjectInfoService _fullProjectInfoService;
 
         public ProjectReportService(
             IProjectReportInfoRepository projectReportInfoRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IMinioRepository minioRepository,
-            IFullProjectInfoService fullProjectInfoService
+            IHttpClientFactory httpClientFactory,
+            IMinioRepository minioRepository
         )
         {
             _projectReportInfoRepository = projectReportInfoRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
             _minioRepository = minioRepository;
-            _fullProjectInfoService = fullProjectInfoService;
         }
 
         public async Task<FileStreamResult> GetLatestProjectReportAsync(int projectId)
@@ -51,10 +50,9 @@ namespace ReportHub.BLL.services
             //     return latestReport;
             // }
 
-            var request = new FullProjectInfoRequest() { ProjectId = projectId, UserId = userId };
-
-            FullProjectInfoResponse fullProjectResponseDto =
-                await _fullProjectInfoService.GetFullProjectInfoAsync(request);
+            FullProjectResponseDto fullProjectResponseDto = await GetFullProjectDataAsync(
+                projectId
+            );
 
             if (fullProjectResponseDto == null)
             {
@@ -62,7 +60,6 @@ namespace ReportHub.BLL.services
                     $"Cannot fetch full project data for with id {projectId}."
                 );
             }
-
             string reportContent = fullProjectResponseDto.ToReport();
 
             Stream contentStream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent));
@@ -122,7 +119,6 @@ namespace ReportHub.BLL.services
             await _minioRepository.DeleteFileFromMinioAsync(path);
 
             var reportToRemove = project.Reports.FirstOrDefault(report => report.Path == path);
-
             if (reportToRemove != null)
             {
                 project.Reports.Remove(reportToRemove);
@@ -144,6 +140,31 @@ namespace ReportHub.BLL.services
                 .FirstOrDefault();
 
             return latestReport;
+        }
+
+        private async Task<FullProjectResponseDto> GetFullProjectDataAsync(int projectId)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"api/Projects/{projectId}/full");
+
+            var headers = _httpContextAccessor.HttpContext.Request.Headers;
+
+            if (headers.TryGetValue("Authorization", out var authorizationHeaderValues))
+            {
+                var authorizationHeaderValue = authorizationHeaderValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(authorizationHeaderValue))
+                {
+                    request.Headers.Add("Authorization", authorizationHeaderValue);
+                }
+            }
+
+            var teamHubClient = _httpClientFactory.CreateClient("TeamHubClient");
+
+            HttpResponseMessage response = await teamHubClient.SendAsync(request);
+
+            FullProjectResponseDto fullProjectResponseDto =
+                await response.Content.ReadAsAsync<FullProjectResponseDto>();
+
+            return fullProjectResponseDto;
         }
     }
 }

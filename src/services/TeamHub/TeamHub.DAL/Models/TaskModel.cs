@@ -1,4 +1,4 @@
-﻿using Shared.Enums;
+﻿using TeamHub.DAL.Constraints;
 
 namespace TeamHub.DAL.Models;
 

@@ -62,7 +62,6 @@ public class MinioRepository : IMinioRepository
                 .WithCallbackStream(inputStream => inputStream.CopyTo(stream))
         );
         stream.Seek(0, SeekOrigin.Begin);
-
         return stream;
     }
 
@@ -72,7 +71,6 @@ public class MinioRepository : IMinioRepository
         await _minioClient.RemoveObjectAsync(
             new RemoveObjectArgs().WithBucket(bucketName).WithObject(objectName)
         );
-
         return objectName;
     }
 }

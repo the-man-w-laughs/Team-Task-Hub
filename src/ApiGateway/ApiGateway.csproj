@@ -11,8 +11,4 @@
     <PackageReference Include="Ocelot" Version="20.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
-  </ItemGroup>
-
 </Project>
