@@ -1,11 +1,11 @@
 using System.Text;
-using TeamHub.BLL.Dtos;
+using Shared.gRPC.FullProjectResponse;
 
 namespace ReportHub.BLL.Extensions
 {
     public static class FullProjectParserExtensions
     {
-        public static string ToReport(this FullProjectResponseDto project)
+        public static string ToReport(this FullProjectInfoResponse project)
         {
             var sb = new StringBuilder();
             sb.AppendLine($"Project ID: {project.Id}");
@@ -13,11 +13,14 @@ namespace ReportHub.BLL.Extensions
             sb.AppendLine($"Created At: {project.CreatedAt}");
             sb.AppendLine($"Creator: {project.Creator.Email}");
             sb.AppendLine("Team Members:");
+
             foreach (var teamMember in project.TeamMembers)
             {
                 sb.AppendLine($"\t- {teamMember.Email}");
             }
+
             sb.AppendLine("Tasks:");
+
             foreach (var task in project.Tasks)
             {
                 sb.AppendLine($"\tTask ID: {task.Id}");
@@ -26,9 +29,11 @@ namespace ReportHub.BLL.Extensions
                 sb.AppendLine($"\tCreated At: {task.CreatedAt}");
                 sb.AppendLine($"\tIs Completed: {task.IsCompleted}");
                 sb.AppendLine("\tTask Handlers:");
+
                 foreach (var handlerId in task.TasksHandlersIds)
                 {
                     var handler = project.TeamMembers.FirstOrDefault(u => u.Id == handlerId);
+
                     if (handler != null)
                     {
                         sb.AppendLine($"\t\t- User: {handler.Email}");
@@ -39,6 +44,7 @@ namespace ReportHub.BLL.Extensions
                     }
                 }
             }
+
             return sb.ToString();
         }
     }

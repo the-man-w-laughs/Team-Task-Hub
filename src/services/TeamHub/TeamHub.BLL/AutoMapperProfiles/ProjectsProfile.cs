@@ -1,4 +1,5 @@
-﻿using TeamHub.BLL.Dtos;
+﻿using Shared.gRPC.FullProjectResponse;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.AutoMapperProfiles
@@ -17,7 +18,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
                         )
                 );
 
-            CreateMap<Project, FullProjectResponseDto>()
+            CreateMap<Project, FullProjectInfoResponse>()
                 .ForMember(
                     project => project.TeamMembers,
                     expression =>
