@@ -149,9 +149,13 @@ namespace ReportHub.BLL.services
 
             var headers = _httpContextAccessor.HttpContext.Request.Headers;
 
-            foreach (var header in headers)
+            if (headers.TryGetValue("Authorization", out var authorizationHeaderValues))
             {
-                request.Headers.Add(header.Key, header.Value.ToString());
+                var authorizationHeaderValue = authorizationHeaderValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(authorizationHeaderValue))
+                {
+                    request.Headers.Add("Authorization", authorizationHeaderValue);
+                }
             }
 
             var teamHubClient = _httpClientFactory.CreateClient("TeamHubClient");

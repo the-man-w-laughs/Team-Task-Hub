@@ -1,0 +1,89 @@
+{
+    "Routes": [
+        {
+            "DownstreamPathTemplate": "/api/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "identitywebapi",
+                    "Port": 5000
+                }
+            ],
+            "UpstreamPathTemplate": "/api/identity/{everything}",
+            "UpstreamHttpMethod": [
+                "Post",
+                "Get",
+                "Delete"
+            ],
+            "SwaggerKey": "identity"
+        },
+        {
+            "DownstreamPathTemplate": "/api/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "teamhubwebapi",
+                    "Port": 5052
+                }
+            ],
+            "UpstreamPathTemplate": "/api/teamhub/{everything}",
+            "UpstreamHttpMethod": [
+                "Post",
+                "Get",
+                "Delete",
+                "Put"
+            ],
+            "SwaggerKey": "teamhub"
+        },
+        {
+            "DownstreamPathTemplate": "/api/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "reportwebapi",
+                    "Port": 5007
+                }
+            ],
+            "UpstreamPathTemplate": "/api/reporthub/{everything}",
+            "UpstreamHttpMethod": [
+                "Post",
+                "Get",
+                "Delete",
+                "Put"
+            ],
+            "SwaggerKey": "reporthub"
+        }
+    ],
+    "SwaggerEndPoints": [
+        {
+            "Key": "identity",
+            "Config": [
+                {
+                    "Name": "Identity API",
+                    "Version": "v1",
+                    "Url": "http://identitywebapi:5000/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "teamhub",
+            "Config": [
+                {
+                    "Name": "Teamhub API",
+                    "Version": "v1",
+                    "Url": "http://teamhubwebapi:5052/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "reporthub",
+            "Config": [
+                {
+                    "Name": "Reporthub API",
+                    "Version": "v1",
+                    "Url": "http://reportwebapi:5007/swagger/v1/swagger.json"
+                }
+            ]
+        }
+    ]
+}

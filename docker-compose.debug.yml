@@ -105,3 +105,28 @@ services:
       - ~/.vsdbg:/remote_debugger:rw
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
+
+  apigateway:
+    container_name: apigateway
+    depends_on:
+      - minio
+      - mongodb
+      - postgres
+      - mysql
+      - identitywebapi
+      - teamhubwebapi
+      - reportwebapi
+    image: apigateway
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5283:5283
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ./keys/signing_key.pfx:/app/signing_key.pfx
+    restart: always
