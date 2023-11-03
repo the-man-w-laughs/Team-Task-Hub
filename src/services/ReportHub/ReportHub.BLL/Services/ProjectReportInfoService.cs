@@ -25,7 +25,11 @@ namespace ReportHub.BLL.services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<ReportDto>> GetAllProjectReportAsync(int projectId)
+        public async Task<List<ReportDto>> GetAllProjectReportAsync(
+            int projectId,
+            int offset,
+            int limit
+        )
         {
             var userId = _httpContextAccessor.GetUserId();
 
@@ -38,7 +42,9 @@ namespace ReportHub.BLL.services
                 throw new NotFoundException("Project with id {projectId} was not found.");
             }
 
-            var result = _mapper.Map<List<ReportDto>>(project.Reports);
+            var reports = project.Reports.Skip(offset).Take(limit).ToList();
+
+            var result = _mapper.Map<List<ReportDto>>(reports);
 
             return result;
         }

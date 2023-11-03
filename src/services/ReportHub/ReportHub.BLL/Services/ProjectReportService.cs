@@ -119,6 +119,7 @@ namespace ReportHub.BLL.services
             await _minioRepository.DeleteFileFromMinioAsync(path);
 
             var reportToRemove = project.Reports.FirstOrDefault(report => report.Path == path);
+
             if (reportToRemove != null)
             {
                 project.Reports.Remove(reportToRemove);
