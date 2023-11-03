@@ -1,8 +1,9 @@
-﻿using Identity.Infrastructure.DbContext;
+﻿using Identity.Domain.Entities;
+using Identity.Infrastructure.DbContext;
+using Identity.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Namespace;
 
 namespace Identity.Infrastructure.Extensions
 {

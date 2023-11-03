@@ -1,9 +1,6 @@
-﻿using Identity.Domain.Constraints;
-using Identity.Domain.Entities;
+﻿using Identity.Domain.Entities;
 using Identity.Infrastructure.DbContext;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.IdentityModel.Logging;
 
@@ -51,48 +48,6 @@ namespace Identity.WebAPI.Extensions.Identity
                 .AddProfileService<ProfileService>();
 
             services.AddLocalApiAuthentication();
-        }
-
-        public static void ConfigureAuthentication(
-            this IServiceCollection services,
-            ConfigurationManager config
-        )
-        {
-            var keyFilePath = config["IdentityServerSettings:SigningKeyPath"];
-            var keyPassword = config["IdentityServerSettings:SigningKeyPassword"];
-
-            var key = new X509Certificate2(keyFilePath, keyPassword);
-
-            services
-                .AddAuthentication(auth =>
-                {
-                    auth.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters()
-                    {
-                        ValidateIssuer = false,
-                        ValidateAudience = false,
-                        IssuerSigningKey = new X509SecurityKey(key)
-                    };
-                });
-        }
-
-        public static void ConfigureAuthorization(this IServiceCollection services)
-        {
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(
-                    Policies.AdminOnly,
-                    policy =>
-                    {
-                        policy.RequireRole(Roles.AdminRole.Name);
-                    }
-                );
-            });
         }
     }
 }

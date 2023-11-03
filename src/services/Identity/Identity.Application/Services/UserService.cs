@@ -3,11 +3,8 @@ using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
-using Identity.Domain.Constraints;
 using Identity.Domain.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Namespace;
+using Shared.IdentityConstraints;
 
 namespace Identity.Application.Services
 {
@@ -41,9 +38,9 @@ namespace Identity.Application.Services
             return new SuccessResult<int>(appUser.Id);
         }
 
-        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
+        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit)
         {
-            var users = await _appUserRepository.GetAllUsersAsync();
+            var users = await _appUserRepository.GetAllUsersAsync(offset, limit);
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
