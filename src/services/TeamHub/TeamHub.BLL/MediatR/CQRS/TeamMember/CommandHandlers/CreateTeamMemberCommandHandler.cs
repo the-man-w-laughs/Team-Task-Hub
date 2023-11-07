@@ -35,12 +35,17 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            request.ProjectId
+            request.ProjectId,
+            cancellationToken
         );
 
         if (teamMember != null)
@@ -57,8 +62,11 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
             CreatedAt = DateTime.Now
         };
 
-        var addedTeamMember = await _teamMemberRepository.AddAsync(teamMemberToAdd);
-        await _teamMemberRepository.SaveAsync();
+        var addedTeamMember = await _teamMemberRepository.AddAsync(
+            teamMemberToAdd,
+            cancellationToken
+        );
+        await _teamMemberRepository.SaveAsync(cancellationToken);
 
         return addedTeamMember.Id;
     }

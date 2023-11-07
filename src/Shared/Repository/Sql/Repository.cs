@@ -16,29 +16,43 @@ public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
         _table = dbContext.Set<TEntity>();
     }
 
-    public virtual async Task<List<TEntity>> GetAllAsync()
+    public virtual async Task<List<TEntity>> GetAllAsync(
+        CancellationToken cancellationToken = default
+    )
     {
-        return await _table.ToListAsync();
+        return await _table.ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<List<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> where)
+    public virtual async Task<List<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>> where,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await _table.Where(where).ToListAsync();
+        return await _table.Where(where).ToListAsync(cancellationToken);
     }
 
-    public virtual async Task<TEntity?> GetByIdAsync(int id)
+    public virtual async Task<TEntity?> GetByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await _table.FindAsync(id);
+        return await _table.FindAsync(id, cancellationToken);
     }
 
-    public virtual async Task<TEntity?> GetAsync(Expression<Func<TEntity, bool>> where)
+    public virtual async Task<TEntity?> GetAsync(
+        Expression<Func<TEntity, bool>> where,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await _table.FirstOrDefaultAsync(where);
+        return await _table.FirstOrDefaultAsync(where, cancellationToken);
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity)
+    public async Task<TEntity> AddAsync(
+        TEntity entity,
+        CancellationToken cancellationToken = default
+    )
     {
-        return (await DbContext.AddAsync(entity)).Entity;
+        return (await DbContext.AddAsync(entity, cancellationToken)).Entity;
     }
 
     public virtual void Update(TEntity entity)
@@ -51,9 +65,12 @@ public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
         DbContext.Set<TEntity>().Remove(entity);
     }
 
-    public virtual async Task<TEntity?> DeleteByIdAsync(int id)
+    public virtual async Task<TEntity?> DeleteByIdAsync(
+        int id,
+        CancellationToken cancellationToken = default
+    )
     {
-        var entity = await GetByIdAsync(id);
+        var entity = await GetByIdAsync(id, cancellationToken);
 
         if (entity != null)
         {
@@ -63,14 +80,8 @@ public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
         return entity;
     }
 
-    public virtual async Task DeleteRangeAsync(Expression<Func<TEntity, bool>> where)
+    public virtual async Task SaveAsync(CancellationToken cancellationToken = default)
     {
-        var entities = await GetAllAsync(where);
-        _table.RemoveRange(entities);
-    }
-
-    public virtual async Task SaveAsync()
-    {
-        await DbContext.SaveChangesAsync();
+        await DbContext.SaveChangesAsync(cancellationToken);
     }
 }

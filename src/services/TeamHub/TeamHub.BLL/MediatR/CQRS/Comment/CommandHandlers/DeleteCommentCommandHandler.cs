@@ -24,7 +24,10 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
+        var comment = await _commentRepository.GetCommentByIdAsync(
+            request.CommentId,
+            cancellationToken
+        );
 
         if (userId != comment.AuthorId)
         {
@@ -34,7 +37,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         }
 
         _commentRepository.Delete(comment);
-        await _commentRepository.SaveAsync();
+        await _commentRepository.SaveAsync(cancellationToken);
 
         return comment.Id;
     }

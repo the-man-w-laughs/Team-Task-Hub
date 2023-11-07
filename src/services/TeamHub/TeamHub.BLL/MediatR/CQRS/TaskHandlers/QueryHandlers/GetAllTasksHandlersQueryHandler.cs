@@ -39,11 +39,12 @@ public class GetAllProjectsTeamMembersQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         var taskHandlers = await _taskHandlerRepository.GetAllAsync(
-            teamMember => teamMember.TasksId == request.TaskId
+            teamMember => teamMember.TasksId == request.TaskId,
+            cancellationToken
         );
 
         var usersResponseDto = taskHandlers.Select(

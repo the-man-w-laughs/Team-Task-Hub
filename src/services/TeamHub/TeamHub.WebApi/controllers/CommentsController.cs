@@ -23,10 +23,13 @@ public class CommentsController : ControllerBase
     /// Get Comment
     /// </summary>
     [HttpGet("{commentId:int}")]
-    public async Task<IActionResult> GetComment([FromRoute] int commentId)
+    public async Task<IActionResult> GetComment(
+        [FromRoute] int commentId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new GetCommentByIdQuery(commentId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -37,11 +40,12 @@ public class CommentsController : ControllerBase
     [HttpPut("{commentId:int}")]
     public async Task<IActionResult> UpdateComment(
         [FromRoute] int commentId,
-        [FromBody] CommentRequestDto commentRequestDto
+        [FromBody] CommentRequestDto commentRequestDto,
+        CancellationToken cancellationToken
     )
     {
         var command = new UpdateCommentCommand(commentId, commentRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -50,10 +54,13 @@ public class CommentsController : ControllerBase
     /// Delete Comment
     /// </summary>
     [HttpDelete("{commentId:int}")]
-    public async Task<IActionResult> DeleteComment([FromRoute] int commentId)
+    public async Task<IActionResult> DeleteComment(
+        [FromRoute] int commentId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new DeleteCommentCommand(commentId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }

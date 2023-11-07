@@ -12,10 +12,15 @@ namespace TeamHub.DAL.Repositories
         public TaskHandlerRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
 
-        public Task<TaskHandler?> GetTaskHandlerAsync(int teamMemberId, int taskId)
+        public Task<TaskHandler?> GetTaskHandlerAsync(
+            int teamMemberId,
+            int taskId,
+            CancellationToken cancellationToken = default
+        )
         {
             return GetAsync(
-                handler => handler.TasksId == taskId && handler.TeamMemberId == teamMemberId
+                handler => handler.TasksId == taskId && handler.TeamMemberId == teamMemberId,
+                cancellationToken
             );
         }
     }

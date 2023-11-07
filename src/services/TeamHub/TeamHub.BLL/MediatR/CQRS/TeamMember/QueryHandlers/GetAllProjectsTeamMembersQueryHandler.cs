@@ -35,11 +35,16 @@ public class GetAllProjectsTeamMembersQueryHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         var teamMembers = await _teamMemberRepository.GetAllAsync(
-            teamMember => teamMember.ProjectId == request.ProjectId
+            teamMember => teamMember.ProjectId == request.ProjectId,
+            cancellationToken
         );
 
         var usersResponseDto = teamMembers.Select(

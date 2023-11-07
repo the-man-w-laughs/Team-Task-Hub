@@ -38,11 +38,16 @@ public class GetAllProjectsTasksQueryHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(request.ProjectId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         var projectTasks = await _taskRepository.GetAllAsync(
-            task => task.ProjectId == request.ProjectId
+            task => task.ProjectId == request.ProjectId,
+            cancellationToken
         );
 
         var tasksResponseDtos = projectTasks.Select(

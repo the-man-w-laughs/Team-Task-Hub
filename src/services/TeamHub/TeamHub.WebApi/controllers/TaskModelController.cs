@@ -27,10 +27,13 @@ public class TaskModelController : ControllerBase
     /// Get Task
     /// </summary>
     [HttpGet("{taskId:int}")]
-    public async Task<IActionResult> GetTask([FromRoute] int taskId)
+    public async Task<IActionResult> GetTask(
+        [FromRoute] int taskId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new GetTaskByIdQuery(taskId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -41,11 +44,12 @@ public class TaskModelController : ControllerBase
     [HttpPut("{taskId:int}")]
     public async Task<IActionResult> UpdateTask(
         [FromRoute] int taskId,
-        [FromBody] TaskModelRequestDto taskModelRequestDto
+        [FromBody] TaskModelRequestDto taskModelRequestDto,
+        CancellationToken cancellationToken
     )
     {
         var command = new UpdateTaskCommand(taskId, taskModelRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -54,10 +58,13 @@ public class TaskModelController : ControllerBase
     /// Delete Task
     /// </summary>
     [HttpDelete("{taskId:int}")]
-    public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
+    public async Task<IActionResult> DeleteTask(
+        [FromRoute] int taskId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new DeleteTaskCommand(taskId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -65,14 +72,15 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Create Task Handler
     /// </summary>
-    [HttpPost("{taskId:int}/TaskHandlers/{userId}")]
+    [HttpPost("{taskId:int}/handlers/{userId}")]
     public async Task<IActionResult> CreateTaskHandler(
         [FromRoute] int taskId,
-        [FromRoute] int userId
+        [FromRoute] int userId,
+        CancellationToken cancellationToken
     )
     {
         var command = new CreateTaskHandlerCommand(taskId, userId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -80,11 +88,14 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Get All Task Handlers
     /// </summary>
-    [HttpGet("{taskId:int}/TaskHandlers")]
-    public async Task<IActionResult> GetAllTaskHandlers([FromRoute] int taskId)
+    [HttpGet("{taskId:int}/handlers")]
+    public async Task<IActionResult> GetAllTaskHandlers(
+        [FromRoute] int taskId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new GetAllTaskHandlersQuery(taskId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -92,14 +103,15 @@ public class TaskModelController : ControllerBase
     /// <summary>
     /// Delete Task Handler
     /// </summary>
-    [HttpDelete("{taskId:int}/TaskHandlers/{userId:int}")]
+    [HttpDelete("{taskId:int}/handlers/{userId:int}")]
     public async Task<IActionResult> DeleteTaskHandler(
         [FromRoute] int taskId,
-        [FromRoute] int userId
+        [FromRoute] int userId,
+        CancellationToken cancellationToken
     )
     {
         var command = new DeleteTaskHandlerCommand(taskId, userId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -110,11 +122,12 @@ public class TaskModelController : ControllerBase
     [HttpPost("{taskId:int}/comments")]
     public async Task<IActionResult> CreateNewTasksComment(
         [FromRoute] int taskId,
-        [FromBody] CommentRequestDto commentRequestDto
+        [FromBody] CommentRequestDto commentRequestDto,
+        CancellationToken cancellationToken
     )
     {
         var command = new CreateCommentCommand(taskId, commentRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }
@@ -123,10 +136,13 @@ public class TaskModelController : ControllerBase
     /// Get All Tasks Comments
     /// </summary>
     [HttpGet("{taskId:int}/comments")]
-    public async Task<IActionResult> GetAllTasksComments([FromRoute] int taskId)
+    public async Task<IActionResult> GetAllTasksComments(
+        [FromRoute] int taskId,
+        CancellationToken cancellationToken
+    )
     {
         var command = new GetAllTasksCommentsQuery(taskId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, cancellationToken);
 
         return Ok(result);
     }

@@ -28,7 +28,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId);
+        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
 
         if (userId != task.TeamMember.UserId)
         {
@@ -40,7 +40,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
         _mapper.Map(request.TaskModelRequestDto, task);
 
         _taskModelRepository.Update(task);
-        await _taskModelRepository.SaveAsync();
+        await _taskModelRepository.SaveAsync(cancellationToken);
 
         return task.Id;
     }

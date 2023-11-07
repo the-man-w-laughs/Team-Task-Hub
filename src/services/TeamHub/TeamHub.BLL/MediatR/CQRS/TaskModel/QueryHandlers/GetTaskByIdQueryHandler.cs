@@ -37,10 +37,10 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
 
-        await _projectRepository.GetProjectByIdAsync(task.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        await _projectRepository.GetProjectByIdAsync(task.ProjectId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         var response = _mapper.Map<TaskModelResponseDto>(task);
 

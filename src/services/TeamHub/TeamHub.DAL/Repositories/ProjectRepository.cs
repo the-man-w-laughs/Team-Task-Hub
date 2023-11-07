@@ -11,9 +11,12 @@ namespace TeamHub.DAL.Repositories
         public ProjectRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
 
-        public async Task<Project> GetProjectByIdAsync(int projectId)
+        public async Task<Project> GetProjectByIdAsync(
+            int projectId,
+            CancellationToken cancellationToken = default
+        )
         {
-            var project = await GetByIdAsync(projectId);
+            var project = await GetByIdAsync(projectId, cancellationToken);
 
             if (project == null)
             {

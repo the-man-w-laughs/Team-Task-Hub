@@ -34,8 +34,8 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         var commentToAdd = _mapper.Map<Comment>(request.CommentRequestDto);
 
@@ -43,8 +43,8 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         commentToAdd.TasksId = request.TaskId;
         commentToAdd.CreatedAt = DateTime.Now;
 
-        var addedComment = await _commentRepository.AddAsync(commentToAdd);
-        await _commentRepository.SaveAsync();
+        var addedComment = await _commentRepository.AddAsync(commentToAdd, cancellationToken);
+        await _commentRepository.SaveAsync(cancellationToken);
 
         return addedComment.Id;
     }

@@ -35,19 +35,21 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         // Check if the target team member exists (the user to be assigned).
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            task.ProjectId
+            task.ProjectId,
+            cancellationToken
         );
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
             targetTeamMember.Id,
-            request.TaskId
+            request.TaskId,
+            cancellationToken
         );
 
         if (taskHandler != null)
@@ -65,8 +67,11 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
             CreatedAt = DateTime.Now
         };
 
-        var addedTaskHandler = await _taskHandlerRepository.AddAsync(taskHandlerToAdd);
-        await _taskHandlerRepository.SaveAsync();
+        var addedTaskHandler = await _taskHandlerRepository.AddAsync(
+            taskHandlerToAdd,
+            cancellationToken
+        );
+        await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         return addedTaskHandler.Id;
     }

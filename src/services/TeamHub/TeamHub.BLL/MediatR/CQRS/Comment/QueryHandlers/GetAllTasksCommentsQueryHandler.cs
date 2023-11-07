@@ -39,11 +39,12 @@ public class GetAllTasksCommentsQueryHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         var taskComments = await _commentRepository.GetAllAsync(
-            comment => comment.TasksId == request.TaskId
+            comment => comment.TasksId == request.TaskId,
+            cancellationToken
         );
 
         var projectResponseDtos = taskComments.Select(

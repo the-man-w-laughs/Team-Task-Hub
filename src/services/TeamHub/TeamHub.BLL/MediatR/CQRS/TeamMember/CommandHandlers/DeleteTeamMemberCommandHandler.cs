@@ -30,12 +30,20 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(
+            request.ProjectId,
+            cancellationToken
+        );
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         var teamMemberToDelete = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            request.ProjectId
+            request.ProjectId,
+            cancellationToken
         );
 
         if (teamMemberToDelete == null)
@@ -60,7 +68,7 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
         }
 
         _teamMemberRepository.Delete(teamMemberToDelete);
-        await _teamMemberRepository.SaveAsync();
+        await _teamMemberRepository.SaveAsync(cancellationToken);
 
         return teamMemberToDelete.Id;
     }

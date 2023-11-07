@@ -35,8 +35,15 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, comment.Task.ProjectId);
+        var comment = await _commentRepository.GetCommentByIdAsync(
+            request.CommentId,
+            cancellationToken
+        );
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            comment.Task.ProjectId,
+            cancellationToken
+        );
 
         var response = _mapper.Map<CommentResponseDto>(comment);
 

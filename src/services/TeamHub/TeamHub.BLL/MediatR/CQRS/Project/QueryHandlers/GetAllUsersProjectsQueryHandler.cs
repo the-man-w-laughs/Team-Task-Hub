@@ -33,7 +33,8 @@ public class GetAllUsersProjectsQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         var userProjects = await _projectRepository.GetAllAsync(
-            project => project.TeamMembers.Any(tm => tm.UserId == userId)
+            project => project.TeamMembers.Any(tm => tm.UserId == userId),
+            cancellationToken
         );
 
         var projectResponseDtos = userProjects.Select(

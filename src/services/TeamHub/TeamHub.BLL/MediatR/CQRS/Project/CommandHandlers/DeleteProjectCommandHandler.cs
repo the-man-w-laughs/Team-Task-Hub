@@ -24,7 +24,10 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         if (userId != project.AuthorId)
         {
@@ -34,7 +37,7 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
         }
 
         _projectRepository.Delete(project);
-        await _projectRepository.SaveAsync();
+        await _projectRepository.SaveAsync(cancellationToken);
 
         return project.Id;
     }

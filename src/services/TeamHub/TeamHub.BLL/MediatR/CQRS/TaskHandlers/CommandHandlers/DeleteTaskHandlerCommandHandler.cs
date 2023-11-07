@@ -38,19 +38,21 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
         // Check if the target team member exists (the user to be assigned).
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            task.ProjectId
+            task.ProjectId,
+            cancellationToken
         );
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
             targetTeamMember.Id,
-            request.TaskId
+            request.TaskId,
+            cancellationToken
         );
 
         if (taskHandler == null)
@@ -61,7 +63,7 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         }
 
         _taskHandlerRepository.Delete(taskHandler);
-        await _taskHandlerRepository.SaveAsync();
+        await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         return taskHandler.TeamMember.UserId;
     }

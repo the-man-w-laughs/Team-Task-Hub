@@ -29,7 +29,10 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         var userId = _httpContextAccessor.GetUserId();
         ;
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         if (userId != project.AuthorId)
         {
@@ -41,7 +44,7 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         _mapper.Map(request.ProjectRequestDto, project);
 
         _projectRepository.Update(project);
-        await _projectRepository.SaveAsync();
+        await _projectRepository.SaveAsync(cancellationToken);
 
         return project.Id;
     }

@@ -27,7 +27,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
     public async Task<int> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.GetUserId();
-        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId);
+        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
 
         if (userId != task.TeamMember.UserId && userId != task.Project.AuthorId)
         {
@@ -37,7 +37,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
         }
 
         _taskModelRepository.Delete(task);
-        await _taskModelRepository.SaveAsync();
+        await _taskModelRepository.SaveAsync(cancellationToken);
 
         return task.Id;
     }

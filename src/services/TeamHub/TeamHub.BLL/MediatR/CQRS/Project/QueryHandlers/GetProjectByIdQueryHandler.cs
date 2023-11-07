@@ -34,8 +34,15 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var project = await _projectRepository.GetProjectByIdAsync(
+            request.ProjectId,
+            cancellationToken
+        );
+        await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         var response = _mapper.Map<ProjectResponseDto>(project);
 
