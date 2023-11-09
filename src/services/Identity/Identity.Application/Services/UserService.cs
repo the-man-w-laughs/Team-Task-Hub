@@ -4,7 +4,9 @@ using Identity.Application.Ports.Services;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
+using MassTransit;
 using Shared.IdentityConstraints;
+using Shared.SharedModels;
 
 namespace Identity.Application.Services
 {
@@ -12,11 +14,17 @@ namespace Identity.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IAppUserRepository _appUserRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public UserService(IMapper mapper, IAppUserRepository appUserRepository)
+        public UserService(
+            IMapper mapper,
+            IAppUserRepository appUserRepository,
+            IPublishEndpoint publishEndpoint
+        )
         {
-            this._mapper = mapper;
-            this._appUserRepository = appUserRepository;
+            _mapper = mapper;
+            _appUserRepository = appUserRepository;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
@@ -31,6 +39,10 @@ namespace Identity.Application.Services
             {
                 return new InvalidResult<int>(ex.Message);
             }
+
+            var message = _mapper.Map<UserCreatedMessage>(appUser);
+
+            await _publishEndpoint.Publish(message);
 
             return new SuccessResult<int>(appUser.Id);
         }
@@ -80,6 +92,10 @@ namespace Identity.Application.Services
             {
                 return new InvalidResult<AppUserDto>(ex.Message);
             }
+
+            var message = _mapper.Map<UserDeletedMessage>(user);
+
+            await _publishEndpoint.Publish(message);
 
             var userDto = _mapper.Map<AppUserDto>(user);
 

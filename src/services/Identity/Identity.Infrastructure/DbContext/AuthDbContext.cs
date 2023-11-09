@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Identity.Domain.Entities;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

@@ -52,6 +52,7 @@ services:
     container_name: identitywebapi
     depends_on:
       - mysql
+      - rabbitmq
     image: identitywebapi
     build:
       context: .
@@ -71,6 +72,7 @@ services:
     container_name: teamhubwebapi
     depends_on:
       - postgres
+      - rabbitmq
     image: teamhubwebapi
     build:
       context: .
@@ -130,3 +132,13 @@ services:
       - ~/.vsdbg:/remote_debugger:rw
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
