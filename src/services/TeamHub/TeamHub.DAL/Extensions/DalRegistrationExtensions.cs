@@ -27,6 +27,7 @@ namespace TeamHub.DAL.Extensions
             services.AddScoped<ITaskModelRepository, TaskModelRepository>();
             services.AddScoped<ITeamMemberRepository, TeamMemberRepository>();
             services.AddScoped<ITaskHandlerRepository, TaskHandlerRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
         }
     }
 }

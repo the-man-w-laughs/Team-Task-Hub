@@ -21,6 +21,7 @@ builder.Services.ConfigureAuthorization();
 builder.Services.RegisterDLLDependencies(config);
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMediatR();
+builder.Services.ConfigureMassTransit(config);
 
 var app = builder.Build();
 

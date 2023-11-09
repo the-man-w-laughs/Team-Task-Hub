@@ -2,6 +2,6 @@ namespace Shared.SharedModels
 {
     public class UserDeletedMessage
     {
-        int Id { get; set; }
+        public int Id { get; set; }
     }
 }

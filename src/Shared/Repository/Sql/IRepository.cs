@@ -5,7 +5,7 @@ namespace Shared.Repository.Sql;
 public interface IRepository<TEntity>
     where TEntity : class, new()
 {
-    Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken);
+    Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<List<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>> where,
         CancellationToken cancellationToken
@@ -15,9 +15,9 @@ public interface IRepository<TEntity>
         Expression<Func<TEntity, bool>> where,
         CancellationToken cancellationToken
     );
-    Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken);
+    Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default);
     void Update(TEntity entity);
     void Delete(TEntity entity);
-    Task<TEntity?> DeleteByIdAsync(int id, CancellationToken cancellationToken);
-    Task SaveAsync(CancellationToken cancellationToken);
+    Task<TEntity?> DeleteByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task SaveAsync(CancellationToken cancellationToken = default);
 }
