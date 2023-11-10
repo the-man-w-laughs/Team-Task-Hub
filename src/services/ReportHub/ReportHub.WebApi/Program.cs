@@ -21,6 +21,7 @@ builder.Services.ConfigureServices();
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureMinio(config);
+builder.Services.ConfigureMassTransit(config);
 
 builder.Services.ConfigureHttpClient(config);
 

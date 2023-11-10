@@ -88,12 +88,13 @@ services:
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
 
-  reportwebapi:
-    container_name: reportwebapi
+  reporthubwebapi:
+    container_name: reporthubwebapi
     depends_on:
       - minio
       - mongodb
-    image: reportwebapi
+      - rabbitmq
+    image: reporthubwebapi
     build:
       context: .
       dockerfile: src/services/ReportHub/ReportHub.WebApi/Dockerfile
@@ -117,7 +118,8 @@ services:
       - mysql
       - identitywebapi
       - teamhubwebapi
-      - reportwebapi
+      - reporthubwebapi
+      - rabbitmq
     image: apigateway
     build:
       context: .
