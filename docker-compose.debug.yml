@@ -48,11 +48,30 @@ services:
       - "9000:9000"
       - "9090:9090"
 
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+
+  redis:
+    container_name: "redis"
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+
   identitywebapi:
     container_name: identitywebapi
     depends_on:
       - mysql
       - rabbitmq
+      - redis
     image: identitywebapi
     build:
       context: .
@@ -73,6 +92,7 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+      - redis
     image: teamhubwebapi
     build:
       context: .
@@ -120,6 +140,7 @@ services:
       - teamhubwebapi
       - reporthubwebapi
       - rabbitmq
+      - redis
     image: apigateway
     build:
       context: .
@@ -134,13 +155,3 @@ services:
       - ~/.vsdbg:/remote_debugger:rw
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
-
-  rabbitmq:
-    container_name: "rabbitmq"
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
