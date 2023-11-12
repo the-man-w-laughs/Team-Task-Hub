@@ -2,7 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.Repository.NoSql.Redis;
 
-namespace TeamHub.BLL.Extensions
+namespace Shared.Extensions
 {
     public static class RedisExtensions
     {
@@ -12,7 +12,7 @@ namespace TeamHub.BLL.Extensions
         )
         {
             var connectionString = configuration["Redis:ConnectionString"];
-            services.AddScoped<IUserRequestRepository>(
+            services.AddSingleton<IUserRequestRepository>(
                 provider => new UserRequestRepository(connectionString)
             );
             return services;

@@ -23,6 +23,7 @@ builder.Services.RegisterApplicationDependencies();
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureMassTransit(config);
+builder.Services.AddUserRequestRepository(config);
 
 var app = builder.Build();
 
@@ -39,6 +40,7 @@ if (!app.Environment.IsProduction())
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseIdentityServer();
+app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
 
 app.Run();

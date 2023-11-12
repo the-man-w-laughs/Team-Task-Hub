@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Shared.Extensions;
 using Shared.Repository.NoSql.Redis;
 
-namespace ApiGateway.Middlewares
+namespace Shared.Middleware
 {
     public class UserCacheMiddleware
     {

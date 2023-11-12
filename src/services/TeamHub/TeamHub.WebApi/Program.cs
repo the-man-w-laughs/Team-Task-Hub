@@ -3,6 +3,7 @@ using TeamHub.DAL.Extensions;
 using TeamHub.BLL.Extensions;
 using TeamHub.BLL;
 using System.Reflection;
+using Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,7 @@ var app = builder.Build();
 
 app.UseCors();
 
-//app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
 {
@@ -36,6 +37,7 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
 
 app.Run();
