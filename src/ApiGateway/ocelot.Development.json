@@ -15,9 +15,6 @@
                 "Get",
                 "Delete"
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "SwaggerKey": "identity"
         },
         {
@@ -36,9 +33,6 @@
                 "Delete",
                 "Put"
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "SwaggerKey": "teamhub"
         },
         {
@@ -50,9 +44,6 @@
                     "Port": 5007
                 }
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "UpstreamPathTemplate": "/api/reporthub/{everything}",
             "UpstreamHttpMethod": [
                 "Post",

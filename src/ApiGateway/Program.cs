@@ -1,4 +1,3 @@
-using ApiGateway.Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Shared.Extensions;
@@ -13,8 +12,6 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
-builder.Services.AddUserRequestRepository(config);
-builder.Services.ConfigureAuthentication(config);
 
 var app = builder.Build();
 
@@ -25,11 +22,8 @@ app.UseSwaggerForOcelotUI(opt =>
     opt.PathToSwaggerGenerator = app.Configuration["Ocelot:PathToSwaggerGen"];
 });
 
-app.UseAuthentication();
-
 app.UseWebSockets();
 
-var configuration = new OcelotPipelineConfiguration().AddUserCacheMiddleware();
-await app.UseOcelot(configuration);
+await app.UseOcelot();
 
 app.Run();

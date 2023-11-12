@@ -15,9 +15,6 @@
                 "Get",
                 "Delete"
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "SwaggerKey": "identity"
         },
         {
@@ -36,9 +33,6 @@
                 "Delete",
                 "Put"
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "SwaggerKey": "teamhub"
         },
         {
@@ -57,9 +51,6 @@
                 "Delete",
                 "Put"
             ],
-            "AuthenticationOptions": {
-                "AuthenticationProviderKey": "Bearer"
-            },
             "SwaggerKey": "reporthub"
         }
     ],
