@@ -25,15 +25,18 @@ public static class AuthenticationConfigurationExtensions
                 auth.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 auth.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters()
+            .AddJwtBearer(
+                "Bearer",
+                options =>
                 {
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    IssuerSigningKey = new X509SecurityKey(key)
-                };
-                options.RequireHttpsMetadata = false;
-            });
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        IssuerSigningKey = new X509SecurityKey(key)
+                    };
+                    options.RequireHttpsMetadata = false;
+                }
+            );
     }
 }

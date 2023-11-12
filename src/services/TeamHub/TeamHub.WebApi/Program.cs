@@ -3,7 +3,6 @@ using TeamHub.DAL.Extensions;
 using TeamHub.BLL.Extensions;
 using TeamHub.BLL;
 using System.Reflection;
-using Shared.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +26,8 @@ builder.Services.AddUserRequestRepository(config);
 var app = builder.Build();
 
 app.UseCors();
-app.UseMiddleware<ExceptionMiddleware>();
+
+//app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
 {
