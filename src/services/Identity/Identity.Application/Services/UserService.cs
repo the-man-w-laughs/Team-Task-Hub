@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
+using Identity.Application.Ports.Utils;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
 using MassTransit;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Shared.IdentityConstraints;
 using Shared.SharedModels;
 
@@ -15,16 +18,19 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IEmailConfirmationHelper _emailConfirmationHelper;
 
         public UserService(
             IMapper mapper,
             IAppUserRepository appUserRepository,
-            IPublishEndpoint publishEndpoint
+            IPublishEndpoint publishEndpoint,
+            IEmailConfirmationHelper emailConfirmationHelper
         )
         {
             _mapper = mapper;
             _appUserRepository = appUserRepository;
             _publishEndpoint = publishEndpoint;
+            _emailConfirmationHelper = emailConfirmationHelper;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)

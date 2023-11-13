@@ -11,7 +11,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         var admin = new User
         {
             Id = 1,
-            Email = "admin@cool.best",
+            Email = "admin@the.best",
             CreatedAt = DateTime.Now
         };
 

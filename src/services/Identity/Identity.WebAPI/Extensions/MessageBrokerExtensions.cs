@@ -1,5 +1,4 @@
 using System.Reflection;
-using Identity.Infrastructure.DbContext;
 using MassTransit;
 
 namespace Identity.WebAPI.Extensions

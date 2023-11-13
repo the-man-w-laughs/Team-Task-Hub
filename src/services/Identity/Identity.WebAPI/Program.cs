@@ -6,8 +6,11 @@ using Identity.Infrastructure.DbContext;
 using System.Reflection;
 using Shared.Middleware;
 using Identity.WebAPI.Extensions;
+using Shared.SharedModels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("passwords.json", optional: false, reloadOnChange: true);
 
 var config = builder.Configuration;
 var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
@@ -24,6 +27,7 @@ builder.Services.AddControllers();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
+builder.Services.AddConfigurationSection<EmailCredentials>(config);
 
 var app = builder.Build();
 

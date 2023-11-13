@@ -18,6 +18,7 @@ namespace Identity.WebAPI.Extensions.Identity
                     config.Password.RequireDigit = false;
                     config.Password.RequireNonAlphanumeric = false;
                     config.Password.RequireUppercase = false;
+                    config.SignIn.RequireConfirmedEmail = false;
                 })
                 .AddEntityFrameworkStores<AuthDbContext>()
                 .AddDefaultTokenProviders()

@@ -15,6 +15,12 @@
 *.userosscache
 *.sln.docstates
 
+# ridis data
+redis-data
+
+# passwords configuration
+**/passwords.json
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
@@ -338,8 +344,6 @@ __pycache__/
 
 # Tabs Studio
 *.tss
-
-redis-data
 
 # Telerik's JustMock configuration file
 *.jmconfig
