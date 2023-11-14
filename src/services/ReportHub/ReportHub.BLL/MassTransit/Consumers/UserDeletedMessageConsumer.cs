@@ -21,17 +21,11 @@ namespace ReportHub.BLL.MassTransit.Consumers
 
         public async Task Consume(ConsumeContext<UserDeletedMessage> context)
         {
-            var usersProjects = await _projectReportInfoRepository.GetAllAsync(
-                project => project.ProjectAuthorId == context.Message.Id
+            var filesToDelete = await _projectReportInfoRepository.GetAllUsersReportsPaths(
+                context.Message.UserId
             );
 
-            foreach (var project in usersProjects)
-            {
-                foreach (var report in project.Reports)
-                {
-                    await _fileRepository.DeleteFileFromMinioAsync(report.Path);
-                }
-            }
+            await _fileRepository.DeleteFilesFromMinioAsync(filesToDelete);
         }
     }
 }

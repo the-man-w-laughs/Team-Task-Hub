@@ -76,4 +76,13 @@ public class MinioRepository : IMinioRepository
 
         return objectName;
     }
+
+    public async Task DeleteFilesFromMinioAsync(IList<string> objectNames)
+    {
+        string bucketName = _minioConfig.BucketName;
+
+        await _minioClient.RemoveObjectsAsync(
+            new RemoveObjectsArgs().WithBucket(bucketName).WithObjects(objectNames)
+        );
+    }
 }

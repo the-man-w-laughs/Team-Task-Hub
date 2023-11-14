@@ -15,7 +15,7 @@ namespace TeamHub.BLL.MassTransit.Consumers
 
         public async Task Consume(ConsumeContext<UserDeletedMessage> context)
         {
-            await _userRepository.DeleteByIdAsync(context.Message.Id);
+            await _userRepository.DeleteByIdAsync(context.Message.UserId);
             await _userRepository.SaveAsync();
         }
     }

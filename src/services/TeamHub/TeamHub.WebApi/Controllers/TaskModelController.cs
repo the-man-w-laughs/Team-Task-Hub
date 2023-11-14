@@ -9,7 +9,7 @@ using TeamHub.BLL.MediatR.CQRS.TaskHandlers.Queries;
 using TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
 using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 
-namespace TeamHub.WebApi.controllers;
+namespace TeamHub.WebApi.Controllers;
 
 [ApiController]
 [Authorize]

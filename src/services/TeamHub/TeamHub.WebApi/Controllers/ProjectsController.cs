@@ -9,7 +9,7 @@ using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;
 
-namespace TeamHub.WebApi.controllers;
+namespace TeamHub.WebApi.Controllers;
 
 /// <summary>
 /// Controller for managing projects.

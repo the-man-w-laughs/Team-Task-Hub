@@ -5,7 +5,7 @@ using TeamHub.BLL.Dtos;
 using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 
-namespace TeamHub.WebApi.controllers;
+namespace TeamHub.WebApi.Controllers;
 
 [ApiController]
 [Authorize]

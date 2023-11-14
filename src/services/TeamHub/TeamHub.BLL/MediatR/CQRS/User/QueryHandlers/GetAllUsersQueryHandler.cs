@@ -31,6 +31,7 @@ public class GetAllUsersQueryHandler
     {
         var users = await _userRepository.GetAllAsync(cancellationToken);
         var userResponseDtos = users.Select(project => _mapper.Map<UserResponseDto>(project));
+
         return userResponseDtos;
     }
 }
