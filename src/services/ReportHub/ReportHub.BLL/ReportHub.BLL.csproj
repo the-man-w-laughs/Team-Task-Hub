@@ -3,12 +3,20 @@
   <ItemGroup>
     <ProjectReference Include="..\ReportHub.DAL\ReportHub.DAL.csproj" />
     <ProjectReference Include="..\..\TeamHub\TeamHub.BLL\TeamHub.BLL.csproj" />
+    <ProjectReference Include="..\..\..\Shared\Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.58.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.58.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.59.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Minio" Version="6.0.0" />
+    <PackageReference Include="protobuf-net.Grpc" Version="1.1.1" />
     <PackageReference Include="System.Net.Http.Formatting.Extension" Version="5.2.3" />
   </ItemGroup>
 

@@ -4,6 +4,9 @@ using Shared.Middleware;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Extensions;
 using ReportHub.WebApi.Extensions;
+using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
+using Shared.gRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +24,7 @@ builder.Services.ConfigureServices();
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureMinio(config);
+builder.Services.RegisterGrpcClient(config);
 
 builder.Services.ConfigureHttpClient(config);
 
@@ -36,6 +40,7 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

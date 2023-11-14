@@ -1,4 +1,5 @@
-﻿using TeamHub.BLL.Dtos;
+﻿using Shared.gRPC.FullProjectResponse;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.AutoMapperProfiles
@@ -22,7 +23,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
 
-            CreateMap<TaskModel, ProjectTaskResponseDto>()
+            CreateMap<TaskModel, ProjectTaskDataContract>()
                 .ForMember(
                     task => task.TasksHandlersIds,
                     expression =>
@@ -39,7 +40,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
 
         private List<int> GetUserIdList(ICollection<TaskHandler> teamMembers)
         {
-            List<int> userIds = new List<int>();
+            var userIds = new List<int>();
             foreach (var member in teamMembers)
             {
                 var id = member.TeamMember.UserId;
@@ -51,7 +52,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
 
         private List<User> GetUsersList(ICollection<TaskHandler> teamMembers)
         {
-            List<User> users = new List<User>();
+            var users = new List<User>();
             foreach (var member in teamMembers)
             {
                 var user = member.TeamMember.User;

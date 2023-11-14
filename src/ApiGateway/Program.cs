@@ -1,7 +1,9 @@
+using ApiGateway.Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
+var config = builder.Configuration;
 
 builder.Configuration
     .AddJsonFile(builder.Configuration["Ocelot:JsonFile"], optional: false, reloadOnChange: true)
@@ -17,10 +19,10 @@ var app = builder.Build();
 
 app.UseRouting();
 
-app.UseSwaggerForOcelotUI(opt =>
+if (!app.Environment.IsProduction())
 {
-    opt.PathToSwaggerGenerator = app.Configuration["Ocelot:PathToSwaggerGen"];
-});
+    app.UseOcelotSwagger(config);
+}
 
 app.UseWebSockets();
 await app.UseOcelot();
