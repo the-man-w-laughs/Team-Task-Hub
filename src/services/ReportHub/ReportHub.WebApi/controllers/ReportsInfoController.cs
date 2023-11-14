@@ -26,9 +26,17 @@ public class ReportsInfoController : ControllerBase
     /// Get latest project report
     /// </summary>
     [HttpGet("{projectId}/all")]
-    public async Task<IActionResult> GetAllrojectReportById([FromRoute] int projectId)
+    public async Task<IActionResult> GetAllrojectReportById(
+        [FromRoute] int projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var result = await _projectReportInfoService.GetAllProjectReportAsync(projectId);
+        var result = await _projectReportInfoService.GetAllProjectReportAsync(
+            projectId,
+            offset,
+            limit
+        );
 
         return Ok(result);
     }

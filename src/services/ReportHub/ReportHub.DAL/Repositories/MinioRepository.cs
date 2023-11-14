@@ -55,6 +55,7 @@ public class MinioRepository : IMinioRepository
     {
         string bucketName = _minioConfig.BucketName;
         MemoryStream stream = new MemoryStream();
+
         var result = await _minioClient.GetObjectAsync(
             new GetObjectArgs()
                 .WithBucket(bucketName)
