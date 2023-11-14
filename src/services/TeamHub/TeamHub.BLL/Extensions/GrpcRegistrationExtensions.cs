@@ -15,31 +15,6 @@ namespace TeamHub.BLL
             services.AddCodeFirstGrpc();
         }
 
-        public static WebApplicationBuilder ConfigureWebHost(this WebApplicationBuilder builder)
-        {
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.Listen(
-                    IPAddress.Any,
-                    5052,
-                    options =>
-                    {
-                        options.Protocols = HttpProtocols.Http1;
-                    }
-                );
-                options.Listen(
-                    IPAddress.Any,
-                    5053,
-                    options =>
-                    {
-                        options.Protocols = HttpProtocols.Http2;
-                    }
-                );
-            });
-
-            return builder;
-        }
-
         public static void UseGrpcService(this IApplicationBuilder app)
         {
             app.UseEndpoints(endpoints =>

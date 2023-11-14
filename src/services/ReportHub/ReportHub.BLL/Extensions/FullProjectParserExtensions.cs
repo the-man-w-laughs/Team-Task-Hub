@@ -7,28 +7,28 @@ namespace ReportHub.BLL.Extensions
     {
         public static string ToReport(this FullProjectInfoResponse fullProjectInfo)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine($"Project ID: {fullProjectInfo.Id}");
-            sb.AppendLine($"Name: {fullProjectInfo.Name}");
-            sb.AppendLine($"Created At: {fullProjectInfo.CreatedAt}");
-            sb.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
-            sb.AppendLine("Team Members:");
+            var report = new StringBuilder();
+            report.AppendLine($"Project ID: {fullProjectInfo.Id}");
+            report.AppendLine($"Name: {fullProjectInfo.Name}");
+            report.AppendLine($"Created At: {fullProjectInfo.CreatedAt}");
+            report.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
+            report.AppendLine("Team Members:");
 
             foreach (var teamMember in fullProjectInfo.TeamMembers)
             {
-                sb.AppendLine($"\t- {teamMember.Email}");
+                report.AppendLine($"\t- {teamMember.Email}");
             }
 
-            sb.AppendLine("Tasks:");
+            report.AppendLine("Tasks:");
 
             foreach (var task in fullProjectInfo.Tasks)
             {
-                sb.AppendLine($"\tTask ID: {task.Id}");
-                sb.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
-                sb.AppendLine($"\tContent: {task.Content}");
-                sb.AppendLine($"\tCreated At: {task.CreatedAt}");
-                sb.AppendLine($"\tIs Completed: {task.IsCompleted}");
-                sb.AppendLine("\tTask Handlers:");
+                report.AppendLine($"\tTask ID: {task.Id}");
+                report.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
+                report.AppendLine($"\tContent: {task.Content}");
+                report.AppendLine($"\tCreated At: {task.CreatedAt}");
+                report.AppendLine($"\tIs Completed: {task.IsCompleted}");
+                report.AppendLine("\tTask Handlers:");
 
                 foreach (var handlerId in task.TasksHandlersIds)
                 {
@@ -38,16 +38,16 @@ namespace ReportHub.BLL.Extensions
 
                     if (handler != null)
                     {
-                        sb.AppendLine($"\t\t- User: {handler.Email}");
+                        report.AppendLine($"\t\t- User: {handler.Email}");
                     }
                     else
                     {
-                        sb.AppendLine($"\t\t- User ID: {handlerId}");
+                        report.AppendLine($"\t\t- User ID: {handlerId}");
                     }
                 }
             }
 
-            return sb.ToString();
+            return report.ToString();
         }
     }
 }
