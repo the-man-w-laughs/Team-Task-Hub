@@ -40,21 +40,11 @@ namespace ReportHub.BLL.services
         {
             var userId = _httpContextAccessor.GetUserId();
 
-            var projectReportInfo = await _projectReportInfoRepository.GetOneAsync(
-                projectReportInfo => projectReportInfo.ProjectId == projectId
-            );
-
-            var latestReport = GetLatestReport(projectReportInfo);
-
-            // if (latestReport != null && latestReport.GeneratedAt > projectReportInfo.UpdatedAt)
-            // {
-            //     return latestReport;
-            // }
-
             var request = new FullProjectInfoRequest() { ProjectId = projectId, UserId = userId };
 
-            FullProjectInfoResponse fullProjectResponseDto =
-                await _fullProjectInfoService.GetFullProjectInfoAsync(request);
+            var fullProjectResponseDto = await _fullProjectInfoService.GetFullProjectInfoAsync(
+                request
+            );
 
             if (fullProjectResponseDto == null)
             {
@@ -63,9 +53,9 @@ namespace ReportHub.BLL.services
                 );
             }
 
-            string reportContent = fullProjectResponseDto.ToReport();
+            var reportContent = fullProjectResponseDto.ToReport();
 
-            Stream contentStream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent));
+            var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent));
 
             var fileName = await _minioRepository.UploadReportAsync(contentStream);
 
@@ -73,13 +63,27 @@ namespace ReportHub.BLL.services
                 info => info.ProjectId == projectId
             );
 
+            if (project == null)
+            {
+                project = new ProjectReportInfo()
+                {
+                    ProjectId = projectId,
+                    ProjectAuthorId = userId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    Reports = new List<Report>()
+                };
+
+                await _projectReportInfoRepository.CreateAsync(project);
+            }
+
             var latestReportInfo = new Report() { Path = fileName, GeneratedAt = DateTime.Now };
 
             project.Reports.Add(latestReportInfo);
 
             await _projectReportInfoRepository.UpdateAsync(project);
 
-            string contentType = "text/plain";
+            var contentType = "text/plain";
 
             contentStream.Seek(0, SeekOrigin.Begin);
 
@@ -101,7 +105,7 @@ namespace ReportHub.BLL.services
 
             var result = await _minioRepository.GetFileFromMinioAsync(path);
 
-            string contentType = "text/plain";
+            var contentType = "text/plain";
 
             return new FileStreamResult(result, contentType) { FileDownloadName = path };
         }

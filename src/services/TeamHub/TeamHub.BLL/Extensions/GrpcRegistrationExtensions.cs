@@ -42,7 +42,6 @@ namespace TeamHub.BLL
 
         public static void UseGrpcService(this IApplicationBuilder app)
         {
-            app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<FullProjectInfoService>();

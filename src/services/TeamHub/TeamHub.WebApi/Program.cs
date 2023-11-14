@@ -28,6 +28,7 @@ var app = builder.Build();
 
 app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseRouting();
 app.UseGrpcService();
 
 if (!app.Environment.IsProduction())

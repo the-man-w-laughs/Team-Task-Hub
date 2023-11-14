@@ -5,23 +5,23 @@ namespace ReportHub.BLL.Extensions
 {
     public static class FullProjectParserExtensions
     {
-        public static string ToReport(this FullProjectInfoResponse project)
+        public static string ToReport(this FullProjectInfoResponse fullProjectInfo)
         {
             var sb = new StringBuilder();
-            sb.AppendLine($"Project ID: {project.Id}");
-            sb.AppendLine($"Name: {project.Name}");
-            sb.AppendLine($"Created At: {project.CreatedAt}");
-            sb.AppendLine($"Creator: {project.Creator.Email}");
+            sb.AppendLine($"Project ID: {fullProjectInfo.Id}");
+            sb.AppendLine($"Name: {fullProjectInfo.Name}");
+            sb.AppendLine($"Created At: {fullProjectInfo.CreatedAt}");
+            sb.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
             sb.AppendLine("Team Members:");
 
-            foreach (var teamMember in project.TeamMembers)
+            foreach (var teamMember in fullProjectInfo.TeamMembers)
             {
                 sb.AppendLine($"\t- {teamMember.Email}");
             }
 
             sb.AppendLine("Tasks:");
 
-            foreach (var task in project.Tasks)
+            foreach (var task in fullProjectInfo.Tasks)
             {
                 sb.AppendLine($"\tTask ID: {task.Id}");
                 sb.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
@@ -32,7 +32,9 @@ namespace ReportHub.BLL.Extensions
 
                 foreach (var handlerId in task.TasksHandlersIds)
                 {
-                    var handler = project.TeamMembers.FirstOrDefault(u => u.Id == handlerId);
+                    var handler = fullProjectInfo.TeamMembers.FirstOrDefault(
+                        u => u.Id == handlerId
+                    );
 
                     if (handler != null)
                     {
