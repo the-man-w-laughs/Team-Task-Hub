@@ -22,10 +22,12 @@ builder.Services.RegisterDLLDependencies(config);
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMediatR();
 builder.Services.ConfigureMassTransit(config);
+builder.Services.AddUserRequestRepository(config);
 
 var app = builder.Build();
 
 app.UseCors();
+
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
@@ -35,6 +37,7 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
 
 app.Run();
