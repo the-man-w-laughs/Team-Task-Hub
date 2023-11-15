@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Docker .NET Attach (Preview)",
+            "type": "docker",
+            "request": "attach",
+            "platform": "netCore",
+            "sourceFileMap": {
+                "/src": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "C#: Identity.WebAPI [Default Configuration]",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/src/services/Identity/Identity.WebAPI/Identity.WebAPI.csproj"
+        }
+    ]
+}

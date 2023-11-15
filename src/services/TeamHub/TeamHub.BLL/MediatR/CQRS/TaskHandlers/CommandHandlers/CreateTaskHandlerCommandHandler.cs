@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 
@@ -34,8 +34,8 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        // Check if the task exists.
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
@@ -43,32 +43,26 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
         }
 
         var projectId = task.ProjectId;
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, projectId);
 
-        if (teamMember == null)
+        // Check if user has access to the project.
+        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            projectId,
+            cancellationToken
+        );
+
+        if (targetTeamMember == null)
         {
             throw new ForbiddenException(
                 $"User with id {userId} doesn't have access to project with id {projectId}."
             );
         }
 
-        // Check if the target team member exists (the user to be assigned).
-        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            request.UserId,
-            projectId
-        );
-
-        if (targetTeamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {request.UserId} doesn't have access to project with id {projectId}."
-            );
-        }
-
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
             targetTeamMember.Id,
-            request.TaskId
+            request.TaskId,
+            cancellationToken
         );
 
         if (taskHandler != null)
@@ -86,8 +80,11 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
             CreatedAt = DateTime.Now
         };
 
-        var addedTaskHandler = await _taskHandlerRepository.AddAsync(taskHandlerToAdd);
-        await _taskHandlerRepository.SaveAsync();
+        var addedTaskHandler = await _taskHandlerRepository.AddAsync(
+            taskHandlerToAdd,
+            cancellationToken
+        );
+        await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         return addedTaskHandler.Id;
     }

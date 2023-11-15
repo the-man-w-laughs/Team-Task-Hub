@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 
@@ -35,8 +35,7 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
     )
     {
         var userId = _httpContextAccessor.GetUserId();
-
-        var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+        var comment = await _commentRepository.GetByIdAsync(request.CommentId, cancellationToken);
 
         if (comment == null)
         {
@@ -44,7 +43,11 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
         }
 
         var projectId = comment.Task.ProjectId;
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, projectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            projectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {

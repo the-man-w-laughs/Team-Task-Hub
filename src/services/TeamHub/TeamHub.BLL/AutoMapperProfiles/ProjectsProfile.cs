@@ -19,6 +19,18 @@ namespace TeamHub.BLL.AutoMapperProfiles
                                     : null
                         )
                 );
+
+            CreateMap<Project, FullProjectResponseDto>()
+                .ForMember(
+                    project => project.TeamMembers,
+                    expression =>
+                        expression.MapFrom(
+                            src =>
+                                src.TeamMembers != null
+                                    ? src.TeamMembers.Select(member => member.User).ToList()
+                                    : null
+                        )
+                );
         }
     }
 }

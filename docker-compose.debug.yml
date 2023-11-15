@@ -2,6 +2,7 @@ version: '3.4'
 
 services:
   mysql:
+    container_name: mysql
     image: mysql:latest
     environment:
       MYSQL_DATABASE: 'tasks-identity'
@@ -14,6 +15,7 @@ services:
       retries: 10
 
   postgres:
+    container_name: postgres
     image: postgres:latest
     environment:
       POSTGRES_DB: "tasks"
@@ -26,9 +28,48 @@ services:
       timeout: 20s
       retries: 10
 
+  mongodb:
+    container_name: mongodb
+    image: mongo:latest
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio:latest
+    command: [ "server", "/data", "--console-address", ":9090" ]
+    environment:
+      MINIO_ACCESS_KEY: miniouser
+      MINIO_SECRET_KEY: miniopass
+    ports:
+      - "9000:9000"
+      - "9090:9090"
+
+  rabbitmq:
+    container_name: "rabbitmq"
+    image: "rabbitmq:3-management"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+
+  redis:
+    container_name: "redis"
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+
   identitywebapi:
+    container_name: identitywebapi
     depends_on:
       - mysql
+      - rabbitmq
+      - redis
     image: identitywebapi
     build:
       context: .
@@ -45,8 +86,11 @@ services:
     restart: always
 
   teamhubwebapi:
+    container_name: teamhubwebapi
     depends_on:
       - postgres
+      - rabbitmq
+      - redis
     image: teamhubwebapi
     build:
       context: .
@@ -55,6 +99,54 @@ services:
         - configuration=Debug
     ports:
       - 5052:5052
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ./keys/signing_key.pfx:/app/signing_key.pfx
+    restart: always
+
+  reporthubwebapi:
+    container_name: reporthubwebapi
+    depends_on:
+      - minio
+      - mongodb
+      - rabbitmq
+    image: reporthubwebapi
+    build:
+      context: .
+      dockerfile: src/services/ReportHub/ReportHub.WebApi/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5007:5007
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    volumes:
+      - ~/.vsdbg:/remote_debugger:rw
+      - ./keys/signing_key.pfx:/app/signing_key.pfx
+    restart: always
+
+  apigateway:
+    container_name: apigateway
+    depends_on:
+      - minio
+      - mongodb
+      - postgres
+      - mysql
+      - identitywebapi
+      - teamhubwebapi
+      - reporthubwebapi
+      - rabbitmq
+      - redis
+    image: apigateway
+    build:
+      context: .
+      dockerfile: src/ApiGateway/Dockerfile
+      args:
+        - configuration=Debug
+    ports:
+      - 5283:5283
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
     volumes:

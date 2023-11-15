@@ -1,20 +1,26 @@
-using Microsoft.EntityFrameworkCore;
-using Shared.Exceptions;
+using Shared.Repository.Sql;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.DBContext;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.DAL.Repositories
 {
-    public class TeamMemberRepository : Repository<TeamMember>, ITeamMemberRepository
+    public class TeamMemberRepository
+        : Repository<TeamHubDbContext, TeamMember>,
+            ITeamMemberRepository
     {
         public TeamMemberRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
 
-        public async Task<TeamMember?> GetTeamMemberAsync(int userId, int projectId)
+        public async Task<TeamMember?> GetTeamMemberAsync(
+            int userId,
+            int projectId,
+            CancellationToken cancellationToken = default
+        )
         {
-            var teamMember = await TeamHubDbContext.TeamMembers.FirstOrDefaultAsync(
-                teamMember => teamMember.UserId == userId && teamMember.ProjectId == projectId
+            var teamMember = await GetAsync(
+                teamMember => teamMember.UserId == userId && teamMember.ProjectId == projectId,
+                cancellationToken
             );
 
             return teamMember;

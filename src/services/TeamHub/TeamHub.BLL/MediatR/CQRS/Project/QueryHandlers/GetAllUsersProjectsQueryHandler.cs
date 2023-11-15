@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
@@ -35,7 +35,8 @@ public class GetAllUsersProjectsQueryHandler
         var userProjects = await _projectRepository.GetAllAsync(
             project => project.TeamMembers.Any(tm => tm.UserId == userId),
             request.Offset,
-            request.Limit
+            request.Limit,
+            cancellationToken
         );
 
         var projectResponseDtos = userProjects.Select(

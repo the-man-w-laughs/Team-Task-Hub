@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TaskHandlers.Commands;
@@ -38,7 +38,8 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
@@ -46,7 +47,11 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         }
 
         // Check if the current users team member exists.
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
@@ -58,7 +63,8 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         // Check if the target team member exists (the user to be assigned).
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            task.ProjectId
+            task.ProjectId,
+            cancellationToken
         );
 
         if (targetTeamMember == null)
@@ -71,7 +77,8 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
             targetTeamMember.Id,
-            request.TaskId
+            request.TaskId,
+            cancellationToken
         );
 
         if (taskHandler == null)
@@ -82,7 +89,7 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         }
 
         _taskHandlerRepository.Delete(taskHandler);
-        await _taskHandlerRepository.SaveAsync();
+        await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         return taskHandler.TeamMember.UserId;
     }

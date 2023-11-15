@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
@@ -30,14 +30,18 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
 
         if (project == null)
         {
             throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
         }
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
@@ -48,7 +52,8 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
 
         var teamMemberToDelete = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            request.ProjectId
+            request.ProjectId,
+            cancellationToken
         );
 
         if (teamMemberToDelete == null)
@@ -73,7 +78,7 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
         }
 
         _teamMemberRepository.Delete(teamMemberToDelete);
-        await _teamMemberRepository.SaveAsync();
+        await _teamMemberRepository.SaveAsync(cancellationToken);
 
         return teamMemberToDelete.Id;
     }

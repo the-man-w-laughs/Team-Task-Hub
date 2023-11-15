@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Commands;
@@ -28,7 +28,7 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
 
         if (project == null)
         {
@@ -45,7 +45,7 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         _mapper.Map(request.ProjectRequestDto, project);
 
         _projectRepository.Update(project);
-        await _projectRepository.SaveAsync();
+        await _projectRepository.SaveAsync(cancellationToken);
 
         return project.Id;
     }

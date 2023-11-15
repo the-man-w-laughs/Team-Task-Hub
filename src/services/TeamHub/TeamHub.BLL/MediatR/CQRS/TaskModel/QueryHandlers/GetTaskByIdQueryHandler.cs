@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
@@ -38,21 +38,25 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
             throw new NotFoundException($"Task with id {request.TaskId} was not found.");
         }
 
-        var project = await _projectRepository.GetByIdAsync(task.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(task.ProjectId, cancellationToken);
 
         if (project == null)
         {
             throw new NotFoundException($"Cannot find project with id {task.ProjectId}");
         }
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {

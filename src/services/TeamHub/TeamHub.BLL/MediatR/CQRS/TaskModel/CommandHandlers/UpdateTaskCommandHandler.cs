@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
@@ -29,7 +29,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
@@ -46,7 +46,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, int>
         _mapper.Map(request.TaskModelRequestDto, task);
 
         _taskRepository.Update(task);
-        await _taskRepository.SaveAsync();
+        await _taskRepository.SaveAsync(cancellationToken);
 
         return task.Id;
     }

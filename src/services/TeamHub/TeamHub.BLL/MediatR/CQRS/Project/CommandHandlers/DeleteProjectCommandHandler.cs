@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using Shared.Exceptions;
 
@@ -24,7 +24,7 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
 
         if (project == null)
         {
@@ -39,7 +39,7 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
         }
 
         _projectRepository.Delete(project);
-        await _projectRepository.SaveAsync();
+        await _projectRepository.SaveAsync(cancellationToken);
 
         return project.Id;
     }

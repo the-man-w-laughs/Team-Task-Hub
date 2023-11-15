@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Comments.Commands;
@@ -24,7 +24,10 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetByIdAsync(request.CommentId);
+        var comment = await _commentRepository.GetCommentByIdAsync(
+            request.CommentId,
+            cancellationToken
+        );
 
         if (comment == null)
         {
@@ -39,7 +42,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         }
 
         _commentRepository.Delete(comment);
-        await _commentRepository.SaveAsync();
+        await _commentRepository.SaveAsync(cancellationToken);
 
         return comment.Id;
     }

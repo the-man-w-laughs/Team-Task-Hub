@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 
@@ -35,8 +35,8 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         projectToAdd.CreatedAt = DateTime.Now;
         projectToAdd.TeamMembers.Add(new TeamMember() { UserId = userId });
 
-        var addedProject = await _projectRepository.AddAsync(projectToAdd);
-        await _projectRepository.SaveAsync();
+        var addedProject = await _projectRepository.AddAsync(projectToAdd, cancellationToken);
+        await _projectRepository.SaveAsync(cancellationToken);
 
         var response = _mapper.Map<ProjectResponseDto>(addedProject);
 

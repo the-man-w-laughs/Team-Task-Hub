@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
@@ -29,7 +29,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
@@ -44,7 +44,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
         }
 
         _taskRepository.Delete(task);
-        await _taskRepository.SaveAsync();
+        await _taskRepository.SaveAsync(cancellationToken);
 
         return task.Id;
     }

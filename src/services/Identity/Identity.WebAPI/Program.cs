@@ -2,9 +2,10 @@ using Identity.Infrastructure.Extensions;
 using Identity.WebAPI.Extensions.Identity;
 using Identity.Application;
 using Shared.Extensions;
-using Shared.Middleware;
 using Identity.Infrastructure.DbContext;
 using System.Reflection;
+using Shared.Middleware;
+using Identity.WebAPI.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.ConfigureSwagger(config, assemblyName);
 builder.Services.RegisterApplicationDependencies();
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
+builder.Services.ConfigureMassTransit(config);
+builder.Services.AddUserRequestRepository(config);
 
 var app = builder.Build();
 
@@ -37,6 +40,7 @@ if (!app.Environment.IsProduction())
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseIdentityServer();
+app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
 
 app.Run();

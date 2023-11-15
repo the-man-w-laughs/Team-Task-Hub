@@ -10,7 +10,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
             CreateMap<TaskModelRequestDto, TaskModel>();
             CreateMap<TaskModel, TaskModelResponseDto>()
                 .ForMember(
-                    project => project.TasksHandlers,
+                    task => task.TasksHandlers,
                     expression =>
                         expression.MapFrom(
                             src =>
@@ -20,7 +20,37 @@ namespace TeamHub.BLL.AutoMapperProfiles
                                         .ToList()
                                     : null
                         )
+                )
+                .ForMember(
+                    task => task.IsCompleted,
+                    expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
+
+            CreateMap<TaskModel, ProjectTaskResponseDto>()
+                .ForMember(
+                    task => task.TasksHandlersIds,
+                    expression =>
+                        expression.MapFrom(
+                            src =>
+                                src.TasksHandlers != null ? GetUserIdList(src.TasksHandlers) : null
+                        )
+                )
+                .ForMember(
+                    task => task.IsCompleted,
+                    expression => expression.MapFrom(src => src.IsCompleted == 1)
+                );
+        }
+
+        private List<int> GetUserIdList(ICollection<TaskHandler> teamMembers)
+        {
+            List<int> userIds = new List<int>();
+            foreach (var member in teamMembers)
+            {
+                var id = member.TeamMember.UserId;
+                userIds.Add(id);
+            }
+
+            return userIds;
         }
     }
 }

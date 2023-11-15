@@ -2,7 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 
@@ -35,14 +35,18 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
 
         if (project == null)
         {
             throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
         }
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
@@ -53,7 +57,8 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
 
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
             request.UserId,
-            request.ProjectId
+            request.ProjectId,
+            cancellationToken
         );
 
         if (targetTeamMember != null)
@@ -70,8 +75,11 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
             CreatedAt = DateTime.Now
         };
 
-        var addedTeamMember = await _teamMemberRepository.AddAsync(teamMemberToAdd);
-        await _teamMemberRepository.SaveAsync();
+        var addedTeamMember = await _teamMemberRepository.AddAsync(
+            teamMemberToAdd,
+            cancellationToken
+        );
+        await _teamMemberRepository.SaveAsync(cancellationToken);
 
         return addedTeamMember.Id;
     }

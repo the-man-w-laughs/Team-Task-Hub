@@ -1,8 +1,8 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Shared.Extensions;
 using Shared.Exceptions;
-using TeamHub.BLL.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 
@@ -35,14 +35,18 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
             throw new NotFoundException($"Task with id {request.TaskId} was not found.");
         }
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
@@ -57,8 +61,8 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         commentToAdd.TasksId = request.TaskId;
         commentToAdd.CreatedAt = DateTime.Now;
 
-        var addedComment = await _commentRepository.AddAsync(commentToAdd);
-        await _commentRepository.SaveAsync();
+        var addedComment = await _commentRepository.AddAsync(commentToAdd, cancellationToken);
+        await _commentRepository.SaveAsync(cancellationToken);
 
         return addedComment.Id;
     }

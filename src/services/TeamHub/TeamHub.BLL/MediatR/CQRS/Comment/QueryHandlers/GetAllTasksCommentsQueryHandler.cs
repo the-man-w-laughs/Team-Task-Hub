@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 
@@ -40,14 +40,18 @@ public class GetAllTasksCommentsQueryHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId);
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
         if (task == null)
         {
             throw new NotFoundException($"Task with id {request.TaskId} was not found.");
         }
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
@@ -59,7 +63,8 @@ public class GetAllTasksCommentsQueryHandler
         var taskComments = await _commentRepository.GetAllAsync(
             comment => comment.TasksId == request.TaskId,
             request.Offset,
-            request.Limit
+            request.Limit,
+            cancellationToken
         );
 
         var projectResponseDtos = taskComments.Select(

@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.Extensions;
+using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
@@ -35,7 +35,7 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
 
         if (project == null)
         {
@@ -43,7 +43,11 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
         }
 
         var projectId = request.ProjectId;
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(userId, projectId);
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            projectId,
+            cancellationToken
+        );
 
         if (teamMember == null)
         {
