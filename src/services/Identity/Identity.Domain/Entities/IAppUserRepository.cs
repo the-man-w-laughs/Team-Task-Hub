@@ -1,7 +1,7 @@
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Namespace;
+namespace Identity.Domain.Entities;
 
 public interface IAppUserRepository
 {

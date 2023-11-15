@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: tasks-identity
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - 3306:3306
+
+  identitywebapi:
+    image: identitywebapi
+    build:
+      context: .
+      dockerfile: src/services/Identity/Identity.WebAPI/Dockerfile
+    ports:
+      - 5000:5001
+    depends_on:
+      - mysql

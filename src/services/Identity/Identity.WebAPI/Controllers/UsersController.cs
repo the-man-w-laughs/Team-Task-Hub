@@ -1,11 +1,11 @@
 ﻿using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
-using Identity.Domain.Constraints;
 using Identity.WebAPI.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Shared.IdentityConstraints;
 
-namespace SocialNetwork.API.Controllers;
+namespace Identity.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -25,6 +25,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> CreateNewUserAsync(AppUserRegisterDto appUserRegisterDto)
     {
         var result = await _userService.AddUserAsync(appUserRegisterDto);
+
         return this.FromResult(result);
     }
 
@@ -32,9 +33,11 @@ public class UsersController : ControllerBase
     /// Get all users
     /// </summary>
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAllUsersAsync()
     {
         var result = await _userService.GetAllUsersAsync();
+
         return this.FromResult(result);
     }
 
@@ -42,9 +45,11 @@ public class UsersController : ControllerBase
     /// Get user by id
     /// </summary>
     [HttpGet("{id}")]
+    [Authorize]
     public async Task<IActionResult> GetUserByIdAsync(int id)
     {
         var result = await _userService.GetUserByIdAsync(id);
+
         return this.FromResult(result);
     }
 
@@ -56,6 +61,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteUserByIdAsync(int id)
     {
         var result = await _userService.DeleteUserByIdAsync(id);
+
         return this.FromResult(result);
     }
 }
