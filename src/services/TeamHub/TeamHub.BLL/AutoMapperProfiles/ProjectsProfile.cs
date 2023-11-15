@@ -13,7 +13,10 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     project => project.TeamMembers,
                     expression =>
                         expression.MapFrom(
-                            src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
+                            src =>
+                                src.TeamMembers != null
+                                    ? src.TeamMembers.Select(member => member.User).ToList()
+                                    : null
                         )
                 );
 
@@ -22,21 +25,12 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     project => project.TeamMembers,
                     expression =>
                         expression.MapFrom(
-                            src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
+                            src =>
+                                src.TeamMembers != null
+                                    ? src.TeamMembers.Select(member => member.User).ToList()
+                                    : null
                         )
                 );
-        }
-
-        private List<User> GetUsersList(ICollection<TeamMember> teamMembers)
-        {
-            List<User> users = new List<User>();
-            foreach (var member in teamMembers)
-            {
-                var user = member.User;
-                users.Add(user);
-            }
-
-            return users;
         }
     }
 }

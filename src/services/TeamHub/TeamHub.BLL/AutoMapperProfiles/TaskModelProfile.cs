@@ -14,7 +14,11 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression =>
                         expression.MapFrom(
                             src =>
-                                src.TasksHandlers != null ? GetUsersList(src.TasksHandlers) : null
+                                src.TasksHandlers != null
+                                    ? src.TasksHandlers
+                                        .Select(member => member.TeamMember.User)
+                                        .ToList()
+                                    : null
                         )
                 )
                 .ForMember(
@@ -47,18 +51,6 @@ namespace TeamHub.BLL.AutoMapperProfiles
             }
 
             return userIds;
-        }
-
-        private List<User> GetUsersList(ICollection<TaskHandler> teamMembers)
-        {
-            List<User> users = new List<User>();
-            foreach (var member in teamMembers)
-            {
-                var user = member.TeamMember.User;
-                users.Add(user);
-            }
-
-            return users;
         }
     }
 }
