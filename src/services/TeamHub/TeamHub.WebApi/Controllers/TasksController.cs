@@ -14,11 +14,11 @@ namespace TeamHub.WebApi.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class TaskModelController : ControllerBase
+public class TasksController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public TaskModelController(IMediator mediator)
+    public TasksController(IMediator mediator)
     {
         _mediator = mediator;
     }
