@@ -23,9 +23,9 @@ public class AppUserRepository : IAppUserRepository
         return await _userManager.DeleteAsync(appUser);
     }
 
-    public async Task<IEnumerable<AppUser>> GetAllUsersAsync()
+    public async Task<IEnumerable<AppUser>> GetAllUsersAsync(int offset, int limit)
     {
-        return await _userManager.Users.ToListAsync();
+        return await _userManager.Users.Skip(offset).Take(limit).ToListAsync();
     }
 
     public async Task<AppUser?> GetUserByIdAsync(string id)

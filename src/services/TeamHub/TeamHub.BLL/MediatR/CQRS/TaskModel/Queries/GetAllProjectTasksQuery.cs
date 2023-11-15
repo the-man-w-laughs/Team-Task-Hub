@@ -3,4 +3,5 @@ using TeamHub.BLL.Dtos;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 
-public record GetAllProjectsTasksQuery(int ProjectId) : IRequest<IEnumerable<TaskModelResponseDto>>;
+public record GetAllProjectsTasksQuery(int ProjectId, int Offset, int Limit)
+    : IRequest<IEnumerable<TaskModelResponseDto>>;

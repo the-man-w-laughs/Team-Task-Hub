@@ -35,15 +35,33 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        await _projectRepository.GetProjectByIdAsync(request.ProjectId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, request.ProjectId);
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
 
         var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            request.UserId,
-            request.ProjectId
+            userId,
+            request.ProjectId,
+            cancellationToken
         );
 
-        if (teamMember != null)
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {request.ProjectId}."
+            );
+        }
+
+        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            request.UserId,
+            request.ProjectId,
+            cancellationToken
+        );
+
+        if (targetTeamMember != null)
         {
             throw new WrongActionException(
                 $"User with id {request.UserId} is already a part of project with id {request.ProjectId}."
@@ -57,8 +75,11 @@ public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCo
             CreatedAt = DateTime.Now
         };
 
-        var addedTeamMember = await _teamMemberRepository.AddAsync(teamMemberToAdd);
-        await _teamMemberRepository.SaveAsync();
+        var addedTeamMember = await _teamMemberRepository.AddAsync(
+            teamMemberToAdd,
+            cancellationToken
+        );
+        await _teamMemberRepository.SaveAsync(cancellationToken);
 
         return addedTeamMember.Id;
     }

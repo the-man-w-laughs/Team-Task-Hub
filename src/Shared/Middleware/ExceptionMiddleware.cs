@@ -16,8 +16,10 @@ public class ExceptionMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        await _next(httpContext);
-        try { }
+        try
+        {
+            await _next(httpContext);
+        }
         catch (Exception ex)
         {
             await HandleExceptionAsync(httpContext, ex);
@@ -26,7 +28,8 @@ public class ExceptionMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "text/plain";
+
         switch (exception)
         {
             case AuthorizationException:

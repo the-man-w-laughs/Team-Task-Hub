@@ -34,20 +34,35 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId);
+        // Check if the task exists.
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
 
-        // Check if the target team member exists (the user to be assigned).
+        if (task == null)
+        {
+            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
+        }
+
+        var projectId = task.ProjectId;
+
+        // Check if user has access to the project.
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            request.UserId,
-            task.ProjectId
+            userId,
+            projectId,
+            cancellationToken
         );
+
+        if (targetTeamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {projectId}."
+            );
+        }
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
             targetTeamMember.Id,
-            request.TaskId
+            request.TaskId,
+            cancellationToken
         );
 
         if (taskHandler != null)
@@ -65,8 +80,11 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
             CreatedAt = DateTime.Now
         };
 
-        var addedTaskHandler = await _taskHandlerRepository.AddAsync(taskHandlerToAdd);
-        await _taskHandlerRepository.SaveAsync();
+        var addedTaskHandler = await _taskHandlerRepository.AddAsync(
+            taskHandlerToAdd,
+            cancellationToken
+        );
+        await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         return addedTaskHandler.Id;
     }

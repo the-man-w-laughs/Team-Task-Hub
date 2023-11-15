@@ -15,7 +15,11 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression =>
                         expression.MapFrom(
                             src =>
-                                src.TasksHandlers != null ? GetUsersList(src.TasksHandlers) : null
+                                src.TasksHandlers != null
+                                    ? src.TasksHandlers
+                                        .Select(member => member.TeamMember.User)
+                                        .ToList()
+                                    : null
                         )
                 )
                 .ForMember(
@@ -29,37 +33,17 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression =>
                         expression.MapFrom(
                             src =>
-                                src.TasksHandlers != null ? GetUserIdList(src.TasksHandlers) : null
+                                src.TasksHandlers != null
+                                    ? src.TasksHandlers
+                                        .Select(member => member.TeamMember.User)
+                                        .ToList()
+                                    : null
                         )
                 )
                 .ForMember(
                     task => task.IsCompleted,
                     expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
-        }
-
-        private List<int> GetUserIdList(ICollection<TaskHandler> teamMembers)
-        {
-            var userIds = new List<int>();
-            foreach (var member in teamMembers)
-            {
-                var id = member.TeamMember.UserId;
-                userIds.Add(id);
-            }
-
-            return userIds;
-        }
-
-        private List<User> GetUsersList(ICollection<TaskHandler> teamMembers)
-        {
-            var users = new List<User>();
-            foreach (var member in teamMembers)
-            {
-                var user = member.TeamMember.User;
-                users.Add(user);
-            }
-
-            return users;
         }
     }
 }

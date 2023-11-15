@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
@@ -34,9 +35,26 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
     )
     {
         var userId = _httpContextAccessor.GetUserId();
+        var comment = await _commentRepository.GetByIdAsync(request.CommentId, cancellationToken);
 
-        var comment = await _commentRepository.GetCommentByIdAsync(request.CommentId);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, comment.Task.ProjectId);
+        if (comment == null)
+        {
+            throw new NotFoundException($"Cannot find comment with id {request.CommentId}");
+        }
+
+        var projectId = comment.Task.ProjectId;
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            projectId,
+            cancellationToken
+        );
+
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {projectId}."
+            );
+        }
 
         var response = _mapper.Map<CommentResponseDto>(comment);
 

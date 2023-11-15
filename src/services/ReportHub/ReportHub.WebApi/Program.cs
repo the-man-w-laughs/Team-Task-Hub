@@ -24,8 +24,9 @@ builder.Services.ConfigureServices();
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureMinio(config);
+builder.Services.ConfigureMassTransit(config);
+builder.Services.AddUserRequestRepository(config);
 builder.Services.RegisterGrpcClient(config);
-
 builder.Services.ConfigureHttpClient(config);
 
 var app = builder.Build();
@@ -40,6 +41,8 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<UserCacheMiddleware>();
 
 app.MapControllers();
 

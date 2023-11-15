@@ -9,7 +9,7 @@ using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 using TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;
 
-namespace TeamHub.WebApi.controllers;
+namespace TeamHub.WebApi.Controllers;
 
 /// <summary>
 /// Controller for managing projects.
@@ -38,7 +38,7 @@ public class ProjectsController : ControllerBase
     )
     {
         var command = new CreateProjectCommand(projectRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -47,10 +47,10 @@ public class ProjectsController : ControllerBase
     /// Get Project By Id
     /// </summary>
     [HttpGet("{projectId:int}")]
-    public async Task<IActionResult> GetProjectById([FromRoute] int projectId)
+    public async Task<IActionResult> GetProjectByIdAsync([FromRoute] int projectId)
     {
         var command = new GetProjectByIdQuery(projectId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -59,10 +59,13 @@ public class ProjectsController : ControllerBase
     /// Get All Users Projects
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersProjecsAsync()
+    public async Task<IActionResult> GetAllUsersProjecsAsyncAsync(
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllUsersProjectsQuery();
-        var result = await _mediator.Send(command);
+        var command = new GetAllUsersProjectsQuery(offset, limit);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -71,13 +74,13 @@ public class ProjectsController : ControllerBase
     /// Update Project
     /// </summary>
     [HttpPut("{projectId:int}")]
-    public async Task<IActionResult> UpdateProject(
+    public async Task<IActionResult> UpdateProjectAsync(
         [FromRoute] int projectId,
         [FromBody] ProjectRequestDto projectRequestDto
     )
     {
         var command = new UpdateProjectCommand(projectId, projectRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -85,11 +88,10 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Delete Project
     /// </summary>
-    [HttpDelete("{projectId:int}")]
-    public async Task<IActionResult> DeleteProject([FromRoute] int projectId)
+    public async Task<IActionResult> DeleteProjectAsync([FromRoute] int projectId)
     {
         var command = new DeleteProjectCommand(projectId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -97,14 +99,14 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Create New Team Member
     /// </summary>
-    [HttpPost("{projectId:int}/TeamMembers/{userId:int}")]
-    public async Task<IActionResult> CreateNewTeamMember(
+    [HttpPost("{projectId:int}/members/{userId:int}")]
+    public async Task<IActionResult> CreateNewTeamMemberAsync(
         [FromRoute] int projectId,
         [FromRoute] int userId
     )
     {
         var command = new CreateTeamMemberCommand(projectId, userId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -112,11 +114,15 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Get All TeamMembers
     /// </summary>
-    [HttpGet("{projectId:int}/TeamMembers")]
-    public async Task<IActionResult> GetAllTeamMembers([FromRoute] int projectId)
+    [HttpGet("{projectId:int}/members")]
+    public async Task<IActionResult> GetAllTeamMembersAsync(
+        [FromRoute] int projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllProjectsTeamMembersQuery(projectId);
-        var result = await _mediator.Send(command);
+        var command = new GetAllProjectsTeamMembersQuery(projectId, offset, limit);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -124,14 +130,14 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Delete TeamMember
     /// </summary>
-    [HttpDelete("{projectId:int}/TeamMembers/{userId:int}")]
-    public async Task<IActionResult> DeleteTeamMember(
+    [HttpDelete("{projectId:int}/members/{userId:int}")]
+    public async Task<IActionResult> DeleteTeamMemberAsync(
         [FromRoute] int projectId,
         [FromRoute] int userId
     )
     {
         var command = new DeleteTeamMemberCommand(projectId, userId);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -139,14 +145,14 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Create New Task
     /// </summary>
-    [HttpPost("{projectId:int}/Tasks")]
-    public async Task<IActionResult> CreateNewTaskModel(
+    [HttpPost("{projectId:int}/tasks")]
+    public async Task<IActionResult> CreateNewTaskModelAsync(
         [FromRoute] int projectId,
         [FromBody] TaskModelRequestDto taskModelRequestDto
     )
     {
         var command = new CreateTaskCommand(projectId, taskModelRequestDto);
-        var result = await _mediator.Send(command);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }
@@ -154,11 +160,15 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Get All Project tasks
     /// </summary>
-    [HttpGet("{projectId:int}/Tasks")]
-    public async Task<IActionResult> GetAllProjectsTaskModels([FromRoute] int projectId)
+    [HttpGet("{projectId:int}/tasks")]
+    public async Task<IActionResult> GetAllProjectsTaskModelsAsync(
+        [FromRoute] int projectId,
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllProjectsTasksQuery(projectId);
-        var result = await _mediator.Send(command);
+        var command = new GetAllProjectsTasksQuery(projectId, offset, limit);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }

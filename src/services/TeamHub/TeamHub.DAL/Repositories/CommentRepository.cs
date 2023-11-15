@@ -11,9 +11,12 @@ namespace TeamHub.DAL.Repositories
         public CommentRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
 
-        public async Task<Comment> GetCommentByIdAsync(int commentId)
+        public async Task<Comment> GetCommentByIdAsync(
+            int commentId,
+            CancellationToken cancellationToken = default
+        )
         {
-            var comment = await GetByIdAsync(commentId);
+            var comment = await GetByIdAsync(commentId, cancellationToken);
 
             if (comment == null)
             {

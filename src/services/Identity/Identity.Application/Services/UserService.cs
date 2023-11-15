@@ -4,7 +4,9 @@ using Identity.Application.Ports.Services;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
+using MassTransit;
 using Shared.IdentityConstraints;
+using Shared.SharedModels;
 
 namespace Identity.Application.Services
 {
@@ -12,11 +14,17 @@ namespace Identity.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IAppUserRepository _appUserRepository;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public UserService(IMapper mapper, IAppUserRepository appUserRepository)
+        public UserService(
+            IMapper mapper,
+            IAppUserRepository appUserRepository,
+            IPublishEndpoint publishEndpoint
+        )
         {
             _mapper = mapper;
             _appUserRepository = appUserRepository;
+            _publishEndpoint = publishEndpoint;
         }
 
         public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
@@ -35,12 +43,16 @@ namespace Identity.Application.Services
                 );
             }
 
+            var message = _mapper.Map<UserCreatedMessage>(appUser);
+
+            await _publishEndpoint.Publish(message);
+
             return new SuccessResult<int>(appUser.Id);
         }
 
-        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
+        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit)
         {
-            var users = await _appUserRepository.GetAllUsersAsync();
+            var users = await _appUserRepository.GetAllUsersAsync(offset, limit);
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
@@ -83,6 +95,10 @@ namespace Identity.Application.Services
                     $"Failed to delete: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
                 );
             }
+
+            var message = _mapper.Map<UserDeletedMessage>(user);
+
+            await _publishEndpoint.Publish(message);
 
             var userDto = _mapper.Map<AppUserDto>(user);
 
