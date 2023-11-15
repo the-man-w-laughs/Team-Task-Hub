@@ -48,7 +48,7 @@ public class ProjectsController : ControllerBase
     /// Get Project By Id
     /// </summary>
     [HttpGet("{projectId:int}")]
-    public async Task<IActionResult> GetProjectById(
+    public async Task<IActionResult> GetProjectByIdAsync(
         [FromRoute] int projectId,
         CancellationToken cancellationToken
     )
@@ -63,7 +63,7 @@ public class ProjectsController : ControllerBase
     /// Get Project By Id
     /// </summary>
     [HttpGet("{projectId:int}/full")]
-    public async Task<IActionResult> GetFullProjectById(
+    public async Task<IActionResult> GetFullProjectByIdAsync(
         [FromRoute] int projectId,
         CancellationToken cancellationToken
     )
@@ -78,7 +78,9 @@ public class ProjectsController : ControllerBase
     /// Get All Users Projects
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersProjecsAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllUsersProjecsAsyncAsync(
+        CancellationToken cancellationToken
+    )
     {
         var command = new GetAllUsersProjectsQuery();
         var result = await _mediator.Send(command, cancellationToken);
@@ -90,7 +92,7 @@ public class ProjectsController : ControllerBase
     /// Update Project
     /// </summary>
     [HttpPut("{projectId:int}")]
-    public async Task<IActionResult> UpdateProject(
+    public async Task<IActionResult> UpdateProjectAsync(
         [FromRoute] int projectId,
         [FromBody] ProjectRequestDto projectRequestDto,
         CancellationToken cancellationToken
@@ -106,7 +108,7 @@ public class ProjectsController : ControllerBase
     /// Delete Project
     /// </summary>
     [HttpDelete("{projectId:int}")]
-    public async Task<IActionResult> DeleteProject(
+    public async Task<IActionResult> DeleteProjectAsync(
         [FromRoute] int projectId,
         CancellationToken cancellationToken
     )
@@ -121,7 +123,7 @@ public class ProjectsController : ControllerBase
     /// Create New Team Member
     /// </summary>
     [HttpPost("{projectId:int}/members/{userId:int}")]
-    public async Task<IActionResult> CreateNewTeamMember(
+    public async Task<IActionResult> CreateNewTeamMemberAsync(
         [FromRoute] int projectId,
         [FromRoute] int userId,
         CancellationToken cancellationToken
@@ -137,7 +139,7 @@ public class ProjectsController : ControllerBase
     /// Get All TeamMembers
     /// </summary>
     [HttpGet("{projectId:int}/members")]
-    public async Task<IActionResult> GetAllTeamMembers(
+    public async Task<IActionResult> GetAllTeamMembersAsync(
         [FromRoute] int projectId,
         CancellationToken cancellationToken
     )
@@ -152,7 +154,7 @@ public class ProjectsController : ControllerBase
     /// Delete TeamMember
     /// </summary>
     [HttpDelete("{projectId:int}/members/{userId:int}")]
-    public async Task<IActionResult> DeleteTeamMember(
+    public async Task<IActionResult> DeleteTeamMemberAsync(
         [FromRoute] int projectId,
         [FromRoute] int userId,
         CancellationToken cancellationToken
@@ -168,7 +170,7 @@ public class ProjectsController : ControllerBase
     /// Create New Task
     /// </summary>
     [HttpPost("{projectId:int}/tasks")]
-    public async Task<IActionResult> CreateNewTaskModel(
+    public async Task<IActionResult> CreateNewTaskModelAsync(
         [FromRoute] int projectId,
         [FromBody] TaskModelRequestDto taskModelRequestDto,
         CancellationToken cancellationToken
@@ -184,7 +186,7 @@ public class ProjectsController : ControllerBase
     /// Get All Project tasks
     /// </summary>
     [HttpGet("{projectId:int}/tasks")]
-    public async Task<IActionResult> GetAllProjectsTaskModels(
+    public async Task<IActionResult> GetAllProjectsTaskModelsAsync(
         [FromRoute] int projectId,
         CancellationToken cancellationToken
     )

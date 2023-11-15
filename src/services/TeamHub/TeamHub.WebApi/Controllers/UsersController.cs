@@ -21,7 +21,7 @@ public class UsersController : ControllerBase
     /// Get Users
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetComment(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllUsersAsync(CancellationToken cancellationToken)
     {
         var command = new GetAllUsersQuery();
         var result = await _mediator.Send(command, cancellationToken);

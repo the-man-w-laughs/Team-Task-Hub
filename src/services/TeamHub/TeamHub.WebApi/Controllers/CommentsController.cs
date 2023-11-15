@@ -23,7 +23,7 @@ public class CommentsController : ControllerBase
     /// Get Comment
     /// </summary>
     [HttpGet("{commentId:int}")]
-    public async Task<IActionResult> GetComment(
+    public async Task<IActionResult> GetCommentAsync(
         [FromRoute] int commentId,
         CancellationToken cancellationToken
     )
@@ -38,7 +38,7 @@ public class CommentsController : ControllerBase
     /// Update Comment
     /// </summary>
     [HttpPut("{commentId:int}")]
-    public async Task<IActionResult> UpdateComment(
+    public async Task<IActionResult> UpdateCommentAsync(
         [FromRoute] int commentId,
         [FromBody] CommentRequestDto commentRequestDto,
         CancellationToken cancellationToken
@@ -54,7 +54,7 @@ public class CommentsController : ControllerBase
     /// Delete Comment
     /// </summary>
     [HttpDelete("{commentId:int}")]
-    public async Task<IActionResult> DeleteComment(
+    public async Task<IActionResult> DeleteCommentAsync(
         [FromRoute] int commentId,
         CancellationToken cancellationToken
     )

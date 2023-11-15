@@ -27,7 +27,7 @@ public class TasksController : ControllerBase
     /// Get Task
     /// </summary>
     [HttpGet("{taskId:int}")]
-    public async Task<IActionResult> GetTask(
+    public async Task<IActionResult> GetTaskAsync(
         [FromRoute] int taskId,
         CancellationToken cancellationToken
     )
@@ -42,7 +42,7 @@ public class TasksController : ControllerBase
     /// Update Task
     /// </summary>
     [HttpPut("{taskId:int}")]
-    public async Task<IActionResult> UpdateTask(
+    public async Task<IActionResult> UpdateTaskAsync(
         [FromRoute] int taskId,
         [FromBody] TaskModelRequestDto taskModelRequestDto,
         CancellationToken cancellationToken
@@ -58,7 +58,7 @@ public class TasksController : ControllerBase
     /// Delete Task
     /// </summary>
     [HttpDelete("{taskId:int}")]
-    public async Task<IActionResult> DeleteTask(
+    public async Task<IActionResult> DeleteTaskAsync(
         [FromRoute] int taskId,
         CancellationToken cancellationToken
     )
@@ -73,7 +73,7 @@ public class TasksController : ControllerBase
     /// Create Task Handler
     /// </summary>
     [HttpPost("{taskId:int}/handlers/{userId}")]
-    public async Task<IActionResult> CreateTaskHandler(
+    public async Task<IActionResult> CreateTaskHandlerAsync(
         [FromRoute] int taskId,
         [FromRoute] int userId,
         CancellationToken cancellationToken
@@ -89,7 +89,7 @@ public class TasksController : ControllerBase
     /// Get All Task Handlers
     /// </summary>
     [HttpGet("{taskId:int}/handlers")]
-    public async Task<IActionResult> GetAllTaskHandlers(
+    public async Task<IActionResult> GetAllTaskHandlersAsync(
         [FromRoute] int taskId,
         CancellationToken cancellationToken
     )
@@ -104,7 +104,7 @@ public class TasksController : ControllerBase
     /// Delete Task Handler
     /// </summary>
     [HttpDelete("{taskId:int}/handlers/{userId:int}")]
-    public async Task<IActionResult> DeleteTaskHandler(
+    public async Task<IActionResult> DeleteTaskHandlerAsync(
         [FromRoute] int taskId,
         [FromRoute] int userId,
         CancellationToken cancellationToken
@@ -120,7 +120,7 @@ public class TasksController : ControllerBase
     /// Create Tasks Comment
     /// </summary>
     [HttpPost("{taskId:int}/comments")]
-    public async Task<IActionResult> CreateNewTasksComment(
+    public async Task<IActionResult> CreateNewTasksCommentAsync(
         [FromRoute] int taskId,
         [FromBody] CommentRequestDto commentRequestDto,
         CancellationToken cancellationToken
@@ -136,7 +136,7 @@ public class TasksController : ControllerBase
     /// Get All Tasks Comments
     /// </summary>
     [HttpGet("{taskId:int}/comments")]
-    public async Task<IActionResult> GetAllTasksComments(
+    public async Task<IActionResult> GetAllTasksCommentsAsync(
         [FromRoute] int taskId,
         CancellationToken cancellationToken
     )

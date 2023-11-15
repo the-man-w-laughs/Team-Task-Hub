@@ -26,7 +26,7 @@ public class ReportsController : ControllerBase
     /// Get latest project report
     /// </summary>
     [HttpGet("{projectId}/latest")]
-    public async Task<IActionResult> GetLatestProjectReportById([FromRoute] int projectId)
+    public async Task<IActionResult> GetLatestProjectReportByIdAsync([FromRoute] int projectId)
     {
         var result = await _projectReportService.GetLatestProjectReportAsync(projectId);
 
@@ -37,7 +37,7 @@ public class ReportsController : ControllerBase
     /// Get project report by file name
     /// </summary>
     [HttpGet("{filename}")]
-    public async Task<IActionResult> GetProjectReportByFileName([FromRoute] string filename)
+    public async Task<IActionResult> GetProjectReportByFileNameAsync([FromRoute] string filename)
     {
         var result = await _projectReportService.GetReportByNameAsync(filename);
 
@@ -48,7 +48,7 @@ public class ReportsController : ControllerBase
     /// Delete project report by file name
     /// </summary>
     [HttpDelete("{filename}")]
-    public async Task<IActionResult> DeleteProjectReportByFileName([FromRoute] string filename)
+    public async Task<IActionResult> DeleteProjectReportByFileNameAsync([FromRoute] string filename)
     {
         var result = await _projectReportService.DeleteReportByNameAsync(filename);
 
