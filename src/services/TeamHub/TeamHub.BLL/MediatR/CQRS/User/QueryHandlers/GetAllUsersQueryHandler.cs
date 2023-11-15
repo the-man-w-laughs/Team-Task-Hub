@@ -29,7 +29,11 @@ public class GetAllUsersQueryHandler
         CancellationToken cancellationToken
     )
     {
-        var users = await _userRepository.GetAllAsync(cancellationToken);
+        var users = await _userRepository.GetAllAsync(
+            request.Offset,
+            request.Limit,
+            cancellationToken
+        );
         var userResponseDtos = users.Select(project => _mapper.Map<UserResponseDto>(project));
 
         return userResponseDtos;

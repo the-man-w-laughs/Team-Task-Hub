@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Http;
 using Shared.Extensions;
 using ReportHub.BLL.Contracts;
 using ReportHub.DAL.Models;
-using TeamHub.BLL.Dtos;
 using System.Text;
 using Shared.Exceptions;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Shared.gRPC.FullProjectResponse;
+using Shared.gRPC;
 
 namespace ReportHub.BLL.services
 {
@@ -17,41 +18,32 @@ namespace ReportHub.BLL.services
         private readonly IProjectReportInfoRepository _projectReportInfoRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMinioRepository _minioRepository;
+        private readonly IFullProjectInfoService _fullProjectInfoService;
 
         public ProjectReportService(
             IProjectReportInfoRepository projectReportInfoRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            IHttpClientFactory httpClientFactory,
-            IMinioRepository minioRepository
+            IMinioRepository minioRepository,
+            IFullProjectInfoService fullProjectInfoService
         )
         {
             _projectReportInfoRepository = projectReportInfoRepository;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
-            _httpClientFactory = httpClientFactory;
             _minioRepository = minioRepository;
+            _fullProjectInfoService = fullProjectInfoService;
         }
 
         public async Task<FileStreamResult> GetLatestProjectReportAsync(int projectId)
         {
             var userId = _httpContextAccessor.GetUserId();
 
-            var projectReportInfo = await _projectReportInfoRepository.GetOneAsync(
-                projectReportInfo => projectReportInfo.ProjectId == projectId
-            );
+            var request = new FullProjectInfoRequest() { ProjectId = projectId, UserId = userId };
 
-            var latestReport = GetLatestReport(projectReportInfo);
-
-            // if (latestReport != null && latestReport.GeneratedAt > projectReportInfo.UpdatedAt)
-            // {
-            //     return latestReport;
-            // }
-
-            FullProjectResponseDto fullProjectResponseDto = await GetFullProjectDataAsync(
-                projectId
+            var fullProjectResponseDto = await _fullProjectInfoService.GetFullProjectInfoAsync(
+                request
             );
 
             if (fullProjectResponseDto == null)
@@ -60,9 +52,10 @@ namespace ReportHub.BLL.services
                     $"Cannot fetch full project data for with id {projectId}."
                 );
             }
-            string reportContent = fullProjectResponseDto.ToReport();
 
-            Stream contentStream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent));
+            var reportContent = fullProjectResponseDto.ToReport();
+
+            var contentStream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent));
 
             var fileName = await _minioRepository.UploadReportAsync(contentStream);
 
@@ -70,13 +63,27 @@ namespace ReportHub.BLL.services
                 info => info.ProjectId == projectId
             );
 
+            if (project == null)
+            {
+                project = new ProjectReportInfo()
+                {
+                    ProjectId = projectId,
+                    ProjectAuthorId = userId,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    Reports = new List<Report>()
+                };
+
+                await _projectReportInfoRepository.CreateAsync(project);
+            }
+
             var latestReportInfo = new Report() { Path = fileName, GeneratedAt = DateTime.Now };
 
             project.Reports.Add(latestReportInfo);
 
             await _projectReportInfoRepository.UpdateAsync(project);
 
-            string contentType = "text/plain";
+            var contentType = "text/plain";
 
             contentStream.Seek(0, SeekOrigin.Begin);
 
@@ -98,7 +105,7 @@ namespace ReportHub.BLL.services
 
             var result = await _minioRepository.GetFileFromMinioAsync(path);
 
-            string contentType = "text/plain";
+            var contentType = "text/plain";
 
             return new FileStreamResult(result, contentType) { FileDownloadName = path };
         }
@@ -141,31 +148,6 @@ namespace ReportHub.BLL.services
                 .FirstOrDefault();
 
             return latestReport;
-        }
-
-        private async Task<FullProjectResponseDto> GetFullProjectDataAsync(int projectId)
-        {
-            var request = new HttpRequestMessage(HttpMethod.Get, $"api/Projects/{projectId}/full");
-
-            var headers = _httpContextAccessor.HttpContext.Request.Headers;
-
-            if (headers.TryGetValue("Authorization", out var authorizationHeaderValues))
-            {
-                var authorizationHeaderValue = authorizationHeaderValues.FirstOrDefault();
-                if (!string.IsNullOrEmpty(authorizationHeaderValue))
-                {
-                    request.Headers.Add("Authorization", authorizationHeaderValue);
-                }
-            }
-
-            var teamHubClient = _httpClientFactory.CreateClient("TeamHubClient");
-
-            HttpResponseMessage response = await teamHubClient.SendAsync(request);
-
-            FullProjectResponseDto fullProjectResponseDto =
-                await response.Content.ReadAsAsync<FullProjectResponseDto>();
-
-            return fullProjectResponseDto;
         }
     }
 }

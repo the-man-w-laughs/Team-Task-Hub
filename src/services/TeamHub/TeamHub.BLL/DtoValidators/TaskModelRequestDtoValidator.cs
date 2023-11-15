@@ -1,4 +1,5 @@
 using FluentValidation;
+using Shared.Enums;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.DtoValidators.Utils;
 using TeamHub.DAL.Constraints;

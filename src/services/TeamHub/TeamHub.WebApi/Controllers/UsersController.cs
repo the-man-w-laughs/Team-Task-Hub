@@ -21,10 +21,13 @@ public class UsersController : ControllerBase
     /// Get Users
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersAsync(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllUsersAsync(
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var command = new GetAllUsersQuery();
-        var result = await _mediator.Send(command, cancellationToken);
+        var command = new GetAllUsersQuery(limit, offset);
+        var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
     }

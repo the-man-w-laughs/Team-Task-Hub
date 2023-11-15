@@ -47,28 +47,9 @@ public class ProjectsController : ControllerBase
     /// Get Project By Id
     /// </summary>
     [HttpGet("{projectId:int}")]
-<<<<<<< HEAD:src/services/TeamHub/TeamHub.WebApi/Controllers/ProjectsController.cs
-    public async Task<IActionResult> GetProjectByIdAsync(
-        [FromRoute] int projectId,
-        CancellationToken cancellationToken
-    )
-=======
-    public async Task<IActionResult> GetProjectById([FromRoute] int projectId)
->>>>>>> feature/reports-microservice:src/services/TeamHub/TeamHub.WebApi/controllers/ProjectsController.cs
+    public async Task<IActionResult> GetProjectByIdAsync([FromRoute] int projectId)
     {
         var command = new GetProjectByIdQuery(projectId);
-        var result = await _mediator.Send(command, HttpContext.RequestAborted);
-
-        return Ok(result);
-    }
-
-    /// <summary>
-    /// Get Project By Id
-    /// </summary>
-    [HttpGet("{projectId:int}/full")]
-    public async Task<IActionResult> GetFullProjectByIdAsync([FromRoute] int projectId)
-    {
-        var command = new GetFullProjectByIdQuery(projectId);
         var result = await _mediator.Send(command, HttpContext.RequestAborted);
 
         return Ok(result);
