@@ -17,11 +17,16 @@ namespace TeamHub.DAL.Extensions
             services.AddDbContext<TeamHubDbContext>(builder =>
             {
                 var connectionString = configuration.GetConnectionString("Default");
+
                 if (string.IsNullOrWhiteSpace(connectionString))
+                {
                     throw new InvalidOperationException("Connection string cannot be empty.");
+                }
+
                 builder.UseLazyLoadingProxies();
                 builder.UseNpgsql(connectionString);
             });
+
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<ITaskModelRepository, TaskModelRepository>();

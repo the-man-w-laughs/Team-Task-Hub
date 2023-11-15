@@ -17,18 +17,31 @@ public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
     }
 
     public virtual async Task<List<TEntity>> GetAllAsync(
+        int offset,
+        int limit,
         CancellationToken cancellationToken = default
     )
     {
-        return await _table.ToListAsync(cancellationToken);
+        return await DbContext
+            .Set<TEntity>()
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<List<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>> where,
+        int offset,
+        int limit,
         CancellationToken cancellationToken = default
     )
     {
-        return await _table.Where(where).ToListAsync(cancellationToken);
+        return await DbContext
+            .Set<TEntity>()
+            .Where(where)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<TEntity?> GetByIdAsync(

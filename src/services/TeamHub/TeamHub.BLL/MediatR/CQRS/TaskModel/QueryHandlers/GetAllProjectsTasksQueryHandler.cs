@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
@@ -38,15 +39,30 @@ public class GetAllProjectsTasksQueryHandler
     {
         var userId = _httpContextAccessor.GetUserId();
 
-        await _projectRepository.GetProjectByIdAsync(request.ProjectId, cancellationToken);
-        await _teamMemberRepository.GetTeamMemberAsync(
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
+
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
             userId,
             request.ProjectId,
             cancellationToken
         );
 
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {request.ProjectId}."
+            );
+        }
+
         var projectTasks = await _taskRepository.GetAllAsync(
             task => task.ProjectId == request.ProjectId,
+            request.Offset,
+            request.Limit,
             cancellationToken
         );
 

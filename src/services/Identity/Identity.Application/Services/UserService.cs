@@ -47,9 +47,9 @@ namespace Identity.Application.Services
             return new SuccessResult<int>(appUser.Id);
         }
 
-        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
+        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit)
         {
-            var users = await _appUserRepository.GetAllUsersAsync();
+            var users = await _appUserRepository.GetAllUsersAsync(offset, limit);
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 

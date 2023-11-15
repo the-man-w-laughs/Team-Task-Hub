@@ -38,8 +38,27 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the requested task exists and current users team member exists.
-        var task = await _taskRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
-        await _teamMemberRepository.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
+
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
+
+        if (task == null)
+        {
+            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
+        }
+
+        // Check if the current users team member exists.
+        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
+
+        if (teamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {userId} doesn't have access to project with id {task.ProjectId}."
+            );
+        }
 
         // Check if the target team member exists (the user to be assigned).
         var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
@@ -47,6 +66,13 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
             task.ProjectId,
             cancellationToken
         );
+
+        if (targetTeamMember == null)
+        {
+            throw new ForbiddenException(
+                $"User with id {request.UserId} doesn't have access to project with id {task.ProjectId}."
+            );
+        }
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
