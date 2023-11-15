@@ -5,7 +5,7 @@ using TeamHub.BLL.Dtos;
 using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 
-namespace TeamHub.WebApi.controllers;
+namespace TeamHub.WebApi.Controllers;
 
 [ApiController]
 [Authorize]
@@ -23,7 +23,7 @@ public class CommentsController : ControllerBase
     /// Get Comment
     /// </summary>
     [HttpGet("{commentId:int}")]
-    public async Task<IActionResult> GetComment([FromRoute] int commentId)
+    public async Task<IActionResult> GetCommentAsync([FromRoute] int commentId)
     {
         var command = new GetCommentByIdQuery(commentId);
         var result = await _mediator.Send(command, HttpContext.RequestAborted);
@@ -35,7 +35,7 @@ public class CommentsController : ControllerBase
     /// Update Comment
     /// </summary>
     [HttpPut("{commentId:int}")]
-    public async Task<IActionResult> UpdateComment(
+    public async Task<IActionResult> UpdateCommentAsync(
         [FromRoute] int commentId,
         [FromBody] CommentRequestDto commentRequestDto
     )
@@ -50,7 +50,7 @@ public class CommentsController : ControllerBase
     /// Delete Comment
     /// </summary>
     [HttpDelete("{commentId:int}")]
-    public async Task<IActionResult> DeleteComment([FromRoute] int commentId)
+    public async Task<IActionResult> DeleteCommentAsync([FromRoute] int commentId)
     {
         var command = new DeleteCommentCommand(commentId);
         var result = await _mediator.Send(command, HttpContext.RequestAborted);

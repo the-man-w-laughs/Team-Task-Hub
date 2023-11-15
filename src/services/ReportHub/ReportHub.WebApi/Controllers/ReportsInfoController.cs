@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReportHub.BLL.Contracts;
 
-namespace ReportHub.WebApi.controllers;
+namespace ReportHub.WebApi.Controllers;
 
 /// <summary>
 /// Controller for managing reports info.
