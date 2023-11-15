@@ -1,10 +1,13 @@
+using Identity.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+
 namespace Identity.Domain.Entities;
 
 public interface IAppUserRepository
 {
-    Task CreateUserAsync(AppUser appUser, string password);
+    Task<IdentityResult> CreateUserAsync(AppUser appUser, string password);
     Task<IEnumerable<AppUser>> GetAllUsersAsync();
     Task<AppUser?> GetUserByIdAsync(string id);
-    Task DeleteUserAsync(AppUser appUser);
+    Task<IdentityResult> DeleteUserAsync(AppUser appUser);
     Task<bool> IsUserInRoleAsync(AppUser appUser, string role);
 }
