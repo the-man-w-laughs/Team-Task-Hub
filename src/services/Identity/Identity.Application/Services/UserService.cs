@@ -33,24 +33,24 @@ namespace Identity.Application.Services
             _emailConfirmationHelper = emailConfirmationHelper;
         }
 
-        public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
+        public async Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto)
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
-            try
-            {
-                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
-            }
-            catch (Exception ex)
-            {
-                return new InvalidResult<int>(ex.Message);
-            }
+            // try
+            // {
+            //     await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
+            // }
+            // catch (Exception ex)
+            // {
+            //     return new InvalidResult<string>(ex.Message);
+            // }
 
-            var message = _mapper.Map<UserCreatedMessage>(appUser);
+            await _emailConfirmationHelper.SendEmail(appUser);
 
-            await _publishEndpoint.Publish(message);
-
-            return new SuccessResult<int>(appUser.Id);
+            return new SuccessResult<string>(
+                $"Confirmation email sent successfully! Please checkout your inbox {appUserDto.Email}"
+            );
         }
 
         public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
@@ -82,7 +82,7 @@ namespace Identity.Application.Services
 
             if (user == null)
             {
-                return new InvalidResult<AppUserDto>("User not found.");
+                return new InvalidResult<AppUserDto>($"User with id \"{id}\" not found.");
             }
 
             if (await _appUserRepository.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
@@ -102,6 +102,20 @@ namespace Identity.Application.Services
             var message = _mapper.Map<UserDeletedMessage>(user);
 
             await _publishEndpoint.Publish(message);
+
+            var userDto = _mapper.Map<AppUserDto>(user);
+
+            return new SuccessResult<AppUserDto>(userDto);
+        }
+
+        public async Task<Result<AppUserDto>> GetUserByEmailAsync(string email)
+        {
+            var user = await _appUserRepository.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return new InvalidResult<AppUserDto>($"User with email \"{email}\" not found.");
+            }
 
             var userDto = _mapper.Map<AppUserDto>(user);
 

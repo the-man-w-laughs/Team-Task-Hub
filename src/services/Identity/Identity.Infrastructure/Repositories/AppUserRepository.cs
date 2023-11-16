@@ -30,6 +30,11 @@ public class AppUserRepository : IAppUserRepository
         return await _userManager.Users.ToListAsync();
     }
 
+    public async Task<AppUser?> GetUserByEmailAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email);
+    }
+
     public async Task<AppUser?> GetUserByIdAsync(string id)
     {
         return await _userManager.FindByIdAsync(id);

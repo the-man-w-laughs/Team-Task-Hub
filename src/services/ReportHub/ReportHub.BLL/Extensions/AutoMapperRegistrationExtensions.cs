@@ -7,7 +7,7 @@ namespace ReportHub.BLL.Extensions
     {
         public static void RegisterAutomapperProfiles(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(ProjectsProfile));
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
         }
     }
 }

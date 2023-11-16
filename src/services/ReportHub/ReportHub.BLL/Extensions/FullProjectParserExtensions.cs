@@ -8,6 +8,7 @@ namespace ReportHub.BLL.Extensions
         public static string ToReport(this FullProjectResponseDto project)
         {
             var sb = new StringBuilder();
+            sb.AppendLine($"Report Creation Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
             sb.AppendLine($"Project ID: {project.Id}");
             sb.AppendLine($"Name: {project.Name}");
             sb.AppendLine($"Created At: {project.CreatedAt}");

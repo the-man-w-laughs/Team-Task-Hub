@@ -20,7 +20,8 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
             Email = email,
             NormalizedUserName = "ADMIN",
             SecurityStamp = Guid.NewGuid().ToString(),
-            PasswordHash = hasher.HashPassword(null, "admin")
+            PasswordHash = hasher.HashPassword(null, "admin"),
+            EmailConfirmed = true
         };
 
         builder.HasData(admin);

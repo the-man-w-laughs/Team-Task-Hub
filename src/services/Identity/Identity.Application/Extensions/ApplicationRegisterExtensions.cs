@@ -10,12 +10,10 @@ using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Identity.Application
 {
-    public static class ApplicationRegisterExtensions
+    public static class ServiceRegistrationExtensions
     {
-        public static void RegisterApplicationDependencies(this IServiceCollection services)
+        public static void RegisterServices(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(UsersProfile));
-
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(x =>
             {

@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using TeamHub.BLL.AutoMapperProfiles;
+﻿using System.Reflection;
+using Identity.Application.AutoMapperProfiles;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace TeamHub.BLL
+namespace Identity.Application
 {
     public static class AutoMapperRegistrationExtensions
     {
