@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.Ports.Utils;
@@ -6,8 +7,6 @@ using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
 using MassTransit;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Shared.IdentityConstraints;
 using Shared.SharedModels;
 
@@ -18,13 +17,13 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IPublishEndpoint _publishEndpoint;
-        private readonly IEmailConfirmationHelper _emailConfirmationHelper;
+        private readonly IConfirmationEmailSender _emailConfirmationHelper;
 
         public UserService(
             IMapper mapper,
             IAppUserRepository appUserRepository,
             IPublishEndpoint publishEndpoint,
-            IEmailConfirmationHelper emailConfirmationHelper
+            IConfirmationEmailSender emailConfirmationHelper
         )
         {
             _mapper = mapper;
@@ -37,16 +36,16 @@ namespace Identity.Application.Services
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
-            // try
-            // {
-            //     await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
-            // }
-            // catch (Exception ex)
-            // {
-            //     return new InvalidResult<string>(ex.Message);
-            // }
+            try
+            {
+                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
+            }
+            catch (Exception ex)
+            {
+                return new InvalidResult<string>(ex.Message);
+            }
 
-            await _emailConfirmationHelper.SendEmail(appUser);
+            BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmail(appUser));
 
             return new SuccessResult<string>(
                 $"Confirmation email sent successfully! Please checkout your inbox {appUserDto.Email}"

@@ -1,23 +1,20 @@
 ﻿using AutoMapper;
-using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
-using Identity.Application.Ports.Utils;
 using Identity.Domain.Entities;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Shared.Exceptions;
-using Shared.IdentityConstraints;
 using Shared.SharedModels;
 
 namespace Identity.Application.Services
 {
-    public class EmailService : IEmailService
+    public class EmailConfirmationService : IEmailService
     {
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
         private readonly IPublishEndpoint _publishEndpoint;
 
-        public EmailService(
+        public EmailConfirmationService(
             IMapper mapper,
             UserManager<AppUser> userManager,
             IPublishEndpoint publishEndpoint

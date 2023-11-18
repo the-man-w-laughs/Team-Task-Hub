@@ -30,6 +30,7 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
+builder.Services.RegisterHangfire(config);
 
 var app = builder.Build();
 
@@ -48,5 +49,7 @@ app.UseAuthorization();
 app.UseIdentityServer();
 app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
+
+app.UseHangfireWithDashboard(config);
 
 app.Run();

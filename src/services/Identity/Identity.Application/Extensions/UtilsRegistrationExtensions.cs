@@ -1,12 +1,6 @@
-﻿using Identity.Application.AutoMapperProfiles;
-using Microsoft.Extensions.DependencyInjection;
-using Identity.Application.Ports.Services;
-using Identity.Application.Services;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Identity.Application.Ports.Utils;
 using Identity.Application.Utils;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace Identity.Application
 {
@@ -14,7 +8,7 @@ namespace Identity.Application
     {
         public static void RegisterUtilsDependencies(this IServiceCollection services)
         {
-            services.AddScoped<IEmailConfirmationHelper, EmailConfirmationHelper>();
+            services.AddScoped<IConfirmationEmailSender, ConfirmationEmailSender>();
         }
     }
 }

@@ -2,18 +2,17 @@ using System.Net.Mail;
 using Identity.Application.Ports.Utils;
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Shared.SharedModels;
 
 namespace Identity.Application.Utils
 {
-    public class EmailConfirmationHelper : IEmailConfirmationHelper
+    public class ConfirmationEmailSender : IConfirmationEmailSender
     {
         private readonly EmailCredentials _options;
         private readonly UserManager<AppUser> _userManager;
 
-        public EmailConfirmationHelper(
+        public ConfirmationEmailSender(
             UserManager<AppUser> userManager,
             IOptions<EmailCredentials> options
         )
@@ -22,29 +21,24 @@ namespace Identity.Application.Utils
             _options = options.Value;
         }
 
-        public async Task<bool> SendEmail(AppUser appUser)
+        public async Task SendEmail(AppUser appUser)
         {
-            //var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
-            var token = "token";
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
             var targetEmail = appUser.Email!;
             var confirmationLink = BuildConfirmationLink(targetEmail, token);
-            var mailMessage = CreateMailMessage(targetEmail, confirmationLink);
 
-            try
+            string Body = CreateBody(confirmationLink);
+
+            var mailMessage = CreateMailMessage(targetEmail, Body);
+
+            using (var client = new SmtpClient(host: _options.Host, port: 587))
             {
-                using (var client = new SmtpClient(_options.Email, 80))
-                {
-                    client.Credentials = new System.Net.NetworkCredential(
-                        _options.Email,
-                        _options.Password
-                    );
-                    client.Send(mailMessage);
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                return false;
+                client.Credentials = new System.Net.NetworkCredential(
+                    _options.Email,
+                    _options.AppPassword
+                );
+                client.EnableSsl = true;
+                client.Send(mailMessage);
             }
         }
 
@@ -67,12 +61,26 @@ namespace Identity.Application.Utils
         {
             return new MailMessage
             {
-                From = new MailAddress(_options.Email),
+                From = new MailAddress(_options.Email, "TeamTaskHub"),
                 To = { new MailAddress(toEmail) },
-                Subject = "Confirm your email",
+                Subject = "Confirm your email for teamtaskhub.",
                 IsBodyHtml = true,
                 Body = body
             };
+        }
+
+        private static string CreateBody(string uri)
+        {
+            return $@"
+            <html>
+                <body>
+                    <p>Dear User,</p>
+                    <p>Thank you for choosing TeamTaskHub! To complete your registration, please click the link below:</p>
+                    <a href='{uri}'>Confirm Email Address</a>
+                    <p>If you didn't create an account with TeamTaskHub, you can safely ignore this email.</p>
+                    <p>Best regards,<br/>The TeamTaskHub Team</p>
+                </body>
+            </html>";
         }
     }
 }

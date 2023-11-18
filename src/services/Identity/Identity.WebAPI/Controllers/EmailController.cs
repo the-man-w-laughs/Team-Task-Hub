@@ -15,7 +15,10 @@ public class EmailController : ControllerBase
     }
 
     [HttpGet("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail(string token, string email)
+    public async Task<IActionResult> ConfirmEmail(
+        [FromQuery] string token,
+        [FromQuery] string email
+    )
     {
         await _emailService.ConfirmEmail(token, email);
 

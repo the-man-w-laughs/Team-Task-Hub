@@ -27,7 +27,7 @@ public class AppUserRepository : IAppUserRepository
 
     public async Task<IEnumerable<AppUser>> GetAllUsersAsync()
     {
-        return await _userManager.Users.ToListAsync();
+        return await _userManager.Users.Where(user => user.EmailConfirmed == true).ToListAsync();
     }
 
     public async Task<AppUser?> GetUserByEmailAsync(string email)

@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Identity.Application.AutoMapperProfiles;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Identity.Application
