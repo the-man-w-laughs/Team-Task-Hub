@@ -1,4 +1,5 @@
-﻿using TeamHub.BLL.Dtos;
+﻿using Shared.gRPC.FullProjectResponse;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.AutoMapperProfiles
@@ -14,7 +15,11 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression =>
                         expression.MapFrom(
                             src =>
-                                src.TasksHandlers != null ? GetUsersList(src.TasksHandlers) : null
+                                src.TasksHandlers != null
+                                    ? src.TasksHandlers
+                                        .Select(member => member.TeamMember.User)
+                                        .ToList()
+                                    : null
                         )
                 )
                 .ForMember(
@@ -22,43 +27,23 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
 
-            CreateMap<TaskModel, ProjectTaskResponseDto>()
+            CreateMap<TaskModel, ProjectTaskDataContract>()
                 .ForMember(
                     task => task.TasksHandlersIds,
                     expression =>
                         expression.MapFrom(
                             src =>
-                                src.TasksHandlers != null ? GetUserIdList(src.TasksHandlers) : null
+                                src.TasksHandlers != null
+                                    ? src.TasksHandlers
+                                        .Select(member => member.TeamMember.User)
+                                        .ToList()
+                                    : null
                         )
                 )
                 .ForMember(
                     task => task.IsCompleted,
                     expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
-        }
-
-        private List<int> GetUserIdList(ICollection<TaskHandler> teamMembers)
-        {
-            List<int> userIds = new List<int>();
-            foreach (var member in teamMembers)
-            {
-                var id = member.TeamMember.UserId;
-                userIds.Add(id);
-            }
-
-            return userIds;
-        }
-
-        private List<User> GetUsersList(ICollection<TaskHandler> teamMembers)
-        {
-            List<User> users = new List<User>();
-            foreach (var member in teamMembers)
-            {
-                var user = member.TeamMember.User;
-                users.Add(user);
-            }
-
-            return users;
         }
     }
 }

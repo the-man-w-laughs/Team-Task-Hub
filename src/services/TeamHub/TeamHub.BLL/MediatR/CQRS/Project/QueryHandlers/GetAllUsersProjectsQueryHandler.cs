@@ -34,6 +34,8 @@ public class GetAllUsersProjectsQueryHandler
 
         var userProjects = await _projectRepository.GetAllAsync(
             project => project.TeamMembers.Any(tm => tm.UserId == userId),
+            request.Offset,
+            request.Limit,
             cancellationToken
         );
 

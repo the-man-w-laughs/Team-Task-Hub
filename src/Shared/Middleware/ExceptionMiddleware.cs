@@ -28,7 +28,8 @@ public class ExceptionMiddleware
 
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
-        context.Response.ContentType = "application/json";
+        context.Response.ContentType = "text/plain";
+
         switch (exception)
         {
             case AuthorizationException:

@@ -1,5 +1,6 @@
-using System.Reflection;
 using MassTransit;
+using Shared.SharedModels;
+using Microsoft.Extensions.Options;
 
 namespace Identity.WebAPI.Extensions
 {
@@ -10,30 +11,25 @@ namespace Identity.WebAPI.Extensions
             ConfigurationManager config
         )
         {
-            services.AddMassTransit(x =>
+            services.Configure<RabbitMQSettings>(config.GetSection("RabbitMQ"));
+
+            services.AddMassTransit(busConfigurator =>
             {
-                var assembly = Assembly.GetEntryAssembly();
-                var host = config["MessageBroker:Host"];
-                var virtualHost = config["MessageBroker:VirtualHost"];
-                var username = config["MessageBroker:Username"];
-                var password = config["MessageBroker:Password"];
-
-                x.AddConsumers(assembly);
-
-                x.UsingRabbitMq(
-                    (context, cfg) =>
+                busConfigurator.UsingRabbitMq(
+                    (busRegistrationContext, busConfigurator) =>
                     {
-                        cfg.Host(
-                            host,
-                            virtualHost,
-                            h =>
+                        var settings = busRegistrationContext
+                            .GetRequiredService<IOptions<RabbitMQSettings>>()
+                            .Value;
+
+                        busConfigurator.Host(
+                            new Uri(settings.Host),
+                            hostConfigurator =>
                             {
-                                h.Username(username);
-                                h.Password(password);
+                                hostConfigurator.Username(settings.Username);
+                                hostConfigurator.Password(settings.Password);
                             }
                         );
-
-                        cfg.ConfigureEndpoints(context);
                     }
                 );
             });

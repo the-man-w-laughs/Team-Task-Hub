@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.SharedModels;
 using ReportHub.BLL.MassTransit.Consumers;
+using Microsoft.Extensions.Options;
 
 namespace ReportHub.BLL.Extensions
 {
@@ -14,37 +15,33 @@ namespace ReportHub.BLL.Extensions
             IConfiguration config
         )
         {
-            services.AddMassTransit(x =>
+            services.Configure<RabbitMQSettings>(config.GetSection("RabbitMQ"));
+
+            services.AddMassTransit(busConfigurator =>
             {
-                var assembly = Assembly.GetAssembly(typeof(UserDeletedMessageConsumer));
-                var host = config["RabbitMQ:Host"];
-                var virtualHost = config["RabbitMQ:VirtualHost"];
-                var username = config["RabbitMQ:Username"];
-                var password = config["RabbitMQ:Password"];
+                busConfigurator.SetEndpointNameFormatter(
+                    new KebabCaseEndpointNameFormatter(prefix: "reporthub", includeNamespace: false)
+                );
 
-                x.AddConsumers(assembly);
+                busConfigurator.AddConsumer<UserDeletedMessageConsumer>();
 
-                x.UsingRabbitMq(
-                    (context, cfg) =>
+                busConfigurator.UsingRabbitMq(
+                    (busRegistrationContext, busConfigurator) =>
                     {
-                        cfg.Host(
-                            host,
-                            virtualHost,
-                            h =>
+                        var settings = busRegistrationContext
+                            .GetRequiredService<IOptions<RabbitMQSettings>>()
+                            .Value;
+
+                        busConfigurator.Host(
+                            new Uri(settings.Host),
+                            hostConfigurator =>
                             {
-                                h.Username(username);
-                                h.Password(password);
+                                hostConfigurator.Username(settings.Username);
+                                hostConfigurator.Password(settings.Password);
                             }
                         );
 
-                        cfg.ReceiveEndpoint(
-                            config["RabbitMQ:ReceiveEndpoints:UserDeleted"],
-                            x =>
-                            {
-                                x.Bind<UserDeletedMessage>();
-                                x.ConfigureConsumer<UserDeletedMessageConsumer>(context);
-                            }
-                        );
+                        busConfigurator.ConfigureEndpoints(busRegistrationContext);
                     }
                 );
             });

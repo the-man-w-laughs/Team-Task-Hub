@@ -4,6 +4,9 @@ using Shared.Middleware;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Extensions;
 using ReportHub.WebApi.Extensions;
+using Grpc.Net.Client;
+using ProtoBuf.Grpc.Client;
+using Shared.gRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +26,7 @@ builder.Services.ConfigureMongoDb(config);
 builder.Services.ConfigureMinio(config);
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
+builder.Services.RegisterGrpcClient(config);
 builder.Services.ConfigureHttpClient(config);
 
 var app = builder.Build();
@@ -37,7 +41,9 @@ if (!app.Environment.IsProduction())
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.UseMiddleware<UserCacheMiddleware>();
+
 app.MapControllers();
 
 app.Run();

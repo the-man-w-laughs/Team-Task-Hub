@@ -1,52 +1,54 @@
 using System.Text;
-using TeamHub.BLL.Dtos;
+using Shared.gRPC.FullProjectResponse;
 
 namespace ReportHub.BLL.Extensions
 {
     public static class FullProjectParserExtensions
     {
-        public static string ToReport(this FullProjectResponseDto project)
+        public static string ToReport(this FullProjectInfoResponse fullProjectInfo)
         {
-            var sb = new StringBuilder();
-            sb.AppendLine($"Report Creation Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
-            sb.AppendLine($"Project ID: {project.Id}");
-            sb.AppendLine($"Name: {project.Name}");
-            sb.AppendLine($"Created At: {project.CreatedAt}");
-            sb.AppendLine($"Creator: {project.Creator.Email}");
-            sb.AppendLine("Team Members:");
+            var report = new StringBuilder();
+            report.AppendLine($"Report Creation Date: {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
+            report.AppendLine($"Project ID: {fullProjectInfo.Id}");
+            report.AppendLine($"Name: {fullProjectInfo.Name}");
+            report.AppendLine($"Created At: {fullProjectInfo.CreatedAt}");
+            report.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
+            report.AppendLine("Team Members:");
 
-            foreach (var teamMember in project.TeamMembers)
+            foreach (var teamMember in fullProjectInfo.TeamMembers)
             {
-                sb.AppendLine($"\t- {teamMember.Email}");
+                report.AppendLine($"\t- {teamMember.Email}");
             }
 
-            sb.AppendLine("Tasks:");
+            report.AppendLine("Tasks:");
 
-            foreach (var task in project.Tasks)
+            foreach (var task in fullProjectInfo.Tasks)
             {
-                sb.AppendLine($"\tTask ID: {task.Id}");
-                sb.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
-                sb.AppendLine($"\tContent: {task.Content}");
-                sb.AppendLine($"\tCreated At: {task.CreatedAt}");
-                sb.AppendLine($"\tIs Completed: {task.IsCompleted}");
-                sb.AppendLine("\tTask Handlers:");
+                report.AppendLine($"\tTask ID: {task.Id}");
+                report.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
+                report.AppendLine($"\tContent: {task.Content}");
+                report.AppendLine($"\tCreated At: {task.CreatedAt}");
+                report.AppendLine($"\tIs Completed: {task.IsCompleted}");
+                report.AppendLine("\tTask Handlers:");
 
                 foreach (var handlerId in task.TasksHandlersIds)
                 {
-                    var handler = project.TeamMembers.FirstOrDefault(u => u.Id == handlerId);
+                    var handler = fullProjectInfo.TeamMembers.FirstOrDefault(
+                        u => u.Id == handlerId
+                    );
 
                     if (handler != null)
                     {
-                        sb.AppendLine($"\t\t- User: {handler.Email}");
+                        report.AppendLine($"\t\t- User: {handler.Email}");
                     }
                     else
                     {
-                        sb.AppendLine($"\t\t- User ID: {handlerId}");
+                        report.AppendLine($"\t\t- User ID: {handlerId}");
                     }
                 }
             }
 
-            return sb.ToString();
+            return report.ToString();
         }
     }
 }

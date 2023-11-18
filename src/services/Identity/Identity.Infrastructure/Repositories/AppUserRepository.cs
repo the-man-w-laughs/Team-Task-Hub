@@ -13,21 +13,23 @@ public class AppUserRepository : IAppUserRepository
         _userManager = userManager;
     }
 
-    public async Task CreateUserAsync(AppUser appUser, string password)
+    public async Task<IdentityResult> CreateUserAsync(AppUser appUser, string password)
     {
-        var identityResult = await _userManager.CreateAsync(appUser, password);
-        HandleIdentityResult("Create user", identityResult);
+        return await _userManager.CreateAsync(appUser, password);
     }
 
-    public async Task DeleteUserAsync(AppUser appUser)
+    public async Task<IdentityResult> DeleteUserAsync(AppUser appUser)
     {
-        var identityResult = await _userManager.DeleteAsync(appUser);
-        HandleIdentityResult("Delete user", identityResult);
+        return await _userManager.DeleteAsync(appUser);
     }
 
-    public async Task<IEnumerable<AppUser>> GetAllUsersAsync()
+    public async Task<IEnumerable<AppUser>> GetAllUsersAsync(int offset, int limit)
     {
-        return await _userManager.Users.Where(user => user.EmailConfirmed == true).ToListAsync();
+        return await _userManager.Users
+            .Where(user => user.EmailConfirmed == true)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
     }
 
     public async Task<AppUser?> GetUserByEmailAsync(string email)
@@ -43,15 +45,5 @@ public class AppUserRepository : IAppUserRepository
     public async Task<bool> IsUserInRoleAsync(AppUser appUser, string role)
     {
         return await _userManager.IsInRoleAsync(appUser, role);
-    }
-
-    private void HandleIdentityResult(string action, IdentityResult identityResult)
-    {
-        if (!identityResult.Succeeded)
-        {
-            throw new Exception(
-                $"Failed to {action}: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
-            );
-        }
     }
 }

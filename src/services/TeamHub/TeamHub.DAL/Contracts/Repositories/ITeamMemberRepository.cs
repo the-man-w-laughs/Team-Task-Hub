@@ -8,6 +8,6 @@ public interface ITeamMemberRepository : IRepository<TeamMember>
     public Task<TeamMember> GetTeamMemberAsync(
         int userId,
         int projectId,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken = default
     );
 }

@@ -29,6 +29,11 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
             cancellationToken
         );
 
+        if (comment == null)
+        {
+            throw new NotFoundException($"Cannot find comment with id {request.CommentId}");
+        }
+
         if (userId != comment.AuthorId)
         {
             throw new ForbiddenException(

@@ -27,12 +27,13 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
     public async Task<int> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.GetUserId();
-        ;
 
-        var project = await _projectRepository.GetProjectByIdAsync(
-            request.ProjectId,
-            cancellationToken
-        );
+        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+
+        if (project == null)
+        {
+            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
+        }
 
         if (userId != project.AuthorId)
         {

@@ -36,13 +36,16 @@ namespace Identity.Application.Services
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
-            try
+            var identityResult = await _appUserRepository.CreateUserAsync(
+                appUser,
+                appUserDto.Password
+            );
+
+            if (!identityResult.Succeeded)
             {
-                await _appUserRepository.CreateUserAsync(appUser, appUserDto.Password);
-            }
-            catch (Exception ex)
-            {
-                return new InvalidResult<string>(ex.Message);
+                return new InvalidResult<string>(
+                    $"Failed to add: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
+                );
             }
 
             BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmail(appUser));
@@ -52,9 +55,9 @@ namespace Identity.Application.Services
             );
         }
 
-        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync()
+        public async Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit)
         {
-            var users = await _appUserRepository.GetAllUsersAsync();
+            var users = await _appUserRepository.GetAllUsersAsync(offset, limit);
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
@@ -89,13 +92,13 @@ namespace Identity.Application.Services
                 return new InvalidResult<AppUserDto>("Admins cannot delete themselves.");
             }
 
-            try
+            var identityResult = await _appUserRepository.DeleteUserAsync(user);
+
+            if (!identityResult.Succeeded)
             {
-                await _appUserRepository.DeleteUserAsync(user);
-            }
-            catch (Exception ex)
-            {
-                return new InvalidResult<AppUserDto>(ex.Message);
+                return new InvalidResult<AppUserDto>(
+                    $"Failed to delete: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
+                );
             }
 
             var message = _mapper.Map<UserDeletedMessage>(user);

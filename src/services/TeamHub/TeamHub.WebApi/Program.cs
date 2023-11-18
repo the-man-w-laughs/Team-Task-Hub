@@ -23,12 +23,15 @@ builder.Services.RegisterAutomapperProfiles();
 builder.Services.ConfigureMediatR();
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
+builder.Services.ReristerRrpcService();
 
 var app = builder.Build();
 
 app.UseCors();
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseRouting();
+app.UseGrpcService();
 
 if (!app.Environment.IsProduction())
 {

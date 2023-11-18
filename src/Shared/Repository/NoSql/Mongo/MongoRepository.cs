@@ -52,6 +52,7 @@ namespace Shared.Repository.NoSql
         )
         {
             var filterDefinition = Builders<TEntity>.Filter.Where(filter);
+
             return await _mongoCollection.Find(filterDefinition).ToListAsync(cancellationToken);
         }
 
@@ -61,6 +62,7 @@ namespace Shared.Repository.NoSql
         )
         {
             var filterDefinition = Builders<TEntity>.Filter.Where(filter);
+
             return await _mongoCollection
                 .Find(filterDefinition)
                 .Limit(1)

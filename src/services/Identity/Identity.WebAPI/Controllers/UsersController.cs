@@ -34,9 +34,12 @@ public class UsersController : ControllerBase
     /// </summary>
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetAllUsersAsync()
+    public async Task<IActionResult> GetAllUsersAsync(
+        [FromQuery] int offset = 0,
+        [FromQuery] int limit = 100
+    )
     {
-        var result = await _userService.GetAllUsersAsync();
+        var result = await _userService.GetAllUsersAsync(offset, limit);
 
         return this.FromResult(result);
     }

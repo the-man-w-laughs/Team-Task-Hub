@@ -5,9 +5,16 @@ namespace Shared.Repository.Sql;
 public interface IRepository<TEntity>
     where TEntity : class, new()
 {
-    Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task<List<TEntity>> GetAllAsync(
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default
+    );
+
     Task<List<TEntity>> GetAllAsync(
         Expression<Func<TEntity, bool>> where,
+        int offset,
+        int limit,
         CancellationToken cancellationToken
     );
     Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken);

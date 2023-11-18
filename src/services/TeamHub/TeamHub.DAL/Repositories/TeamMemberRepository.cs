@@ -13,7 +13,7 @@ namespace TeamHub.DAL.Repositories
         public TeamMemberRepository(TeamHubDbContext TeamHubDbContext)
             : base(TeamHubDbContext) { }
 
-        public async Task<TeamMember> GetTeamMemberAsync(
+        public async Task<TeamMember?> GetTeamMemberAsync(
             int userId,
             int projectId,
             CancellationToken cancellationToken = default
@@ -23,13 +23,6 @@ namespace TeamHub.DAL.Repositories
                 teamMember => teamMember.UserId == userId && teamMember.ProjectId == projectId,
                 cancellationToken
             );
-
-            if (teamMember == null)
-            {
-                throw new ForbiddenException(
-                    $"User with id {userId} doesn't have access to project with id {projectId}."
-                );
-            }
 
             return teamMember;
         }

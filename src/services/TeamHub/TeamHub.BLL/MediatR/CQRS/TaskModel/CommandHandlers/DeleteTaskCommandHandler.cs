@@ -11,7 +11,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly ITaskModelRepository _taskModelRepository;
+    private readonly ITaskModelRepository _taskRepository;
 
     public DeleteTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -21,13 +21,20 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
-        _taskModelRepository = taskModelRepository;
+        _taskRepository = taskModelRepository;
     }
 
     public async Task<int> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
         var userId = _httpContextAccessor.GetUserId();
-        var task = await _taskModelRepository.GetTaskByIdAsync(request.TaskId, cancellationToken);
+
+        // Check if the requested task exists and current users team member exists.
+        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
+
+        if (task == null)
+        {
+            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
+        }
 
         if (userId != task.TeamMember.UserId && userId != task.Project.AuthorId)
         {
@@ -36,8 +43,8 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, int>
             );
         }
 
-        _taskModelRepository.Delete(task);
-        await _taskModelRepository.SaveAsync(cancellationToken);
+        _taskRepository.Delete(task);
+        await _taskRepository.SaveAsync(cancellationToken);
 
         return task.Id;
     }

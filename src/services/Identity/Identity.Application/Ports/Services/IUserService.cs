@@ -7,7 +7,7 @@ namespace Identity.Application.Ports.Services
     {
         Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto);
         Task<Result<AppUserDto>> DeleteUserByIdAsync(int id);
-        Task<Result<List<AppUserDto>>> GetAllUsersAsync();
+        Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit);
         Task<Result<AppUserDto>> GetUserByIdAsync(int id);
         Task<Result<AppUserDto>> GetUserByEmailAsync(string email);
     }

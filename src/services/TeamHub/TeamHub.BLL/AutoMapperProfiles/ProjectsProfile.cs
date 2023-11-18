@@ -1,4 +1,5 @@
-﻿using TeamHub.BLL.Dtos;
+﻿using Shared.gRPC.FullProjectResponse;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.AutoMapperProfiles
@@ -13,30 +14,24 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     project => project.TeamMembers,
                     expression =>
                         expression.MapFrom(
-                            src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
+                            src =>
+                                src.TeamMembers != null
+                                    ? src.TeamMembers.Select(member => member.User).ToList()
+                                    : null
                         )
                 );
 
-            CreateMap<Project, FullProjectResponseDto>()
+            CreateMap<Project, FullProjectInfoResponse>()
                 .ForMember(
                     project => project.TeamMembers,
                     expression =>
                         expression.MapFrom(
-                            src => src.TeamMembers != null ? GetUsersList(src.TeamMembers) : null
+                            src =>
+                                src.TeamMembers != null
+                                    ? src.TeamMembers.Select(member => member.User).ToList()
+                                    : null
                         )
                 );
-        }
-
-        private List<User> GetUsersList(ICollection<TeamMember> teamMembers)
-        {
-            List<User> users = new List<User>();
-            foreach (var member in teamMembers)
-            {
-                var user = member.User;
-                users.Add(user);
-            }
-
-            return users;
         }
     }
 }

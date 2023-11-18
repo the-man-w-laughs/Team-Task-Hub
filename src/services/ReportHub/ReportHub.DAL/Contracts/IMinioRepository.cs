@@ -5,5 +5,6 @@ namespace ReportHub.DAL.Contracts
         Task<string> UploadReportAsync(Stream reportContent);
         Task<Stream> GetFileFromMinioAsync(string objectName);
         Task<string> DeleteFileFromMinioAsync(string objectName);
+        Task DeleteFilesFromMinioAsync(IList<string> objectNames);
     }
 }
