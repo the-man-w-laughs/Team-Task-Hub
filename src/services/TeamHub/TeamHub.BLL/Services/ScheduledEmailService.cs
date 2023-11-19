@@ -4,12 +4,21 @@ namespace TeamHub.BLL.Services
 {
     public class ScheduledEmailService : IScheduledEmailService
     {
-        public ScheduledEmailService(IMailingService mailingService, IHolidayService holidayService)
-        { }
+        private readonly IMailingService _mailingService;
+        private readonly IHolidayService _holidayService;
 
-        public Task Schedule()
+        public ScheduledEmailService(IMailingService mailingService, IHolidayService holidayService)
         {
-            throw new NotImplementedException();
+            _mailingService = mailingService;
+            _holidayService = holidayService;
+        }
+
+        public async Task Schedule()
+        {
+            if (_holidayService.IsDayOff(DateTime.Now))
+            {
+                await _mailingService.SendPendingTasks();
+            }
         }
     }
 }

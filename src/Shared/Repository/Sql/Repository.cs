@@ -16,6 +16,11 @@ public abstract class Repository<TDbContext, TEntity> : IRepository<TEntity>
         _table = dbContext.Set<TEntity>();
     }
 
+    public async Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        return await DbContext.Set<TEntity>().ToListAsync(cancellationToken);
+    }
+
     public virtual async Task<List<TEntity>> GetAllAsync(
         int offset,
         int limit,

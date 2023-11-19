@@ -5,6 +5,7 @@ using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Shared.SharedModels;
 using HangfireBasicAuthenticationFilter;
+using TeamHub.BLL.Contracts;
 
 namespace TeamHub.BLL
 {
@@ -42,6 +43,23 @@ namespace TeamHub.BLL
                         }
                     }
                 }
+            );
+
+            return app;
+        }
+
+        public static IApplicationBuilder UseDailyMailing(this IApplicationBuilder app)
+        {
+            string recurringJobId = "DailyMailingJob";
+
+            var recurringJobOptions = new RecurringJobOptions { TimeZone = TimeZoneInfo.Local };
+
+            RecurringJob.AddOrUpdate<IScheduledEmailService>(
+                recurringJobId,
+                scheduledEmailService => scheduledEmailService.Schedule(),
+                //Cron.Daily(8), // Adjusted to run at 8 AM
+                Cron.Minutely(),
+                recurringJobOptions
             );
 
             return app;

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using TeamHub.BLL.AutoMapperProfiles;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TeamHub.BLL
 {

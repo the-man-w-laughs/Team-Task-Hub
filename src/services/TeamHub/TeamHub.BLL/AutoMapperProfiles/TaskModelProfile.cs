@@ -44,6 +44,8 @@ namespace TeamHub.BLL.AutoMapperProfiles
                     task => task.IsCompleted,
                     expression => expression.MapFrom(src => src.IsCompleted == 1)
                 );
+
+            CreateMap<TaskModel, ShortTaskModelResponseDto>();
         }
     }
 }

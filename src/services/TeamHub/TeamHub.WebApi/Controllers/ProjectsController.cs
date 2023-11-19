@@ -88,6 +88,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Delete Project
     /// </summary>
+    [HttpDelete("{projectId:int}")]
     public async Task<IActionResult> DeleteProjectAsync([FromRoute] int projectId)
     {
         var command = new DeleteProjectCommand(projectId);
