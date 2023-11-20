@@ -7,9 +7,9 @@ namespace Identity.WebAPI.Controllers;
 [ApiController]
 public class EmailController : ControllerBase
 {
-    private readonly IEmailService _emailService;
+    private readonly IEmailConfirmationService _emailService;
 
-    public EmailController(IEmailService emailService)
+    public EmailController(IEmailConfirmationService emailService)
     {
         _emailService = emailService;
     }

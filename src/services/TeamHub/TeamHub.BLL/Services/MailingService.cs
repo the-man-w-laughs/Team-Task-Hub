@@ -31,14 +31,14 @@ namespace TeamHub.BLL.Services
         {
             var users = await _userRepository.GetAllAsync();
 
-            using (var client = new SmtpClient(host: _options.Host, port: 587))
-            {
-                client.Credentials = new System.Net.NetworkCredential(
+            using (
+                var client = new CustomSmtpClient(
+                    _options.Host,
                     _options.Email,
                     _options.AppPassword
-                );
-                client.EnableSsl = true;
-
+                )
+            )
+            {
                 foreach (var user in users)
                 {
                     var teamTeamberResponseDtos = _mapper.Map<List<TeamMemberResponseDto>>(
@@ -79,33 +79,40 @@ namespace TeamHub.BLL.Services
             body.AppendLine($"Hello {user.Email},");
             body.AppendLine("Here is the summary of your team's tasks:");
 
-            foreach (var teamMemberResponseDto in teamMemberResponseDtos)
+            if (teamMemberResponseDtos.Any())
             {
-                body.AppendLine($"- Project: {teamMemberResponseDto.ProjectName}");
-
-                if (teamMemberResponseDto.Tasks.Any())
+                foreach (var teamMemberResponseDto in teamMemberResponseDtos)
                 {
-                    body.AppendLine("  Tasks:");
+                    body.AppendLine($"- Project: {teamMemberResponseDto.ProjectName}");
 
-                    foreach (var task in teamMemberResponseDto.Tasks)
+                    if (teamMemberResponseDto.Tasks.Any())
                     {
-                        body.AppendLine($"    - Task ID: {task.Id}");
-                        body.AppendLine($"      Priority: {task.PriorityId}");
-                        body.AppendLine($"      Content: {task.Content}");
-                        body.AppendLine(
-                            $"      Deadline: {task.Deadline?.ToString("yyyy-MM-dd HH:mm:ss") ?? "No deadline"}"
-                        );
-                        body.AppendLine(
-                            $"      Created At: {task.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")}"
-                        );
-                    }
-                }
-                else
-                {
-                    body.AppendLine("  No tasks assigned.");
-                }
+                        body.AppendLine("  Tasks:");
 
-                body.AppendLine();
+                        foreach (var task in teamMemberResponseDto.Tasks)
+                        {
+                            body.AppendLine($"    - Task ID: {task.Id}");
+                            body.AppendLine($"      Priority: {task.PriorityId}");
+                            body.AppendLine($"      Content: {task.Content}");
+                            body.AppendLine(
+                                $"      Deadline: {task.Deadline?.ToString("yyyy-MM-dd HH:mm:ss") ?? "No deadline"}"
+                            );
+                            body.AppendLine(
+                                $"      Created At: {task.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")}"
+                            );
+                        }
+                    }
+                    else
+                    {
+                        body.AppendLine("  No tasks assigned.");
+                    }
+
+                    body.AppendLine();
+                }
+            }
+            else
+            {
+                body.AppendLine("- You don't have any projects.");
             }
 
             body.AppendLine("Thank you!");

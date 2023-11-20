@@ -9,7 +9,7 @@ namespace Identity.Application
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IEmailConfirmationService, EmailConfirmationService>();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace TeamHub.BLL.Services
 
         public async Task Schedule()
         {
-            if (_holidayService.IsDayOff(DateTime.Now))
+            if (!_holidayService.IsDayOff(DateTime.Now))
             {
                 await _mailingService.SendPendingTasks();
             }

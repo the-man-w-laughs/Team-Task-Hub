@@ -57,8 +57,7 @@ namespace TeamHub.BLL
             RecurringJob.AddOrUpdate<IScheduledEmailService>(
                 recurringJobId,
                 scheduledEmailService => scheduledEmailService.Schedule(),
-                //Cron.Daily(8), // Adjusted to run at 8 AM
-                Cron.Minutely(),
+                Cron.Daily(8), // Adjusted to run at 8 AM
                 recurringJobOptions
             );
 

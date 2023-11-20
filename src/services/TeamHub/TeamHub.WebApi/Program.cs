@@ -35,7 +35,7 @@ var app = builder.Build();
 
 app.UseCors();
 
-//app.UseMiddleware<ExceptionMiddleware>();
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseRouting();
 
 if (!app.Environment.IsProduction())
@@ -43,13 +43,13 @@ if (!app.Environment.IsProduction())
     app.UseSwaggerWithOAuth(config);
 }
 
+app.UseHangfireWithDashboard(config);
+app.UseDailyMailing();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
-
 app.UseGrpcService();
-app.UseHangfireWithDashboard(config);
-app.UseDailyMailing();
 
 app.Run();

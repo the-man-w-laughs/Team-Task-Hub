@@ -1,6 +1,6 @@
 ﻿namespace Identity.Application.Ports.Services
 {
-    public interface IEmailService
+    public interface IEmailConfirmationService
     {
         Task ConfirmEmail(string token, string id);
     }

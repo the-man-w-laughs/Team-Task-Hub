@@ -31,13 +31,14 @@ namespace Identity.Application.Utils
 
             var mailMessage = CreateMailMessage(targetEmail, Body);
 
-            using (var client = new SmtpClient(host: _options.Host, port: 587))
-            {
-                client.Credentials = new System.Net.NetworkCredential(
+            using (
+                var client = new CustomSmtpClient(
+                    _options.Host,
                     _options.Email,
                     _options.AppPassword
-                );
-                client.EnableSsl = true;
+                )
+            )
+            {
                 client.Send(mailMessage);
             }
         }

@@ -8,7 +8,7 @@ using Shared.SharedModels;
 
 namespace Identity.Application.Services
 {
-    public class EmailConfirmationService : IEmailService
+    public class EmailConfirmationService : IEmailConfirmationService
     {
         private readonly IMapper _mapper;
         private readonly UserManager<AppUser> _userManager;
