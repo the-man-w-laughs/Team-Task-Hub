@@ -23,7 +23,7 @@ public class ReportsInfoController : ControllerBase
     }
 
     /// <summary>
-    /// Get latest project report
+    /// Get all project reports
     /// </summary>
     [HttpGet("{projectId}/all")]
     public async Task<IActionResult> GetAllrojectReportById(

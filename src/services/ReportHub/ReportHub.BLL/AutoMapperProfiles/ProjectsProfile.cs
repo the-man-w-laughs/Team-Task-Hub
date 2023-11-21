@@ -7,8 +7,12 @@ namespace ReportHub.BLL.AutoMapperProfiles
     {
         public ProjectsProfile()
         {
-            CreateMap<ProjectReportInfo, ProjectReportInfoDto>();
-            CreateMap<Report, ReportDto>();
+            CreateMap<Report, ReportDto>()
+                .ForMember(dest => dest.Path, expression => expression.MapFrom(src => src.Path))
+                .ForMember(
+                    dest => dest.GeneratedAt,
+                    expression => expression.MapFrom(src => src.GeneratedAt)
+                );
         }
     }
 }
