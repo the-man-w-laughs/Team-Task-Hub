@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace TeamHub.BLL.Contracts
 {
-    public interface ICommentsHub { }
+    public interface ICommentsHub
+    {
+        Task Connection(string message);
+        Task NewComment(string message);
+    }
 }

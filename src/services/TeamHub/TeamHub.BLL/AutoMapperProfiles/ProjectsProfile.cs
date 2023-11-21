@@ -9,7 +9,8 @@ namespace TeamHub.BLL.AutoMapperProfiles
         public ProjectsProfile()
         {
             CreateMap<ProjectRequestDto, Project>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.Now));
 
             CreateMap<Project, ProjectResponseDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -19,8 +20,8 @@ namespace TeamHub.BLL.AutoMapperProfiles
                 .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.Creator))
                 .ForMember(
                     project => project.TeamMembers,
-                    expression =>
-                        expression.MapFrom(
+                    opt =>
+                        opt.MapFrom(
                             src =>
                                 src.TeamMembers != null
                                     ? src.TeamMembers.Select(member => member.User).ToList()
@@ -37,8 +38,8 @@ namespace TeamHub.BLL.AutoMapperProfiles
                 .ForMember(dest => dest.TeamMembers, opt => opt.MapFrom(src => src.TeamMembers))
                 .ForMember(
                     project => project.TeamMembers,
-                    expression =>
-                        expression.MapFrom(
+                    opt =>
+                        opt.MapFrom(
                             src =>
                                 src.TeamMembers != null
                                     ? src.TeamMembers.Select(member => member.User).ToList()

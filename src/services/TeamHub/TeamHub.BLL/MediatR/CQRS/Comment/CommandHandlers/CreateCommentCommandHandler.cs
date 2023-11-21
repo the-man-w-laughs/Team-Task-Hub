@@ -59,7 +59,6 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
 
         commentToAdd.AuthorId = userId;
         commentToAdd.TasksId = request.TaskId;
-        commentToAdd.CreatedAt = DateTime.Now;
 
         var addedComment = await _commentRepository.AddAsync(commentToAdd, cancellationToken);
         await _commentRepository.SaveAsync(cancellationToken);

@@ -65,19 +65,11 @@ namespace ReportHub.BLL.services
 
             if (project == null)
             {
-                project = new ProjectReportInfo()
-                {
-                    ProjectId = projectId,
-                    ProjectAuthorId = userId,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    Reports = new List<Report>()
-                };
-
+                project = new ProjectReportInfo(projectId, userId);
                 await _projectReportInfoRepository.CreateAsync(project);
             }
 
-            var latestReportInfo = new Report() { Path = fileName, GeneratedAt = DateTime.Now };
+            var latestReportInfo = new Report(fileName);
 
             project.Reports.Add(latestReportInfo);
 
