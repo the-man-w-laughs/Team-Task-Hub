@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos;
+using TeamHub.BLL.Extensions;
+using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
+using MediatR;
 
 namespace TeamHub.BLL.SignalR
 {
@@ -10,9 +14,11 @@ namespace TeamHub.BLL.SignalR
     public class CommentsHub : Hub<ICommentsHub>
     {
         private readonly IConfiguration _configuration;
+        private readonly IMediator _mediator;
 
-        public CommentsHub(IConfiguration configuration)
+        public CommentsHub(IConfiguration configuration, IMediator mediator)
         {
+            _mediator = mediator;
             _configuration = configuration;
         }
 
@@ -42,6 +48,13 @@ namespace TeamHub.BLL.SignalR
         public async Task SendComment(string comment)
         {
             var userId = Context.User!.GetUserId();
+
+            var commentRequestDto = new CommentRequestDto() { Content = comment };
+            var taskId = Context.Items.GetTaskId();
+
+            var command = new CreateCommentCommand(taskId, commentRequestDto);
+
+            var result = await _mediator.Send(command, Context.ConnectionAborted);
 
             await Clients.All.NewComment($"{userId}: {comment}");
         }

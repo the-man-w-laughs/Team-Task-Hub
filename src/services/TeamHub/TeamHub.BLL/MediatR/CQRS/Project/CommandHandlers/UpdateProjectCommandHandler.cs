@@ -3,38 +3,50 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using Shared.Extensions;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Commands;
 
-public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand, int>
+public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand, ProjectResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
+    private readonly IUserService _userService;
+    private readonly IProjectService _projectService;
 
     public UpdateProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
-        IMapper mapper
+        IMapper mapper,
+        IUserService userService,
+        IProjectService projectService
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _projectRepository = projectRepository;
         _mapper = mapper;
+        _userService = userService;
+        _projectService = projectService;
     }
 
-    public async Task<int> Handle(UpdateProjectCommand request, CancellationToken cancellationToken)
+    public async Task<ProjectResponseDto> Handle(
+        UpdateProjectCommand request,
+        CancellationToken cancellationToken
+    )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+        // check if current user exists
+        await _userService.GetUserAsync(userId, cancellationToken);
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
-        }
+        // get target project
+        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
 
+        // author can update project
         if (userId != project.AuthorId)
         {
             throw new ForbiddenException(
@@ -42,11 +54,12 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
             );
         }
 
+        // update project
         _mapper.Map(request.ProjectRequestDto, project);
-
         _projectRepository.Update(project);
         await _projectRepository.SaveAsync(cancellationToken);
+        var result = _mapper.Map<ProjectResponseDto>(project);
 
-        return project.Id;
+        return result;
     }
 }

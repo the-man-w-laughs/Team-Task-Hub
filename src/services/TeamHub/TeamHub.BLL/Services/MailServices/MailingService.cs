@@ -41,7 +41,7 @@ namespace TeamHub.BLL.Services
             {
                 foreach (var user in users)
                 {
-                    var teamTeamberResponseDtos = _mapper.Map<List<TeamMemberResponseDto>>(
+                    var teamTeamberResponseDtos = _mapper.Map<List<TeamMemberDto>>(
                         user.TeamMembers
                     );
 
@@ -69,10 +69,7 @@ namespace TeamHub.BLL.Services
             };
         }
 
-        private string ComposeMailBody(
-            User user,
-            List<TeamMemberResponseDto> teamMemberResponseDtos
-        )
+        private string ComposeMailBody(User user, List<TeamMemberDto> teamMemberResponseDtos)
         {
             var body = new StringBuilder();
 

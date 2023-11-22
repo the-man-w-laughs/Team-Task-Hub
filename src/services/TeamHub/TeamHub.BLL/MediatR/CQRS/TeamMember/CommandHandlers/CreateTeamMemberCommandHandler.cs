@@ -1,86 +1,61 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using Shared.Extensions;
-using TeamHub.DAL.Contracts.Repositories;
-using TeamHub.DAL.Models;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos.TeamMember;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 
-public class CreateTeamMemberCommandHandler : IRequestHandler<CreateTeamMemberCommand, int>
+public class CreateTeamMemberCommandHandler
+    : IRequestHandler<CreateTeamMemberCommand, TeamMemberResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITeamMemberService _teamMemberService;
+    private readonly IProjectService _projectService;
+    private readonly IUserService _userService;
     private readonly IMapper _mapper;
-    private readonly ITeamMemberRepository _teamMemberRepository;
-    private readonly IProjectRepository _projectRepository;
 
     public CreateTeamMemberCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        IMapper mapper,
-        ITeamMemberRepository teamMemberRepository,
-        IProjectRepository projectRepository
+        ITeamMemberService teamMemberService,
+        IProjectService projectService,
+        IUserService userService,
+        IMapper mapper
     )
     {
         _httpContextAccessor = httpContextAccessor;
+        _teamMemberService = teamMemberService;
+        _projectService = projectService;
+        _userService = userService;
         _mapper = mapper;
-        _teamMemberRepository = teamMemberRepository;
-        _projectRepository = projectRepository;
     }
 
-    public async Task<int> Handle(
+    public async Task<TeamMemberResponseDto> Handle(
         CreateTeamMemberCommand request,
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+        // check if current user exists
+        await _userService.GetUserAsync(userId, cancellationToken);
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
-        }
+        // check if requested project exists
+        await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            userId,
-            request.ProjectId,
-            cancellationToken
-        );
+        // only team members can add other users to project
+        await _teamMemberService.GetTeamMemberAsync(userId, request.ProjectId, cancellationToken);
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {request.ProjectId}."
-            );
-        }
-
-        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        // create new team member
+        var addedTeamMember = await _teamMemberService.AddTeamMemberAsync(
             request.UserId,
             request.ProjectId,
             cancellationToken
         );
+        var result = _mapper.Map<TeamMemberResponseDto>(addedTeamMember);
 
-        if (targetTeamMember != null)
-        {
-            throw new WrongActionException(
-                $"User with id {request.UserId} is already a part of project with id {request.ProjectId}."
-            );
-        }
-
-        var teamMemberToAdd = new TeamMember()
-        {
-            ProjectId = request.ProjectId,
-            UserId = request.UserId,
-            CreatedAt = DateTime.Now
-        };
-
-        var addedTeamMember = await _teamMemberRepository.AddAsync(
-            teamMemberToAdd,
-            cancellationToken
-        );
-        await _teamMemberRepository.SaveAsync(cancellationToken);
-
-        return addedTeamMember.Id;
+        return result;
     }
 }

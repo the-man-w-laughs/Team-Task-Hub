@@ -14,5 +14,5 @@ public partial class Comment
 
     public virtual TaskModel Task { get; set; } = null!;
 
-    public virtual User Users { get; set; } = null!;
+    public virtual User Author { get; set; } = null!;
 }

@@ -2,67 +2,64 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Extensions;
-using Shared.Exceptions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
+using TeamHub.BLL.Dtos;
+using TeamHub.BLL.Contracts;
 
 namespace TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 
-public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, int>
+public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ICommentRepository _commentRepository;
-    private readonly ITeamMemberRepository _teamMemberRepository;
-    private readonly ITaskModelRepository _taskRepository;
+    private readonly IUserService _userService;
+    private readonly ITaskService _taskService;
+    private readonly ITeamMemberService _teamMemberService;
 
     public CreateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ICommentRepository commentRepository,
-        ITeamMemberRepository teamMemberRepository,
-        ITaskModelRepository taskRepository
+        IUserService userService,
+        ITaskService taskService,
+        ITeamMemberService teamMemberService
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _commentRepository = commentRepository;
-        _teamMemberRepository = teamMemberRepository;
-        _taskRepository = taskRepository;
+        _userService = userService;
+        _taskService = taskService;
+        _teamMemberService = teamMemberService;
     }
 
-    public async Task<int> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
+    public async Task<CommentResponseDto> Handle(
+        CreateCommentCommand request,
+        CancellationToken cancellationToken
+    )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
+        // check if current user exists
+        await _userService.GetUserAsync(userId, cancellationToken);
 
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
+        // check if required task exists
+        var task = await _taskService.GetTaskAsync(request.TaskId, cancellationToken);
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            userId,
-            task.ProjectId,
-            cancellationToken
-        );
+        // check if user has access to this task
+        await _teamMemberService.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {task.ProjectId}."
-            );
-        }
-
+        // create new comment
         var commentToAdd = _mapper.Map<Comment>(request.CommentRequestDto);
-
         commentToAdd.AuthorId = userId;
         commentToAdd.TasksId = request.TaskId;
-
         var addedComment = await _commentRepository.AddAsync(commentToAdd, cancellationToken);
         await _commentRepository.SaveAsync(cancellationToken);
+        var result = _mapper.Map<CommentResponseDto>(addedComment);
 
-        return addedComment.Id;
+        return result;
     }
 }

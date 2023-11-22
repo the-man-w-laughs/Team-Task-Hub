@@ -1,49 +1,64 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using Shared.Extensions;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 
-public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, int>
+public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, CommentResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICommentRepository _commentRepository;
+    private readonly IMapper _mapper;
+    private readonly ICommentService _commentService;
+    private readonly IUserService _userService;
 
     public DeleteCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        ICommentRepository commentRepository
+        ICommentRepository commentRepository,
+        IMapper mapper,
+        ICommentService commentService,
+        IUserService userService
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _commentRepository = commentRepository;
+        _mapper = mapper;
+        _commentService = commentService;
+        _userService = userService;
     }
 
-    public async Task<int> Handle(DeleteCommentCommand request, CancellationToken cancellationToken)
+    public async Task<CommentResponseDto> Handle(
+        DeleteCommentCommand request,
+        CancellationToken cancellationToken
+    )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var comment = await _commentRepository.GetCommentByIdAsync(
-            request.CommentId,
-            cancellationToken
-        );
+        // check if current user exists
+        await _userService.GetUserAsync(userId, cancellationToken);
 
-        if (comment == null)
-        {
-            throw new NotFoundException($"Cannot find comment with id {request.CommentId}");
-        }
+        // check if required comment exists
+        var comment = await _commentService.GetCommentAsync(request.CommentId, cancellationToken);
 
+        // only author can delete comment
         if (userId != comment.AuthorId)
         {
             throw new ForbiddenException(
-                $"User with id {userId} doesn't have rights to alter comment with id {comment.Id}."
+                $"User with id {userId} doesn't have rights to delete comment with id {comment.Id}."
             );
         }
 
+        // delete comment
         _commentRepository.Delete(comment);
         await _commentRepository.SaveAsync(cancellationToken);
+        var result = _mapper.Map<CommentResponseDto>(comment);
 
-        return comment.Id;
+        return result;
     }
 }

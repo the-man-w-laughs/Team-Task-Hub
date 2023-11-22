@@ -14,7 +14,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
 
             CreateMap<Project, ProjectResponseDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.CreatorId, opt => opt.MapFrom(src => src.AuthorId))
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.Creator))
@@ -31,7 +31,7 @@ namespace TeamHub.BLL.AutoMapperProfiles
 
             CreateMap<Project, FullProjectInfoResponse>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.CreatorId, opt => opt.MapFrom(src => src.AuthorId))
+                .ForMember(dest => dest.AuthorId, opt => opt.MapFrom(src => src.AuthorId))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.Creator))

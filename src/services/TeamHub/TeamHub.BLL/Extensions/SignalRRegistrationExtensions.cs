@@ -1,6 +1,4 @@
-using FluentValidation;
 using Microsoft.AspNetCore.Builder;
-using Shared.Exceptions;
 using TeamHub.BLL.SignalR;
 
 namespace TeamHub.BLL.Extensions;

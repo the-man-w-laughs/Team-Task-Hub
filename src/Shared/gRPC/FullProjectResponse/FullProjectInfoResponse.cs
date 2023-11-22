@@ -9,7 +9,7 @@ public class FullProjectInfoResponse
     public int Id { get; set; }
 
     [DataMember(Order = 2)]
-    public int CreatorId { get; set; }
+    public int AuthorId { get; set; }
 
     [DataMember(Order = 3)]
     public string Name { get; set; }
