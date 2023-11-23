@@ -4,10 +4,10 @@ namespace ReportHub.DAL.Models;
 
 public class ProjectReportInfo : MongoBaseEntity
 {
-    public ProjectReportInfo(int ProjectId, int ProjectAuthorId)
+    public ProjectReportInfo(int projectId, int projectAuthorId)
     {
-        this.ProjectId = ProjectId;
-        this.ProjectAuthorId = ProjectAuthorId;
+        ProjectId = projectId;
+        ProjectAuthorId = projectAuthorId;
         CreatedAt = DateTime.Now;
         UpdatedAt = DateTime.Now;
         Reports = new();
