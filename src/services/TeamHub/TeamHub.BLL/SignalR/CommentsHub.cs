@@ -34,12 +34,14 @@ namespace TeamHub.BLL.SignalR
 
             // check if user has access to the task
             var query = new GetTaskByIdQuery(taskId);
-            await _mediator.Send(query, Context.ConnectionAborted);
+            var task = await _mediator.Send(query, Context.ConnectionAborted);
 
             Context.Items.SetTaskId(taskId);
             await Clients
-                .Group(groupId)
+                .GroupExcept(groupId, connectionId)
                 .Connection($"Client with id {userId} has connected to group {groupId}.");
+
+            await Clients.Caller.Connection(task);
 
             await base.OnConnectedAsync();
         }
@@ -54,10 +56,10 @@ namespace TeamHub.BLL.SignalR
             await Clients.Group(groupName).CreateComment(result);
         }
 
-        public async Task UpdateComment(CommentRequestDto commentRequestDto)
+        public async Task UpdateComment(int commentId, CommentRequestDto commentRequestDto)
         {
             var taskId = Context.Items.GetTaskId();
-            var command = new UpdateCommentCommand(taskId, commentRequestDto);
+            var command = new UpdateCommentCommand(commentId, commentRequestDto);
             var result = await _mediator.Send(command, Context.ConnectionAborted);
 
             var groupName = GetGroupName(taskId);
