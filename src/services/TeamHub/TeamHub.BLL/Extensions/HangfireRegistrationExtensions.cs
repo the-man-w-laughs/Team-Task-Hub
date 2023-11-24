@@ -52,7 +52,8 @@ namespace TeamHub.BLL
         {
             string recurringJobId = "DailyMailingJob";
 
-            var recurringJobOptions = new RecurringJobOptions { TimeZone = TimeZoneInfo.Local };
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("Arabian Standard Time");
+            var recurringJobOptions = new RecurringJobOptions { TimeZone = timeZone };
 
             RecurringJob.AddOrUpdate<IScheduledEmailService>(
                 recurringJobId,
