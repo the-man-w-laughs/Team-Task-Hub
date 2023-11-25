@@ -1,23 +1,24 @@
 using AutoMapper;
 using Shared.gRPC;
 using Shared.gRPC.FullProjectResponse;
+using TeamHub.BLL.Contracts;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.gRPC
 {
     public class FullProjectInfoService : IFullProjectInfoService
     {
-        private readonly IProjectRepository _projectRepository;
+        private readonly IProjectService _projectService;
         private readonly ITeamMemberRepository _teamMemberRepository;
         private readonly IMapper _mapper;
 
         public FullProjectInfoService(
-            IProjectRepository projectRepository,
+            IProjectService projectService,
             ITeamMemberRepository teamMemberRepository,
             IMapper mapper
         )
         {
-            _projectRepository = projectRepository;
+            _projectService = projectService;
             _teamMemberRepository = teamMemberRepository;
             _mapper = mapper;
         }
@@ -26,9 +27,7 @@ namespace TeamHub.BLL.gRPC
             FullProjectInfoRequest fullProjectInfoRequest
         )
         {
-            var project = await _projectRepository.GetProjectByIdAsync(
-                fullProjectInfoRequest.ProjectId
-            );
+            var project = await _projectService.GetProjectAsync(fullProjectInfoRequest.ProjectId);
             await _teamMemberRepository.GetTeamMemberAsync(
                 fullProjectInfoRequest.UserId,
                 fullProjectInfoRequest.ProjectId

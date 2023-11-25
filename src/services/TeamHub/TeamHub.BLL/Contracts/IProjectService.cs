@@ -4,6 +4,6 @@ namespace TeamHub.BLL.Contracts
 {
     public interface IProjectService
     {
-        Task<Project> GetProjectAsync(int projectId, CancellationToken cancellationToken);
+        Task<Project> GetProjectAsync(int projectId, CancellationToken cancellationToken = default);
     }
 }

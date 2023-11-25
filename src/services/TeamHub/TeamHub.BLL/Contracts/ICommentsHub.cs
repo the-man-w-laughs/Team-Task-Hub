@@ -1,5 +1,4 @@
 using TeamHub.BLL.Dtos;
-using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.Contracts
 {

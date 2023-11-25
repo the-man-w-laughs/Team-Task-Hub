@@ -5,7 +5,6 @@ using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos.TeamMember;
-using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 

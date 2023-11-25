@@ -19,10 +19,7 @@ namespace TeamHub.BLL.Services
             CancellationToken cancellationToken
         )
         {
-            var comment = await _commentRepository.GetCommentByIdAsync(
-                commentId,
-                cancellationToken
-            );
+            var comment = await _commentRepository.GetByIdAsync(commentId, cancellationToken);
 
             if (comment == null)
             {
