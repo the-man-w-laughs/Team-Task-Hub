@@ -43,7 +43,7 @@ namespace Identity.Application.Services
 
             if (!result.Succeeded)
             {
-                throw new WrongActionException("Failed to confirm email.");
+                throw new WrongActionException($"Failed to confirm email {email}.");
             }
 
             var message = _mapper.Map<UserCreatedMessage>(user);

@@ -14,16 +14,19 @@ namespace Identity.Application.Utils
         private readonly UriOptions _uriOptions;
         private readonly UserManager<AppUser> _userManager;
         private readonly ISmtpClientFactory _smtpClientFactory;
+        private readonly IMailMessageBuilder _mailMessageBuilder;
 
         public ConfirmationEmailSender(
             UserManager<AppUser> userManager,
             IOptions<EmailCredentials> emailCredentialsOptions,
             IOptions<UriOptions> uriOptions,
-            ISmtpClientFactory smtpClientFactory
+            ISmtpClientFactory smtpClientFactory,
+            IMailMessageBuilder mailMessageBuilder
         )
         {
             _userManager = userManager;
             _smtpClientFactory = smtpClientFactory;
+            _mailMessageBuilder = mailMessageBuilder;
             _uriOptions = uriOptions.Value;
             _emailCredentials = emailCredentialsOptions.Value;
         }
@@ -34,9 +37,11 @@ namespace Identity.Application.Utils
             var targetEmail = appUser.Email!;
             var confirmationLink = BuildConfirmationLink(targetEmail, token);
 
-            var Body = CreateBody(confirmationLink);
-
-            var mailMessage = CreateMailMessage(targetEmail, Body);
+            var mailMessage = _mailMessageBuilder.CreateConfirmationEmailMessage(
+                _emailCredentials.Email,
+                targetEmail,
+                confirmationLink
+            );
 
             using (
                 var client = _smtpClientFactory.CreateSmtpClient(
@@ -63,32 +68,6 @@ namespace Identity.Application.Utils
             };
 
             return uriBuilder.Uri.ToString();
-        }
-
-        private MailMessage CreateMailMessage(string toEmail, string body)
-        {
-            return new MailMessage
-            {
-                From = new MailAddress(_emailCredentials.Email, "TeamTaskHub"),
-                To = { new MailAddress(toEmail) },
-                Subject = "Confirm your email for teamtaskhub.",
-                IsBodyHtml = true,
-                Body = body
-            };
-        }
-
-        private static string CreateBody(string uri)
-        {
-            return $@"
-            <html>
-                <body>
-                    <p>Dear User,</p>
-                    <p>Thank you for choosing TeamTaskHub! To complete your registration, please click the link below:</p>
-                    <a href='{uri}'>Confirm Email Address</a>
-                    <p>If you didn't create an account with TeamTaskHub, you can safely ignore this email.</p>
-                    <p>Best regards,<br/>The TeamTaskHub Team</p>
-                </body>
-            </html>";
         }
     }
 }

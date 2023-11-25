@@ -22,8 +22,6 @@ public class EmailController : ControllerBase
     {
         await _emailService.ConfirmEmailAsync(token, email);
 
-        return Ok(
-            "Congratulations! Your email has been successfully confirmed. Thank you for verifying your email address!"
-        );
+        return Ok(Constants.SuccessEmailConfirmation);
     }
 }
