@@ -5,6 +5,7 @@ using TeamHub.BLL;
 using System.Reflection;
 using Shared.Middleware;
 using Shared.SharedModels;
+using TeamHub.DAL.DBContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,7 @@ builder.Services.AddRoutingOptions();
 
 var app = builder.Build();
 
+app.InitializeDatabase<TeamHubDbContext>();
 app.UseCors();
 
 app.UseMiddleware<ExceptionMiddleware>();
