@@ -30,6 +30,8 @@ builder.Services.ReristerRrpcService();
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
 builder.Services.RegisterServices();
 builder.Services.RegisterHangfire(config);
+builder.Services.AddSmtpClientFactory();
+builder.Services.AddRoutingOptions();
 
 var app = builder.Build();
 

@@ -4,38 +4,45 @@ using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Shared.SharedModels;
+using Shared.SharedModels.Contracts;
 
 namespace Identity.Application.Utils
 {
     public class ConfirmationEmailSender : IConfirmationEmailSender
     {
-        private readonly EmailCredentials _options;
+        private readonly EmailCredentials _emailCredentials;
+        private readonly UriOptions _uriOptions;
         private readonly UserManager<AppUser> _userManager;
+        private readonly ISmtpClientFactory _smtpClientFactory;
 
         public ConfirmationEmailSender(
             UserManager<AppUser> userManager,
-            IOptions<EmailCredentials> options
+            IOptions<EmailCredentials> emailCredentialsOptions,
+            IOptions<UriOptions> uriOptions,
+            ISmtpClientFactory smtpClientFactory
         )
         {
             _userManager = userManager;
-            _options = options.Value;
+            _smtpClientFactory = smtpClientFactory;
+            _uriOptions = uriOptions.Value;
+            _emailCredentials = emailCredentialsOptions.Value;
         }
 
-        public async Task SendEmail(AppUser appUser)
+        public async Task SendEmailAsync(AppUser appUser)
         {
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(appUser);
             var targetEmail = appUser.Email!;
             var confirmationLink = BuildConfirmationLink(targetEmail, token);
 
-            string Body = CreateBody(confirmationLink);
+            var Body = CreateBody(confirmationLink);
 
             var mailMessage = CreateMailMessage(targetEmail, Body);
 
             using (
-                var client = new CustomSmtpClient(
-                    _options.Host,
-                    _options.Email,
-                    _options.AppPassword
+                var client = _smtpClientFactory.CreateSmtpClient(
+                    _emailCredentials.Host,
+                    _emailCredentials.Email,
+                    _emailCredentials.AppPassword
                 )
             )
             {
@@ -47,10 +54,10 @@ namespace Identity.Application.Utils
         {
             var uriBuilder = new UriBuilder
             {
-                Scheme = "http",
-                Host = "localhost",
-                Path = "api/Email/confirm-email",
-                Port = 5000,
+                Scheme = _uriOptions.Scheme,
+                Host = _uriOptions.Host,
+                Path = _uriOptions.Path,
+                Port = _uriOptions.Port,
                 Query =
                     $"token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(userEmail)}"
             };
@@ -62,7 +69,7 @@ namespace Identity.Application.Utils
         {
             return new MailMessage
             {
-                From = new MailAddress(_options.Email, "TeamTaskHub"),
+                From = new MailAddress(_emailCredentials.Email, "TeamTaskHub"),
                 To = { new MailAddress(toEmail) },
                 Subject = "Confirm your email for teamtaskhub.",
                 IsBodyHtml = true,

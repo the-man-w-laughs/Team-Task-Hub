@@ -28,6 +28,7 @@ builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.RegisterGrpcClient(config);
 builder.Services.ConfigureHttpClient(config);
+builder.Services.AddRoutingOptions();
 
 var app = builder.Build();
 

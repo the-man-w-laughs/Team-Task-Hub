@@ -3,6 +3,7 @@ using System.Text;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using Shared.SharedModels;
+using Shared.SharedModels.Contracts;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos.TeamMember;
 using TeamHub.DAL.Contracts.Repositories;
@@ -14,25 +15,28 @@ namespace TeamHub.BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly ISmtpClientFactory _smtpClientFactory;
         private readonly EmailCredentials _options;
 
         public MailingService(
             IMapper mapper,
             IUserRepository userRepository,
-            IOptions<EmailCredentials> options
+            IOptions<EmailCredentials> options,
+            ISmtpClientFactory smtpClientFactory
         )
         {
             _mapper = mapper;
             _userRepository = userRepository;
+            _smtpClientFactory = smtpClientFactory;
             _options = options.Value;
         }
 
-        public async Task SendPendingTasks()
+        public async Task SendPendingTasksAsync()
         {
             var users = await _userRepository.GetAllAsync();
 
             using (
-                var client = new CustomSmtpClient(
+                var client = _smtpClientFactory.CreateSmtpClient(
                     _options.Host,
                     _options.Email,
                     _options.AppPassword
@@ -48,11 +52,7 @@ namespace TeamHub.BLL.Services
                     var body = ComposeMailBody(user, teamTeamberResponseDtos);
                     var massage = CreateMailMessage(user.Email, body);
 
-                    try
-                    {
-                        client.Send(massage);
-                    }
-                    catch (Exception ex) { }
+                    client.Send(massage);
                 }
             }
         }

@@ -30,7 +30,10 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
+builder.Services.AddConfigurationSection<UriOptions>(config, "EmailConfirmationLinkOptions");
 builder.Services.RegisterHangfire(config);
+builder.Services.AddSmtpClientFactory();
+builder.Services.AddRoutingOptions();
 
 var app = builder.Build();
 

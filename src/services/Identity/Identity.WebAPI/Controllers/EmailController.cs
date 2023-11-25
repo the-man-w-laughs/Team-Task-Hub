@@ -14,13 +14,13 @@ public class EmailController : ControllerBase
         _emailService = emailService;
     }
 
-    [HttpGet("confirm-email")]
+    [HttpGet("email-confirmation")]
     public async Task<IActionResult> ConfirmEmail(
         [FromQuery] string token,
         [FromQuery] string email
     )
     {
-        await _emailService.ConfirmEmail(token, email);
+        await _emailService.ConfirmEmailAsync(token, email);
 
         return Ok(
             "Congratulations! Your email has been successfully confirmed. Thank you for verifying your email address!"

@@ -7,11 +7,12 @@ public static class ConfigurationSectionExtensions
 {
     public static IServiceCollection AddConfigurationSection<T>(
         this IServiceCollection services,
-        IConfiguration configuration
+        IConfiguration configuration,
+        string? sectionName = null
     )
         where T : class
     {
-        var name = typeof(T).Name;
+        var name = sectionName ?? typeof(T).Name;
         var section = configuration.GetSection(name);
         services.Configure<T>(section);
         return services;

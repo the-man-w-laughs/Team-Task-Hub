@@ -13,11 +13,11 @@ namespace TeamHub.BLL.Services
             _holidayService = holidayService;
         }
 
-        public async Task Schedule()
+        public async Task ScheduleAsync()
         {
             if (!_holidayService.IsDayOff(DateTime.Now))
             {
-                await _mailingService.SendPendingTasks();
+                await _mailingService.SendPendingTasksAsync();
             }
         }
     }
