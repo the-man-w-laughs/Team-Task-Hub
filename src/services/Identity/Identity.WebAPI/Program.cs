@@ -34,6 +34,7 @@ builder.Services.AddConfigurationSection<UriOptions>(config, "EmailConfirmationL
 builder.Services.RegisterHangfire(config);
 builder.Services.AddSmtpClientFactory();
 builder.Services.AddRoutingOptions();
+builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 
