@@ -4,9 +4,6 @@ using Shared.Middleware;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Extensions;
 using ReportHub.WebApi.Extensions;
-using Grpc.Net.Client;
-using ProtoBuf.Grpc.Client;
-using Shared.gRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 

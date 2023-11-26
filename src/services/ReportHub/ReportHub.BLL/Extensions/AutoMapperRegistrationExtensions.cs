@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ReportHub.BLL.AutoMapperProfiles;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ReportHub.BLL.Extensions
 {

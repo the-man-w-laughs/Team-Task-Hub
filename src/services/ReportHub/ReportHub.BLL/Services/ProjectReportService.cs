@@ -8,7 +8,6 @@ using Shared.Exceptions;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Shared.gRPC.FullProjectResponse;
 using Shared.gRPC;
 
 namespace ReportHub.BLL.services
