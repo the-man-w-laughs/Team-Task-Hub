@@ -4,17 +4,16 @@ using Shared.Extensions;
 using ReportHub.BLL.Contracts;
 using ReportHub.BLL.Dtos;
 using ReportHub.DAL.Models;
-using Shared.Exceptions;
 
 namespace ReportHub.BLL.Services
 {
-    public class ProjectReportInfoService : IProjectReportInfoService
+    public class ProjectInfoService : IProjectInfoService
     {
         private readonly IProjectReportInfoRepository _projectReportInfoRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ProjectReportInfoService(
+        public ProjectInfoService(
             IProjectReportInfoRepository projectReportInfoRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor
@@ -25,26 +24,20 @@ namespace ReportHub.BLL.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<List<ReportDto>> GetAllProjectReportsAsync(
-            int projectId,
+        public async Task<List<ProjectReportInfoDto>> GetAllUserProjectInfosAsync(
             int offset,
             int limit
         )
         {
             var userId = _httpContextAccessor.GetUserId();
 
-            var project = await _projectReportInfoRepository.GetOneAsync(
-                info => info.ProjectId == projectId
+            var projects = await _projectReportInfoRepository.GetAllAsync(
+                project => project.ProjectAuthorId == userId,
+                offset,
+                limit
             );
 
-            if (project == null || project.ProjectAuthorId != userId)
-            {
-                throw new NotFoundException("Project with id {projectId} was not found.");
-            }
-
-            var reports = project.Reports.Skip(offset).Take(limit).ToList();
-
-            var result = _mapper.Map<List<ReportDto>>(reports);
+            var result = _mapper.Map<List<ProjectReportInfoDto>>(projects);
 
             return result;
         }

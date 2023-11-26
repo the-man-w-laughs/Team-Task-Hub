@@ -8,10 +8,9 @@ using Shared.Exceptions;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Contracts;
 using Microsoft.AspNetCore.Mvc;
-using Shared.gRPC.FullProjectResponse;
 using Shared.gRPC;
 
-namespace ReportHub.BLL.services
+namespace ReportHub.BLL.Services
 {
     public class ProjectReportService : IProjectReportService
     {
@@ -36,7 +35,7 @@ namespace ReportHub.BLL.services
             _fullProjectInfoService = fullProjectInfoService;
         }
 
-        public async Task<FileStreamResult> GetLatestProjectReportAsync(int projectId)
+        public async Task<FileStreamResult> GenerateProjectReportAsync(int projectId)
         {
             var userId = _httpContextAccessor.GetUserId();
 
@@ -130,16 +129,6 @@ namespace ReportHub.BLL.services
             {
                 throw new NotFoundException($"Project report with filename {path} was not found");
             }
-        }
-
-        public Report? GetLatestReport(ProjectReportInfo projectReportInfo)
-        {
-            var latestReport = projectReportInfo.Reports
-                .Where(report => report.GeneratedAt > projectReportInfo.UpdatedAt)
-                .OrderByDescending(report => report.GeneratedAt)
-                .FirstOrDefault();
-
-            return latestReport;
         }
     }
 }

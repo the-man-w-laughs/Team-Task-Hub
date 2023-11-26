@@ -7,7 +7,7 @@ namespace TeamHub.BLL.Contracts
         Task<TeamMember> GetTeamMemberAsync(
             int userId,
             int projectId,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken = default
         );
 
         Task<TeamMember> AddTeamMemberAsync(

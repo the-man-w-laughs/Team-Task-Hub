@@ -32,7 +32,7 @@ public class ReportsInfoController : ControllerBase
         [FromQuery] int limit = 100
     )
     {
-        var result = await _projectReportInfoService.GetAllProjectReportAsync(
+        var result = await _projectReportInfoService.GetAllProjectReportsAsync(
             projectId,
             offset,
             limit

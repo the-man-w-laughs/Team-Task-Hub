@@ -23,12 +23,12 @@ public class ReportsController : ControllerBase
     }
 
     /// <summary>
-    /// Get latest project report
+    /// Generate project report
     /// </summary>
     [HttpGet("{projectId}/latest")]
     public async Task<IActionResult> GetLatestProjectReportByIdAsync([FromRoute] int projectId)
     {
-        var result = await _projectReportService.GetLatestProjectReportAsync(projectId);
+        var result = await _projectReportService.GenerateProjectReportAsync(projectId);
 
         return result;
     }
