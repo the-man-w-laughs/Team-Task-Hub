@@ -31,6 +31,7 @@ builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
 builder.Services.RegisterHangfire(config);
+builder.Services.ConfigureLogging(builder);
 
 var app = builder.Build();
 

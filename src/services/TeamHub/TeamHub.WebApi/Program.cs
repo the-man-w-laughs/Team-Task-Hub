@@ -34,6 +34,7 @@ builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
 });
+builder.Services.ConfigureLogging(builder);
 
 var app = builder.Build();
 
