@@ -1,4 +1,3 @@
-using System.Net.Mail;
 using Identity.Application.Ports.Utils;
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;

@@ -1,5 +1,4 @@
-﻿using Amazon.Runtime.Internal.Util;
-using AutoMapper;
+﻿using AutoMapper;
 using Hangfire;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
@@ -8,9 +7,11 @@ using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
 using MassTransit;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Shared.IdentityConstraints;
 using Shared.SharedModels;
+using Shared.Extensions;
 
 namespace Identity.Application.Services
 {
@@ -21,13 +22,15 @@ namespace Identity.Application.Services
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IConfirmationEmailSender _emailConfirmationHelper;
         private readonly ILogger<UserService> _logger;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserService(
             IMapper mapper,
             IAppUserRepository appUserRepository,
             IPublishEndpoint publishEndpoint,
             IConfirmationEmailSender emailConfirmationHelper,
-            ILogger<UserService> logger
+            ILogger<UserService> logger,
+            IHttpContextAccessor httpContextAccessor
         )
         {
             _mapper = mapper;
@@ -35,6 +38,7 @@ namespace Identity.Application.Services
             _publishEndpoint = publishEndpoint;
             _emailConfirmationHelper = emailConfirmationHelper;
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto)
@@ -76,12 +80,18 @@ namespace Identity.Application.Services
 
             var usersDtos = _mapper.Map<List<AppUserDto>>(users);
 
+            var userId = _httpContextAccessor.GetUserId();
+            _logger.LogInformation(
+                "User with id {UserId} successfully ritrieved all the users.",
+                userId
+            );
+
             return new SuccessResult<List<AppUserDto>>(usersDtos);
         }
 
-        public async Task<Result<AppUserDto>> GetUserByIdAsync(int id)
+        public async Task<Result<AppUserDto>> GetUserByIdAsync(int targetUserId)
         {
-            var user = await _appUserRepository.GetUserByIdAsync(id.ToString());
+            var user = await _appUserRepository.GetUserByIdAsync(targetUserId.ToString());
 
             if (user == null)
             {
@@ -90,16 +100,23 @@ namespace Identity.Application.Services
 
             var userDto = _mapper.Map<AppUserDto>(user);
 
+            var userId = _httpContextAccessor.GetUserId();
+            _logger.LogInformation(
+                "User with id {UserId} successfully ritrieved info about user with id {TargetUserId}.",
+                userId,
+                targetUserId
+            );
+
             return new SuccessResult<AppUserDto>(userDto);
         }
 
-        public async Task<Result<AppUserDto>> DeleteUserByIdAsync(int id)
+        public async Task<Result<AppUserDto>> DeleteUserByIdAsync(int targetUserId)
         {
-            var user = await _appUserRepository.GetUserByIdAsync(id.ToString());
+            var user = await _appUserRepository.GetUserByIdAsync(targetUserId.ToString());
 
             if (user == null)
             {
-                return new InvalidResult<AppUserDto>($"User with id \"{id}\" not found.");
+                return new InvalidResult<AppUserDto>($"User with id \"{targetUserId}\" not found.");
             }
 
             if (await _appUserRepository.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
@@ -122,6 +139,13 @@ namespace Identity.Application.Services
 
             var userDto = _mapper.Map<AppUserDto>(user);
 
+            var userId = _httpContextAccessor.GetUserId();
+            _logger.LogInformation(
+                "User with id {UserId} successfully deleted user with id {TargetUserId}.",
+                userId,
+                targetUserId
+            );
+
             return new SuccessResult<AppUserDto>(userDto);
         }
 
@@ -135,6 +159,13 @@ namespace Identity.Application.Services
             }
 
             var userDto = _mapper.Map<AppUserDto>(user);
+
+            var userId = _httpContextAccessor.GetUserId();
+            _logger.LogInformation(
+                "User with id {UserId} successfully ritrieved info about user with Email {Email}.",
+                userId,
+                email
+            );
 
             return new SuccessResult<AppUserDto>(userDto);
         }
