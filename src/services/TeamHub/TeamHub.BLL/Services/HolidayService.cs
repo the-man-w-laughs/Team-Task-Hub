@@ -21,6 +21,7 @@ namespace TeamHub.BLL.Services
         private async Task<bool> IsHolidayAsync(DateTime date)
         {
             var holidays = await _holidayRepository.GetAllAsync();
+
             return holidays.Any(holiday => holiday.Date.DayOfYear == date.DayOfYear);
         }
 

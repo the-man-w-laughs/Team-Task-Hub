@@ -15,7 +15,7 @@ public class EmailController : ControllerBase
     }
 
     [HttpGet("email-confirmation")]
-    public async Task<IActionResult> ConfirmEmail(
+    public async Task<IActionResult> ConfirmEmailAsync(
         [FromQuery] string token,
         [FromQuery] string email
     )

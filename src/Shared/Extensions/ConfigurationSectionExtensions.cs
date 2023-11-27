@@ -15,6 +15,7 @@ public static class ConfigurationSectionExtensions
         var name = sectionName ?? typeof(T).Name;
         var section = configuration.GetSection(name);
         services.Configure<T>(section);
+
         return services;
     }
 }

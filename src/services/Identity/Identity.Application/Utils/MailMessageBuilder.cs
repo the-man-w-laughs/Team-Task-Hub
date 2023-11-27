@@ -12,6 +12,7 @@ namespace Identity.Application.Utils
         )
         {
             var body = CreateBody(confirmaitonLink);
+
             return new MailMessage
             {
                 From = new MailAddress(sourceEmail, "TeamTaskHub"),
