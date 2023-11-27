@@ -14,6 +14,8 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddRoutingOptions();
+builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 

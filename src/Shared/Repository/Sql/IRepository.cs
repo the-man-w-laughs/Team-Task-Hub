@@ -5,6 +5,7 @@ namespace Shared.Repository.Sql;
 public interface IRepository<TEntity>
     where TEntity : class, new()
 {
+    Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<List<TEntity>> GetAllAsync(
         int offset,
         int limit,

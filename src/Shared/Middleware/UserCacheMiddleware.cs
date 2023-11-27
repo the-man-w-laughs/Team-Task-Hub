@@ -25,6 +25,7 @@ namespace Shared.Middleware
                 int userId = httpContextAccessor.GetUserId();
                 _userRequestRepository.SetLatestRequestTime(userId.ToString(), DateTime.Now);
             }
+            catch (InvalidOperationException ex) { }
             finally
             {
                 await _next(context);

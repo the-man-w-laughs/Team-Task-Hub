@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
+using Identity.Application.Ports.Utils;
 using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
@@ -15,19 +17,22 @@ namespace Identity.Application.Services
         private readonly IMapper _mapper;
         private readonly IAppUserRepository _appUserRepository;
         private readonly IPublishEndpoint _publishEndpoint;
+        private readonly IConfirmationEmailSender _emailConfirmationHelper;
 
         public UserService(
             IMapper mapper,
             IAppUserRepository appUserRepository,
-            IPublishEndpoint publishEndpoint
+            IPublishEndpoint publishEndpoint,
+            IConfirmationEmailSender emailConfirmationHelper
         )
         {
             _mapper = mapper;
             _appUserRepository = appUserRepository;
             _publishEndpoint = publishEndpoint;
+            _emailConfirmationHelper = emailConfirmationHelper;
         }
 
-        public async Task<Result<int>> AddUserAsync(AppUserRegisterDto appUserDto)
+        public async Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto)
         {
             var appUser = _mapper.Map<AppUser>(appUserDto);
 
@@ -38,16 +43,16 @@ namespace Identity.Application.Services
 
             if (!identityResult.Succeeded)
             {
-                return new InvalidResult<int>(
+                return new InvalidResult<string>(
                     $"Failed to add: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
                 );
             }
 
-            var message = _mapper.Map<UserCreatedMessage>(appUser);
+            BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmailAsync(appUser));
 
-            await _publishEndpoint.Publish(message);
-
-            return new SuccessResult<int>(appUser.Id);
+            return new SuccessResult<string>(
+                $"Confirmation email sent successfully! Please checkout your inbox {appUserDto.Email}"
+            );
         }
 
         public async Task<Result<List<AppUserDto>>> GetAllUsersAsync(int offset, int limit)
@@ -79,7 +84,7 @@ namespace Identity.Application.Services
 
             if (user == null)
             {
-                return new InvalidResult<AppUserDto>("User not found.");
+                return new InvalidResult<AppUserDto>($"User with id \"{id}\" not found.");
             }
 
             if (await _appUserRepository.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
@@ -99,6 +104,20 @@ namespace Identity.Application.Services
             var message = _mapper.Map<UserDeletedMessage>(user);
 
             await _publishEndpoint.Publish(message);
+
+            var userDto = _mapper.Map<AppUserDto>(user);
+
+            return new SuccessResult<AppUserDto>(userDto);
+        }
+
+        public async Task<Result<AppUserDto>> GetUserByEmailAsync(string email)
+        {
+            var user = await _appUserRepository.GetUserByEmailAsync(email);
+
+            if (user == null)
+            {
+                return new InvalidResult<AppUserDto>($"User with email \"{email}\" not found.");
+            }
 
             var userDto = _mapper.Map<AppUserDto>(user);
 

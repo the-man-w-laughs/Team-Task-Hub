@@ -57,6 +57,18 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
+    /// Get user by email
+    /// </summary>
+    [HttpGet("{email}")]
+    [Authorize]
+    public async Task<IActionResult> GetUserByIdAsync(string email)
+    {
+        var result = await _userService.GetUserByEmailAsync(email);
+
+        return this.FromResult(result);
+    }
+
+    /// <summary>
     /// Delete user by id
     /// </summary>
     [HttpDelete("{id}")]

@@ -59,7 +59,7 @@ public class ProjectsController : ControllerBase
     /// Get All Users Projects
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllUsersProjecsAsyncAsync(
+    public async Task<IActionResult> GetAllUsersProjecsAsync(
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 100
     )
@@ -88,6 +88,7 @@ public class ProjectsController : ControllerBase
     /// <summary>
     /// Delete Project
     /// </summary>
+    [HttpDelete("{projectId:int}")]
     public async Task<IActionResult> DeleteProjectAsync([FromRoute] int projectId)
     {
         var command = new DeleteProjectCommand(projectId);

@@ -10,13 +10,18 @@ public class AppUserConfiguration : IEntityTypeConfiguration<AppUser>
     public void Configure(EntityTypeBuilder<AppUser> builder)
     {
         var hasher = new PasswordHasher<AppUser>();
+        var username = "admin";
+        var email = "admin@the.best";
+
         var admin = new AppUser()
         {
             Id = 1,
-            UserName = "admin",
+            UserName = username,
+            Email = email,
             NormalizedUserName = "ADMIN",
             SecurityStamp = Guid.NewGuid().ToString(),
-            PasswordHash = hasher.HashPassword(null, "admin")
+            PasswordHash = hasher.HashPassword(null, "admin"),
+            EmailConfirmed = true
         };
 
         builder.HasData(admin);

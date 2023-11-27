@@ -25,7 +25,16 @@ public class AppUserRepository : IAppUserRepository
 
     public async Task<IEnumerable<AppUser>> GetAllUsersAsync(int offset, int limit)
     {
-        return await _userManager.Users.Skip(offset).Take(limit).ToListAsync();
+        return await _userManager.Users
+            .Where(user => user.EmailConfirmed == true)
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<AppUser?> GetUserByEmailAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email);
     }
 
     public async Task<AppUser?> GetUserByIdAsync(string id)

@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using ReportHub.BLL.AutoMapperProfiles;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ReportHub.BLL.Extensions
 {
@@ -7,7 +7,7 @@ namespace ReportHub.BLL.Extensions
     {
         public static void RegisterAutomapperProfiles(this IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(ProjectsProfile));
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
         }
     }
 }

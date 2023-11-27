@@ -6,8 +6,11 @@ using Identity.Infrastructure.DbContext;
 using System.Reflection;
 using Shared.Middleware;
 using Identity.WebAPI.Extensions;
+using Shared.SharedModels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("passwords.json", optional: false, reloadOnChange: true);
 
 var config = builder.Configuration;
 var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
@@ -19,11 +22,19 @@ builder.Services.ConfigureIdentityServer(config);
 builder.Services.ConfigureDatabaseConnection(config);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger(config, assemblyName);
-builder.Services.RegisterApplicationDependencies();
+builder.Services.RegisterUtilsDependencies();
+builder.Services.RegisterAutomapperProfiles();
+builder.Services.RegisterServices();
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
+builder.Services.AddConfigurationSection<EmailCredentials>(config);
+builder.Services.AddConfigurationSection<UriOptions>(config, "EmailConfirmationLinkOptions");
+builder.Services.RegisterHangfire(config);
+builder.Services.AddSmtpClientFactory();
+builder.Services.AddRoutingOptions();
+builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 
@@ -42,5 +53,7 @@ app.UseAuthorization();
 app.UseIdentityServer();
 app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
+
+app.UseHangfireWithDashboard(config);
 
 app.Run();

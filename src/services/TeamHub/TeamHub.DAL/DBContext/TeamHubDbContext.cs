@@ -18,6 +18,8 @@ public partial class TeamHubDbContext : DbContext
 
     public DbSet<User> Users { get; set; }
 
+    public DbSet<Holiday> Weekends { get; set; }
+
     public TeamHubDbContext(DbContextOptions options)
         : base(options)
     {
