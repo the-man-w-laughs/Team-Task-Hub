@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -16,13 +18,15 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     private readonly IMapper _mapper;
     private readonly ICommentQueryService _commentService;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<DeleteCommentCommandHandler> _logger;
 
     public DeleteCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         ICommentRepository commentRepository,
         IMapper mapper,
         ICommentQueryService commentService,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<DeleteCommentCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +34,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         _mapper = mapper;
         _commentService = commentService;
         _userService = userService;
+        _logger = logger;
     }
 
     public async Task<CommentResponseDto> Handle(
@@ -39,6 +44,11 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User with ID {UserId} is attempting to delete a comment with ID {CommentId}.",
+            userId,
+            request.CommentId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -52,6 +62,12 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         // only author can delete comment
         if (userId != comment.AuthorId)
         {
+            _logger.LogWarning(
+                "User with ID {UserId} attempted to delete comment with ID {CommentId} without proper rights.",
+                userId,
+                comment.Id
+            );
+
             throw new ForbiddenException(
                 $"User with id {userId} doesn't have rights to delete comment with id {comment.Id}."
             );
@@ -60,6 +76,9 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         // delete comment
         _commentRepository.Delete(comment);
         await _commentRepository.SaveAsync(cancellationToken);
+
+        _logger.LogInformation("Comment with ID {CommentId} deleted successfully.", comment.Id);
+
         var result = _mapper.Map<CommentResponseDto>(comment);
 
         return result;
