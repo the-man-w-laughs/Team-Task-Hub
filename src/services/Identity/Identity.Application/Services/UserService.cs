@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using Amazon.Runtime.Internal.Util;
+using AutoMapper;
 using Hangfire;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
@@ -7,6 +8,7 @@ using Identity.Application.Result;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using Shared.IdentityConstraints;
 using Shared.SharedModels;
 
@@ -18,18 +20,21 @@ namespace Identity.Application.Services
         private readonly IAppUserRepository _appUserRepository;
         private readonly IPublishEndpoint _publishEndpoint;
         private readonly IConfirmationEmailSender _emailConfirmationHelper;
+        private readonly ILogger<UserService> _logger;
 
         public UserService(
             IMapper mapper,
             IAppUserRepository appUserRepository,
             IPublishEndpoint publishEndpoint,
-            IConfirmationEmailSender emailConfirmationHelper
+            IConfirmationEmailSender emailConfirmationHelper,
+            ILogger<UserService> logger
         )
         {
             _mapper = mapper;
             _appUserRepository = appUserRepository;
             _publishEndpoint = publishEndpoint;
             _emailConfirmationHelper = emailConfirmationHelper;
+            _logger = logger;
         }
 
         public async Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto)
@@ -43,12 +48,22 @@ namespace Identity.Application.Services
 
             if (!identityResult.Succeeded)
             {
+                _logger.LogInformation(
+                    "Failed to create user with email {Email}.",
+                    appUserDto.Email
+                );
+
                 return new InvalidResult<string>(
                     $"Failed to add: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}"
                 );
             }
 
             BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmail(appUser));
+
+            _logger.LogInformation(
+                "Confirmation email sent successfully to {Email}.",
+                appUserDto.Email
+            );
 
             return new SuccessResult<string>(
                 $"Confirmation email sent successfully! Please checkout your inbox {appUserDto.Email}"
