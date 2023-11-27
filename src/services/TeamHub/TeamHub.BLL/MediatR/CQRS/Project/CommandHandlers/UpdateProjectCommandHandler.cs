@@ -14,15 +14,15 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
-    private readonly IProjectService _projectService;
+    private readonly IUserQueryService _userService;
+    private readonly IProjectQueryService _projectService;
 
     public UpdateProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserService userService,
-        IProjectService projectService
+        IUserQueryService userService,
+        IProjectQueryService projectService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -41,10 +41,13 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get target project
-        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         // author can update project
         if (userId != project.AuthorId)

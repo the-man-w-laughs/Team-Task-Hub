@@ -11,16 +11,16 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
-    private readonly ITeamMemberService _teamMemberService;
-    private readonly ITaskService _taskService;
+    private readonly IUserQueryService _userService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly ITaskQueryService _taskService;
 
     public GetTaskByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
-        IUserService userService,
-        ITeamMemberService teamMemberService,
-        ITaskService taskService
+        IUserQueryService userService,
+        ITeamMemberQueryService teamMemberService,
+        ITaskQueryService taskService
     )
     {
         _mapper = mapper;
@@ -39,14 +39,18 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the user exists.
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get requested task
-        var task = await _taskService.GetTaskAsync(request.TaskId, cancellationToken);
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
         var response = _mapper.Map<TaskModelResponseDto>(task);
 
         // only team member has access to related entities
-        await _teamMemberService.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
+        await _teamMemberService.GetExistingTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         return response;
     }

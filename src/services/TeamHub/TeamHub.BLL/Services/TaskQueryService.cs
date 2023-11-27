@@ -5,16 +5,19 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.Services
 {
-    public class TaskService : ITaskService
+    public class TaskQueryService : ITaskQueryService
     {
         private readonly ITaskModelRepository _taskRepository;
 
-        public TaskService(ITaskModelRepository taskRepository)
+        public TaskQueryService(ITaskModelRepository taskRepository)
         {
             _taskRepository = taskRepository;
         }
 
-        public async Task<TaskModel> GetTaskAsync(int taskId, CancellationToken cancellationToken)
+        public async Task<TaskModel> GetExistingTaskAsync(
+            int taskId,
+            CancellationToken cancellationToken
+        )
         {
             var task = await _taskRepository.GetByIdAsync(taskId, cancellationToken);
 

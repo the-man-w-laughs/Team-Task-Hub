@@ -14,17 +14,17 @@ public class GetAllProjectsTeamMembersQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
-    private readonly IProjectService _projectService;
-    private readonly ITeamMemberService _teamMemberService;
-    private readonly IUserService _userService;
+    private readonly IProjectQueryService _projectService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
 
     public GetAllProjectsTeamMembersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         ITeamMemberRepository teamMemberRepository,
         IMapper mapper,
-        IProjectService projectService,
-        ITeamMemberService teamMemberService,
-        IUserService userService
+        IProjectQueryService projectService,
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService
     )
     {
         _teamMemberRepository = teamMemberRepository;
@@ -44,13 +44,16 @@ public class GetAllProjectsTeamMembersQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get requested project
-        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         // only team members have access to related projects
-        var teamMember = await _teamMemberService.GetTeamMemberAsync(
+        var teamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             request.ProjectId,
             cancellationToken

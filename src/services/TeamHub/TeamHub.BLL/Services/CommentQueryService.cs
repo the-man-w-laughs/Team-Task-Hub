@@ -5,16 +5,16 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.Services
 {
-    public class CommentService : ICommentService
+    public class CommentQueryService : ICommentQueryService
     {
         private readonly ICommentRepository _commentRepository;
 
-        public CommentService(ICommentRepository commentRepository)
+        public CommentQueryService(ICommentRepository commentRepository)
         {
             _commentRepository = commentRepository;
         }
 
-        public async Task<Comment> GetCommentAsync(
+        public async Task<Comment> GetExistingCommentAsync(
             int commentId,
             CancellationToken cancellationToken
         )

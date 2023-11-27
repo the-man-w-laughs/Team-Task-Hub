@@ -14,15 +14,15 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICommentRepository _commentRepository;
     private readonly IMapper _mapper;
-    private readonly ICommentService _commentService;
-    private readonly IUserService _userService;
+    private readonly ICommentQueryService _commentService;
+    private readonly IUserQueryService _userService;
 
     public DeleteCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         ICommentRepository commentRepository,
         IMapper mapper,
-        ICommentService commentService,
-        IUserService userService
+        ICommentQueryService commentService,
+        IUserQueryService userService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -41,10 +41,13 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // check if required comment exists
-        var comment = await _commentService.GetCommentAsync(request.CommentId, cancellationToken);
+        var comment = await _commentService.GetExistingCommentAsync(
+            request.CommentId,
+            cancellationToken
+        );
 
         // only author can delete comment
         if (userId != comment.AuthorId)

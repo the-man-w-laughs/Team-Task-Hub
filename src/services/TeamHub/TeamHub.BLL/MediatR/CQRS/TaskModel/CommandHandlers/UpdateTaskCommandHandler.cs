@@ -14,15 +14,15 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ITaskModelRepository _taskRepository;
-    private readonly IUserService _userService;
-    private readonly ITaskService _taskService;
+    private readonly IUserQueryService _userService;
+    private readonly ITaskQueryService _taskService;
 
     public UpdateTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskModelRepository taskRepository,
-        IUserService userService,
-        ITaskService taskService
+        IUserQueryService userService,
+        ITaskQueryService taskService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -41,10 +41,10 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the user exists.
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // Check if the requested task exists
-        var task = await _taskService.GetTaskAsync(request.TaskId, cancellationToken);
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
         // only task author can update it
         if (userId != task.AuthorTeamMember.UserId)

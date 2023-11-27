@@ -14,17 +14,17 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ITaskModelRepository _taskModelRepository;
-    private readonly IProjectService _projectService;
-    private readonly ITeamMemberService _teamMemberService;
-    private readonly IUserService _userService;
+    private readonly IProjectQueryService _projectService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
 
     public CreateTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskModelRepository taskModelRepository,
-        IProjectService projectService,
-        ITeamMemberService teamMemberService,
-        IUserService userService
+        IProjectQueryService projectService,
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -44,13 +44,13 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
         var userId = _httpContextAccessor.GetUserId();
 
         // Check if the user exists.
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get target project
-        await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        await _projectService.GetExistingProjectAsync(request.ProjectId, cancellationToken);
 
         // only team members can create tasks
-        var teamMember = await _teamMemberService.GetTeamMemberAsync(
+        var teamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             request.ProjectId,
             cancellationToken

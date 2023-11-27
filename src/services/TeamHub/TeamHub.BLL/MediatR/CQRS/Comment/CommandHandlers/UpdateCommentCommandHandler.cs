@@ -14,15 +14,15 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ICommentRepository _commentRepository;
-    private readonly IUserService _userService;
-    private readonly ICommentService _commentService;
+    private readonly IUserQueryService _userService;
+    private readonly ICommentQueryService _commentService;
 
     public UpdateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ICommentRepository commentRepository,
-        IUserService userService,
-        ICommentService commentService
+        IUserQueryService userService,
+        ICommentQueryService commentService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -41,10 +41,13 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // check if required comment exists
-        var comment = await _commentService.GetCommentAsync(request.CommentId, cancellationToken);
+        var comment = await _commentService.GetExistingCommentAsync(
+            request.CommentId,
+            cancellationToken
+        );
 
         // only author can update comment
         if (userId != comment.AuthorId)
