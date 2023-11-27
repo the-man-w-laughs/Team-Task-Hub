@@ -14,15 +14,15 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
-    private readonly IProjectService _projectService;
+    private readonly IUserQueryService _userService;
+    private readonly IProjectQueryService _projectService;
 
     public DeleteProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserService userService,
-        IProjectService projectService
+        IUserQueryService userService,
+        IProjectQueryService projectService
     )
     {
         _projectRepository = projectRepository;
@@ -41,10 +41,13 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // retrieve target project
-        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         // only author can delete project
         if (userId != project.AuthorId)

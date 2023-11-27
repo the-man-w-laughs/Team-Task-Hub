@@ -14,13 +14,13 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
+    private readonly IUserQueryService _userService;
 
     public CreateProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserService userService
+        IUserQueryService userService
     )
     {
         _projectRepository = projectRepository;
@@ -38,7 +38,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // create new project
         var projectToAdd = _mapper.Map<Project>(request.ProjectRequestDto);

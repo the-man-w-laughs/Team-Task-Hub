@@ -14,13 +14,13 @@ public class GetAllUsersQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
+    private readonly IUserQueryService _userService;
 
     public GetAllUsersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IUserRepository userRepository,
         IMapper mapper,
-        IUserService userService
+        IUserQueryService userService
     )
     {
         _mapper = mapper;
@@ -38,7 +38,7 @@ public class GetAllUsersQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get all users
         var users = await _userRepository.GetAllAsync(

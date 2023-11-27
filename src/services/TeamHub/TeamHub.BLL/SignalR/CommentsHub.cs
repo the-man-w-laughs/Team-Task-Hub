@@ -39,9 +39,9 @@ namespace TeamHub.BLL.SignalR
             Context.Items.SetTaskId(taskId);
             await Clients
                 .GroupExcept(groupId, connectionId)
-                .Connection($"Client with id {userId} has connected to group {groupId}.");
+                .ConnectionAsync($"Client with id {userId} has connected to group {groupId}.");
 
-            await Clients.Caller.Connection(task);
+            await Clients.Caller.ConnectionAsync(task);
 
             await base.OnConnectedAsync();
         }
@@ -53,7 +53,7 @@ namespace TeamHub.BLL.SignalR
             var result = await _mediator.Send(command, Context.ConnectionAborted);
 
             var groupName = GetGroupName(taskId);
-            await Clients.Group(groupName).CreateComment(result);
+            await Clients.Group(groupName).CreateCommentAsync(result);
         }
 
         public async Task UpdateComment(int commentId, CommentRequestDto commentRequestDto)
@@ -63,7 +63,7 @@ namespace TeamHub.BLL.SignalR
             var result = await _mediator.Send(command, Context.ConnectionAborted);
 
             var groupName = GetGroupName(taskId);
-            await Clients.Group(groupName).UpdateComment(result);
+            await Clients.Group(groupName).UpdateCommentAsync(result);
         }
 
         public async Task DeleteComment(int commentId)
@@ -73,7 +73,7 @@ namespace TeamHub.BLL.SignalR
 
             var taskId = Context.Items.GetTaskId();
             var groupName = GetGroupName(taskId);
-            await Clients.Group(groupName).DeleteComment(result);
+            await Clients.Group(groupName).DeleteCommentAsync(result);
         }
 
         private int ExtractTaskId()

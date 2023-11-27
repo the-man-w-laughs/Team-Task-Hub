@@ -5,16 +5,19 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.Services
 {
-    public class UserService : IUserService
+    public class UserQueryService : IUserQueryService
     {
         private readonly IUserRepository _userRepository;
 
-        public UserService(IUserRepository userRepository)
+        public UserQueryService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
-        public async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
+        public async Task<User> GetExistingUserAsync(
+            int userId,
+            CancellationToken cancellationToken
+        )
         {
             var user = await _userRepository.GetByIdAsync(userId, cancellationToken);
 

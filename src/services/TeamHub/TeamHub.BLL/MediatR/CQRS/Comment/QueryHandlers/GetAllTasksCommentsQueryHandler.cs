@@ -15,17 +15,17 @@ public class GetAllTasksCommentsQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICommentRepository _commentRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
-    private readonly ITaskService _taskService;
-    private readonly ITeamMemberService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly ITaskQueryService _taskService;
+    private readonly ITeamMemberQueryService _teamMemberService;
 
     public GetAllTasksCommentsQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         ICommentRepository commentRepository,
         IMapper mapper,
-        IUserService userService,
-        ITaskService taskService,
-        ITeamMemberService teamMemberService
+        IUserQueryService userService,
+        ITaskQueryService taskService,
+        ITeamMemberQueryService teamMemberService
     )
     {
         _commentRepository = commentRepository;
@@ -45,13 +45,13 @@ public class GetAllTasksCommentsQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        var user = await _userService.GetUserAsync(userId, cancellationToken);
+        var user = await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // retrieve required task
-        var task = await _taskService.GetTaskAsync(request.TaskId, cancellationToken);
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
         // only project members can access to related entites
-        var teamMember = await _teamMemberService.GetTeamMemberAsync(
+        var teamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             task.ProjectId,
             cancellationToken

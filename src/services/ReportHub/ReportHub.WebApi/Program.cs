@@ -4,9 +4,6 @@ using Shared.Middleware;
 using ReportHub.BLL.Extensions;
 using ReportHub.DAL.Extensions;
 using ReportHub.WebApi.Extensions;
-using Grpc.Net.Client;
-using ProtoBuf.Grpc.Client;
-using Shared.gRPC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +26,8 @@ builder.Services.AddUserRequestRepository(config);
 builder.Services.RegisterGrpcClient(config);
 builder.Services.ConfigureHttpClient(config);
 builder.Services.ConfigureLogging(builder);
+builder.Services.AddRoutingOptions();
+builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 

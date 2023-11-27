@@ -1,8 +1,9 @@
 using System.Net.Mail;
+using Shared.SharedModels.Contracts;
 
 namespace Shared.SharedModels
 {
-    public class CustomSmtpClient : SmtpClient
+    public class CustomSmtpClient : SmtpClient, ISmtpClient
     {
         public CustomSmtpClient(string host, string email, string password)
             : base(host, 587)

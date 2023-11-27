@@ -11,16 +11,16 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
-    private readonly IProjectService _projectService;
-    private readonly ITeamMemberService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly IProjectQueryService _projectService;
+    private readonly ITeamMemberQueryService _teamMemberService;
 
     public GetProjectByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
-        IUserService userService,
-        IProjectService projectService,
-        ITeamMemberService teamMemberService
+        IUserQueryService userService,
+        IProjectQueryService projectService,
+        ITeamMemberQueryService teamMemberService
     )
     {
         _mapper = mapper;
@@ -39,15 +39,18 @@ public class GetProjectByIdQueryHandler : IRequestHandler<GetProjectByIdQuery, P
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get current project
-        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
         var response = _mapper.Map<ProjectResponseDto>(project);
 
         // only team member has access to project
         var projectId = request.ProjectId;
-        await _teamMemberService.GetTeamMemberAsync(userId, projectId, cancellationToken);
+        await _teamMemberService.GetExistingTeamMemberAsync(userId, projectId, cancellationToken);
 
         return response;
     }

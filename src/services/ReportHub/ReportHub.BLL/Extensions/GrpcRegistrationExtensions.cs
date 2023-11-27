@@ -1,5 +1,4 @@
 ﻿using Grpc.Net.Client;
-using Grpc.Net.ClientFactory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProtoBuf.Grpc.Client;

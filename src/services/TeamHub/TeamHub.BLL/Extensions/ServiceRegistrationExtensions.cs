@@ -11,13 +11,13 @@ namespace TeamHub.BLL
             services.AddScoped<IHolidayService, HolidayService>();
             services.AddScoped<IMailingService, MailingService>();
             services.AddScoped<IScheduledEmailService, ScheduledEmailService>();
+            services.AddScoped<IDailyMailMessageBuilder, DailyMailMessageBuilder>();
 
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ITeamMemberService, TeamMemberService>();
-            services.AddScoped<ICommentService, CommentService>();
-            services.AddScoped<IProjectService, ProjectService>();
-            services.AddScoped<ITaskHandlerService, TaskHandlerService>();
-            services.AddScoped<ITaskService, TaskService>();
+            services.AddScoped<IUserQueryService, UserQueryService>();
+            services.AddScoped<ITeamMemberQueryService, TeamMemberQueryService>();
+            services.AddScoped<ICommentQueryService, CommentQueryService>();
+            services.AddScoped<IProjectQueryService, ProjectQueryService>();
+            services.AddScoped<ITaskQueryService, TaskQueryService>();
         }
     }
 }

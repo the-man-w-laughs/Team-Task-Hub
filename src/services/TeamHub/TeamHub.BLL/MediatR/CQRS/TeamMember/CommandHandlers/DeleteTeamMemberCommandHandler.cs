@@ -5,6 +5,7 @@ using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos.TeamMember;
+using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 
@@ -12,17 +13,19 @@ public class DeleteTeamMemberCommandHandler
     : IRequestHandler<DeleteTeamMemberCommand, TeamMemberResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IProjectService _projectService;
-    private readonly ITeamMemberService _teamMemberService;
-    private readonly IUserService _userService;
+    private readonly IProjectQueryService _projectService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
     private readonly IMapper _mapper;
+    private readonly ITeamMemberRepository _teamMemberRepository;
 
     public DeleteTeamMemberCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        IProjectService projectService,
-        ITeamMemberService teamMemberService,
-        IUserService userService,
-        IMapper mapper
+        IProjectQueryService projectService,
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService,
+        IMapper mapper,
+        ITeamMemberRepository teamMemberRepository
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +33,7 @@ public class DeleteTeamMemberCommandHandler
         _teamMemberService = teamMemberService;
         _userService = userService;
         _mapper = mapper;
+        _teamMemberRepository = teamMemberRepository;
     }
 
     public async Task<TeamMemberResponseDto> Handle(
@@ -41,13 +45,20 @@ public class DeleteTeamMemberCommandHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get required project
-        var project = await _projectService.GetProjectAsync(request.ProjectId, cancellationToken);
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
         // only team members can have access to this section
-        await _teamMemberService.GetTeamMemberAsync(userId, request.ProjectId, cancellationToken);
+        await _teamMemberService.GetExistingTeamMemberAsync(
+            userId,
+            request.ProjectId,
+            cancellationToken
+        );
 
         // no one except project author cannot delete other team members
         if (project.AuthorId != userId && userId != request.UserId)
@@ -65,13 +76,18 @@ public class DeleteTeamMemberCommandHandler
             );
         }
 
-        // remove team member
-        var deletedTeamMember = _teamMemberService.RemoveTeamMemberAsync(
+        // check if target team member exists
+        var teamMemberToDelete = await _teamMemberService.GetExistingTeamMemberAsync(
             request.UserId,
             request.ProjectId,
             cancellationToken
         );
-        var result = _mapper.Map<TeamMemberResponseDto>(deletedTeamMember);
+
+        // remove team member
+        _teamMemberRepository.Delete(teamMemberToDelete);
+        await _teamMemberRepository.SaveAsync(cancellationToken);
+
+        var result = _mapper.Map<TeamMemberResponseDto>(teamMemberToDelete);
 
         return result;
     }

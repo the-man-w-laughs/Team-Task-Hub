@@ -5,16 +5,16 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.Services
 {
-    public class ProjectService : IProjectService
+    public class ProjectQueryService : IProjectQueryService
     {
         private readonly IProjectRepository _projectRepository;
 
-        public ProjectService(IProjectRepository projectRepository)
+        public ProjectQueryService(IProjectRepository projectRepository)
         {
             _projectRepository = projectRepository;
         }
 
-        public async Task<Project> GetProjectAsync(
+        public async Task<Project> GetExistingProjectAsync(
             int projectId,
             CancellationToken cancellationToken
         )

@@ -14,13 +14,13 @@ public class GetAllUsersProjectsQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
-    private readonly IUserService _userService;
+    private readonly IUserQueryService _userService;
 
     public GetAllUsersProjectsQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserService userService
+        IUserQueryService userService
     )
     {
         _projectRepository = projectRepository;
@@ -38,7 +38,7 @@ public class GetAllUsersProjectsQueryHandler
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // get all projects where user is team member
         var userProjects = await _projectRepository.GetAllAsync(

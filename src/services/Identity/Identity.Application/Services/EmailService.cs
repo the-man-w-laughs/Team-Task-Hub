@@ -29,11 +29,12 @@ namespace Identity.Application.Services
             _logger = logger;
         }
 
-        public async Task ConfirmEmail(string token, string email)
+        public async Task ConfirmEmailAsync(string token, string email)
         {
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
             {
                 _logger.LogWarning("Token or email is missing.");
+
                 throw new WrongActionException("Token or email is missing.");
             }
 
@@ -42,6 +43,7 @@ namespace Identity.Application.Services
             if (user == null)
             {
                 _logger.LogInformation("User with email {Email} not found.", email);
+
                 throw new NotFoundException($"User with email {email} not found.");
             }
 
@@ -50,6 +52,7 @@ namespace Identity.Application.Services
             if (!result.Succeeded)
             {
                 _logger.LogInformation("Failed to confirm email {Email}.", email);
+
                 throw new WrongActionException($"Failed to confirm email {email}.");
             }
 

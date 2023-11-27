@@ -14,17 +14,17 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ICommentRepository _commentRepository;
-    private readonly IUserService _userService;
-    private readonly ITaskService _taskService;
-    private readonly ITeamMemberService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly ITaskQueryService _taskService;
+    private readonly ITeamMemberQueryService _teamMemberService;
 
     public CreateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ICommentRepository commentRepository,
-        IUserService userService,
-        ITaskService taskService,
-        ITeamMemberService teamMemberService
+        IUserQueryService userService,
+        ITaskQueryService taskService,
+        ITeamMemberQueryService teamMemberService
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -44,13 +44,17 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         var userId = _httpContextAccessor.GetUserId();
 
         // check if current user exists
-        await _userService.GetUserAsync(userId, cancellationToken);
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
         // check if required task exists
-        var task = await _taskService.GetTaskAsync(request.TaskId, cancellationToken);
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
         // check if user has access to this task
-        await _teamMemberService.GetTeamMemberAsync(userId, task.ProjectId, cancellationToken);
+        await _teamMemberService.GetExistingTeamMemberAsync(
+            userId,
+            task.ProjectId,
+            cancellationToken
+        );
 
         // create new comment
         var commentToAdd = _mapper.Map<Comment>(request.CommentRequestDto);
