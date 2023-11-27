@@ -9,53 +9,30 @@ namespace TeamHub.BLL.AutoMapperProfiles
         public TaskModelsProfile()
         {
             CreateMap<TaskModelRequestDto, TaskModel>()
-                .ForMember(
-                    task => task.PriorityId,
-                    expression => expression.MapFrom(src => src.PriorityId)
-                )
-                .ForMember(
-                    task => task.Content,
-                    expression => expression.MapFrom(src => src.Content)
-                )
-                .ForMember(
-                    task => task.Deadline,
-                    expression => expression.MapFrom(src => src.Deadline)
-                );
+                .ForMember(task => task.PriorityId, opt => opt.MapFrom(src => src.PriorityId))
+                .ForMember(task => task.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(task => task.Deadline, opt => opt.MapFrom(src => src.Deadline))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.Now));
 
             CreateMap<TaskModel, TaskModelResponseDto>()
-                .ForMember(task => task.Id, expression => expression.MapFrom(src => src.Id))
+                .ForMember(task => task.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(
                     task => task.CreatorId,
-                    expression => expression.MapFrom(src => src.TeamMember.UserId)
+                    opt => opt.MapFrom(src => src.AuthorTeamMember.UserId)
                 )
-                .ForMember(
-                    task => task.ProjectsId,
-                    expression => expression.MapFrom(src => src.ProjectId)
-                )
-                .ForMember(
-                    task => task.PriorityId,
-                    expression => expression.MapFrom(src => src.PriorityId)
-                )
-                .ForMember(
-                    task => task.Content,
-                    expression => expression.MapFrom(src => src.Content)
-                )
-                .ForMember(
-                    task => task.Deadline,
-                    expression => expression.MapFrom(src => src.Deadline)
-                )
+                .ForMember(task => task.ProjectId, opt => opt.MapFrom(src => src.ProjectId))
+                .ForMember(task => task.PriorityId, opt => opt.MapFrom(src => src.PriorityId))
+                .ForMember(task => task.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(task => task.Deadline, opt => opt.MapFrom(src => src.Deadline))
                 .ForMember(
                     task => task.IsCompleted,
-                    expression => expression.MapFrom(src => src.IsCompleted == 1)
+                    opt => opt.MapFrom(src => src.IsCompleted == 1)
                 )
-                .ForMember(
-                    task => task.CreatedAt,
-                    expression => expression.MapFrom(src => src.CreatedAt)
-                )
+                .ForMember(task => task.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(
                     task => task.TasksHandlers,
-                    expression =>
-                        expression.MapFrom(
+                    opt =>
+                        opt.MapFrom(
                             src =>
                                 src.TasksHandlers != null
                                     ? src.TasksHandlers
@@ -66,35 +43,23 @@ namespace TeamHub.BLL.AutoMapperProfiles
                 );
 
             CreateMap<TaskModel, ProjectTaskDataContract>()
-                .ForMember(task => task.Id, expression => expression.MapFrom(src => src.Id))
+                .ForMember(task => task.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(
                     task => task.CreatorId,
-                    expression => expression.MapFrom(src => src.TeamMember.UserId)
+                    opt => opt.MapFrom(src => src.AuthorTeamMember.UserId)
                 )
-                .ForMember(
-                    task => task.PriorityId,
-                    expression => expression.MapFrom(src => src.PriorityId)
-                )
-                .ForMember(
-                    task => task.Content,
-                    expression => expression.MapFrom(src => src.Content)
-                )
-                .ForMember(
-                    task => task.Deadline,
-                    expression => expression.MapFrom(src => src.Deadline)
-                )
+                .ForMember(task => task.PriorityId, opt => opt.MapFrom(src => src.PriorityId))
+                .ForMember(task => task.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(task => task.Deadline, opt => opt.MapFrom(src => src.Deadline))
                 .ForMember(
                     task => task.IsCompleted,
-                    expression => expression.MapFrom(src => src.IsCompleted == 1)
+                    opt => opt.MapFrom(src => src.IsCompleted == 1)
                 )
-                .ForMember(
-                    task => task.CreatedAt,
-                    expression => expression.MapFrom(src => src.CreatedAt)
-                )
+                .ForMember(task => task.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(
                     task => task.TasksHandlersIds,
-                    expression =>
-                        expression.MapFrom(
+                    opt =>
+                        opt.MapFrom(
                             src =>
                                 src.TasksHandlers != null
                                     ? src.TasksHandlers
@@ -105,23 +70,11 @@ namespace TeamHub.BLL.AutoMapperProfiles
                 );
 
             CreateMap<TaskModel, ShortTaskModelResponseDto>()
-                .ForMember(task => task.Id, expression => expression.MapFrom(src => src.Id))
-                .ForMember(
-                    task => task.PriorityId,
-                    expression => expression.MapFrom(src => src.PriorityId)
-                )
-                .ForMember(
-                    task => task.Content,
-                    expression => expression.MapFrom(src => src.Content)
-                )
-                .ForMember(
-                    task => task.Deadline,
-                    expression => expression.MapFrom(src => src.Deadline)
-                )
-                .ForMember(
-                    task => task.CreatedAt,
-                    expression => expression.MapFrom(src => src.CreatedAt)
-                );
+                .ForMember(task => task.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(task => task.PriorityId, opt => opt.MapFrom(src => src.PriorityId))
+                .ForMember(task => task.Content, opt => opt.MapFrom(src => src.Content))
+                .ForMember(task => task.Deadline, opt => opt.MapFrom(src => src.Deadline))
+                .ForMember(task => task.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
         }
     }
 }

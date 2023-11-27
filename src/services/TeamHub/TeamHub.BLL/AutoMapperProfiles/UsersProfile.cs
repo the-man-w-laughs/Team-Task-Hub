@@ -10,15 +10,16 @@ namespace TeamHub.BLL.AutoMapperProfiles
     {
         public UsersProfile()
         {
+            CreateMap<UserCreatedMessage, User>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(user => user.Id))
+                .ForMember(dest => dest.Email, opt => opt.MapFrom(user => user.Email))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.Now));
+
             CreateMap<User, UserResponseDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(user => user.Id))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(user => user.Email))
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(user => user.CreatedAt))
                 .ForMember(dest => dest.IsOnline, opt => opt.MapFrom<UserOnlineResolver>());
-
-            CreateMap<UserCreatedMessage, User>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(user => user.Id))
-                .ForMember(dest => dest.Email, opt => opt.MapFrom(user => user.Email));
 
             CreateMap<User, UserDataContract>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(user => user.Id))

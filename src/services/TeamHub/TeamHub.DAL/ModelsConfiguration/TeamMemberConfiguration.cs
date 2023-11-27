@@ -25,7 +25,7 @@ namespace TeamHub.DAL.ModelsConfiguration
             entity.Property(e => e.UserId).HasColumnName("users_id");
 
             entity
-                .HasOne(d => d.Projects)
+                .HasOne(d => d.Project)
                 .WithMany(p => p.TeamMembers)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade)

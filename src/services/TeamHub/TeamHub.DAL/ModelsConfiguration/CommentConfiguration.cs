@@ -37,7 +37,7 @@ namespace TeamHub.DAL.ModelsConfiguration
                 .HasConstraintName("fk_users_has_tasks_tasks1");
 
             entity
-                .HasOne(d => d.Users)
+                .HasOne(d => d.Author)
                 .WithMany(p => p.Comments)
                 .HasForeignKey(d => d.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade)

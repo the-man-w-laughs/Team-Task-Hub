@@ -1,62 +1,68 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using Shared.Extensions;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos.TaskHandler;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 
 namespace TeamHub.BLL.MediatR.CQRS.TaskHandlers.Commands;
 
-public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandlerCommand, int>
+public class CreateTaskHandlerCommandHandler
+    : IRequestHandler<CreateTaskHandlerCommand, TaskHandlerResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly IMapper _mapper;
+    private readonly ITaskQueryService _taskService;
     private readonly ITaskHandlerRepository _taskHandlerRepository;
-    private readonly ITaskModelRepository _taskRepository;
-    private readonly ITeamMemberRepository _teamMemberRepository;
 
     public CreateTaskHandlerCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        ITaskHandlerRepository taskHandlerRepository,
-        ITaskModelRepository taskRepository,
-        ITeamMemberRepository teamMemberRepository
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService,
+        IMapper mapper,
+        ITaskQueryService taskService,
+        ITaskHandlerRepository taskHandlerRepository
     )
     {
         _httpContextAccessor = httpContextAccessor;
+        _teamMemberService = teamMemberService;
+        _userService = userService;
+        _mapper = mapper;
+        _taskService = taskService;
         _taskHandlerRepository = taskHandlerRepository;
-        _taskRepository = taskRepository;
-        _teamMemberRepository = teamMemberRepository;
     }
 
-    public async Task<int> Handle(
+    public async Task<TaskHandlerResponseDto> Handle(
         CreateTaskHandlerCommand request,
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
+        // Check if the current user exists.
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
+        // Check if the target user exists.
+        await _userService.GetExistingUserAsync(request.UserId, cancellationToken);
+
         // Check if the task exists.
-        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
-
+        // Check if current user has access to the project.
         var projectId = task.ProjectId;
+        await _teamMemberService.GetExistingTeamMemberAsync(userId, projectId, cancellationToken);
 
-        // Check if user has access to the project.
-        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
-            userId,
+        // Check if target user has access to the project.
+        var targetTeamMember = await _teamMemberService.GetExistingTeamMemberAsync(
+            request.UserId,
             projectId,
             cancellationToken
         );
-
-        if (targetTeamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {projectId}."
-            );
-        }
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
@@ -75,7 +81,7 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
         // Create a new TaskHandler entity and add it to the repository.
         var taskHandlerToAdd = new TaskHandler()
         {
-            TasksId = request.TaskId,
+            TaskId = request.TaskId,
             TeamMemberId = targetTeamMember.Id,
             CreatedAt = DateTime.Now
         };
@@ -86,6 +92,8 @@ public class CreateTaskHandlerCommandHandler : IRequestHandler<CreateTaskHandler
         );
         await _taskHandlerRepository.SaveAsync(cancellationToken);
 
-        return addedTaskHandler.Id;
+        var result = _mapper.Map<TaskHandlerResponseDto>(addedTaskHandler);
+
+        return result;
     }
 }

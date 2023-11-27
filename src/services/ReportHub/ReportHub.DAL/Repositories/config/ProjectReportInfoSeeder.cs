@@ -7,18 +7,7 @@ namespace ReportHub.DAL.Repositories
     {
         public IEnumerable<ProjectReportInfo> Seed()
         {
-            var projectReports = new List<ProjectReportInfo>
-            {
-                new ProjectReportInfo
-                {
-                    ProjectAuthorId = 1,
-                    ProjectId = 1,
-                    UpdatedAt = DateTime.Now.AddMinutes(-30),
-                    CreatedAt = DateTime.Now.AddMinutes(-30),
-                    Reports = new List<Report>()
-                }
-            };
-
+            var projectReports = new List<ProjectReportInfo>();
             return projectReports;
         }
     }

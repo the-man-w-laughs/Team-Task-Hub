@@ -19,7 +19,7 @@ namespace TeamHub.DAL.Repositories
         )
         {
             return GetAsync(
-                handler => handler.TasksId == taskId && handler.TeamMemberId == teamMemberId,
+                handler => handler.TaskId == taskId && handler.TeamMemberId == teamMemberId,
                 cancellationToken
             );
         }

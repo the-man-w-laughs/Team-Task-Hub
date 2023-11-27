@@ -7,7 +7,7 @@ public partial class User
     public DateTime CreatedAt { get; set; }
     public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-    public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
+    public virtual ICollection<Project> CreatedProjects { get; set; } = new List<Project>();
 
     public virtual ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
 }

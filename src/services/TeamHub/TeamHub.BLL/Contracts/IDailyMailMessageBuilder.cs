@@ -9,7 +9,7 @@ namespace TeamHub.BLL.Contracts
         MailMessage CreateDailyMailMessage(
             string sourceEmail,
             User user,
-            List<TeamMemberResponseDto> teamMemberResponseDtos
+            List<TeamMemberDto> teamMemberResponseDtos
         );
     }
 }

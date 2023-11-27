@@ -24,14 +24,14 @@ namespace Identity.WebAPI.Extensions.Identity
             new List<Client>
             {
                 new Client
-                {                    
-                    ClientId = ClientName,                    
+                {
+                    ClientId = ClientName,
                     AllowedGrantTypes = GrantTypes.ResourceOwnerPassword,
                     RequireClientSecret = false,
                     AllowedScopes = { TasksApiScopeName },
                     ClientSecrets = { new Secret(ClientSecret.Sha256()) },
                     AllowAccessTokensViaBrowser = true,
-                    AllowOfflineAccess = true,
+                    AllowOfflineAccess = true
                 }
             };
     }

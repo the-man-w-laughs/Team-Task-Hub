@@ -31,6 +31,10 @@ builder.Services.ReristerRrpcService();
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
 builder.Services.RegisterServices();
 builder.Services.RegisterHangfire(config);
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
 builder.Services.AddSmtpClientFactory();
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();
@@ -55,6 +59,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<UserCacheMiddleware>();
 app.MapControllers();
+app.UseSignalR();
 app.UseGrpcService();
 
 app.Run();

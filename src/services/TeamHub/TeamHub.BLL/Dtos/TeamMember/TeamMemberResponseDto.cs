@@ -2,7 +2,9 @@ namespace TeamHub.BLL.Dtos.TeamMember
 {
     public class TeamMemberResponseDto
     {
-        public string ProjectName { get; set; } = string.Empty;
-        public List<ShortTaskModelResponseDto> Tasks { get; set; } = new();
+        public int Id { get; set; }
+        public int UserId { get; set; }
+        public int ProjectId { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }
