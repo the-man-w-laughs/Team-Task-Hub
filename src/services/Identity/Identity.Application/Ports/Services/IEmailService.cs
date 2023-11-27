@@ -2,6 +2,6 @@
 {
     public interface IEmailConfirmationService
     {
-        Task ConfirmEmail(string token, string id);
+        Task ConfirmEmailAsync(string token, string id);
     }
 }

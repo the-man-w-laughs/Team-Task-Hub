@@ -25,7 +25,7 @@ namespace Identity.Application.Services
             _publishEndpoint = publishEndpoint;
         }
 
-        public async Task ConfirmEmail(string token, string email)
+        public async Task ConfirmEmailAsync(string token, string email)
         {
             if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(email))
             {
@@ -43,7 +43,7 @@ namespace Identity.Application.Services
 
             if (!result.Succeeded)
             {
-                throw new WrongActionException("Failed to confirm email.");
+                throw new WrongActionException($"Failed to confirm email {email}.");
             }
 
             var message = _mapper.Map<UserCreatedMessage>(user);

@@ -48,7 +48,7 @@ namespace Identity.Application.Services
                 );
             }
 
-            BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmail(appUser));
+            BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmailAsync(appUser));
 
             return new SuccessResult<string>(
                 $"Confirmation email sent successfully! Please checkout your inbox {appUserDto.Email}"

@@ -8,6 +8,7 @@ namespace Identity.Application
     {
         public static void RegisterUtilsDependencies(this IServiceCollection services)
         {
+            services.AddScoped<IMailMessageBuilder, MailMessageBuilder>();
             services.AddScoped<IConfirmationEmailSender, ConfirmationEmailSender>();
         }
     }

@@ -1,6 +1,7 @@
 using ApiGateway.Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
@@ -13,6 +14,8 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
+builder.Services.AddRoutingOptions();
+builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 
