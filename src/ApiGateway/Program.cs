@@ -5,6 +5,7 @@ using Shared.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 var config = builder.Configuration;
+var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 
 builder.Configuration
     .AddJsonFile(config["Ocelot:JsonFile"], optional: false, reloadOnChange: true)
@@ -14,7 +15,7 @@ builder.Services.AddOcelot(builder.Configuration);
 builder.Services.AddSwaggerForOcelot(builder.Configuration);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
-builder.Services.ConfigureLogging(builder);
+builder.Services.ConfigureLogging(builder, assemblyName);
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();
 

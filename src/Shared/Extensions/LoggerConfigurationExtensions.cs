@@ -12,7 +12,8 @@ namespace Shared.Extensions
     {
         public static IServiceCollection ConfigureLogging(
             this IServiceCollection services,
-            WebApplicationBuilder builder
+            WebApplicationBuilder builder,
+            string assemblyName
         )
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
@@ -27,7 +28,9 @@ namespace Shared.Extensions
                 .Enrich.WithExceptionDetails()
                 .WriteTo.Debug()
                 .WriteTo.Console()
-                .WriteTo.Elasticsearch(ConfigureElasticsearchSink(configuration, environment))
+                .WriteTo.Elasticsearch(
+                    ConfigureElasticsearchSink(configuration, environment, assemblyName)
+                )
                 .Enrich.WithProperty("Environment", environment)
                 .ReadFrom.Configuration(configuration)
                 .CreateLogger();
@@ -39,16 +42,15 @@ namespace Shared.Extensions
 
         private static ElasticsearchSinkOptions ConfigureElasticsearchSink(
             IConfigurationRoot configuration,
-            string environment
+            string environment,
+            string assemblyName
         )
         {
             return new ElasticsearchSinkOptions(new Uri(configuration["ElasticConfiguration:Uri"]!))
             {
                 AutoRegisterTemplate = true,
                 IndexFormat =
-                    $"{Assembly.GetExecutingAssembly()
-                                         .GetName()
-                                         .Name!.ToLower()
+                    $"{assemblyName.ToLower()
                                          .Replace(".", "-")}-{environment.ToLower()}-{DateTime.UtcNow:yyyy-MM}",
                 NumberOfReplicas = 1,
                 NumberOfShards = 2
