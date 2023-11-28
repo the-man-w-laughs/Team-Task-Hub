@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -16,13 +18,15 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
     private readonly IMapper _mapper;
     private readonly IUserQueryService _userService;
     private readonly IProjectQueryService _projectService;
+    private readonly ILogger<UpdateProjectCommandHandler> _logger;
 
     public UpdateProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
         IUserQueryService userService,
-        IProjectQueryService projectService
+        IProjectQueryService projectService,
+        ILogger<UpdateProjectCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +34,7 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         _mapper = mapper;
         _userService = userService;
         _projectService = projectService;
+        _logger = logger;
     }
 
     public async Task<ProjectResponseDto> Handle(
@@ -40,6 +45,11 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
+        _logger.LogInformation(
+            "User {UserId} updating project with ID {ProjectId}.",
+            userId,
+            request.ProjectId
+        );
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
 
@@ -62,6 +72,8 @@ public class UpdateProjectCommandHandler : IRequestHandler<UpdateProjectCommand,
         _projectRepository.Update(project);
         await _projectRepository.SaveAsync(cancellationToken);
         var result = _mapper.Map<ProjectResponseDto>(project);
+
+        _logger.LogInformation("Project {ProjectId} updated successfully.", result.Id);
 
         return result;
     }

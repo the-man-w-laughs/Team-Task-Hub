@@ -5,10 +5,12 @@ using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.TaskHandlers.Queries;
 
-public class GetAllProjectsTeamMembersQueryHandler
+public class GetAllTaskHandlersQueryHandler
     : IRequestHandler<GetAllTaskHandlersQuery, IEnumerable<UserResponseDto>>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -17,14 +19,16 @@ public class GetAllProjectsTeamMembersQueryHandler
     private readonly ITaskQueryService _taskService;
     private readonly ITeamMemberQueryService _teamMemberService;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<GetAllTaskHandlersQueryHandler> _logger;
 
-    public GetAllProjectsTeamMembersQueryHandler(
+    public GetAllTaskHandlersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskHandlerRepository taskHandlerRepository,
         ITaskQueryService taskService,
         ITeamMemberQueryService teamMemberService,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<GetAllTaskHandlersQueryHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -33,6 +37,7 @@ public class GetAllProjectsTeamMembersQueryHandler
         _taskService = taskService;
         _teamMemberService = teamMemberService;
         _userService = userService;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<UserResponseDto>> Handle(
@@ -42,6 +47,13 @@ public class GetAllProjectsTeamMembersQueryHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User {UserId} is trying to retrieve all task handlers for task {TaskId} with parameters Offset {Offset}, Limit {Limit}",
+            userId,
+            request.TaskId,
+            request.Offset,
+            request.Limit
+        );
 
         // Check if the user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -65,6 +77,10 @@ public class GetAllProjectsTeamMembersQueryHandler
         );
         var usersResponseDto = taskHandlers.Select(
             taskHandler => _mapper.Map<UserResponseDto>(taskHandler.TeamMember.User)
+        );
+        _logger.LogInformation(
+            "Successfully retrieved all task handlers for task {TaskId}.",
+            request.TaskId
         );
 
         return usersResponseDto;

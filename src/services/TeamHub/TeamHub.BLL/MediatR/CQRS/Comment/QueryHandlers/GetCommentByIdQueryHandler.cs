@@ -5,6 +5,8 @@ using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 
@@ -15,19 +17,22 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
     private readonly IUserQueryService _userService;
     private readonly ICommentQueryService _commentService;
     private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly ILogger<GetCommentByIdQueryHandler> _logger;
 
     public GetCommentByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         IUserQueryService userService,
         ICommentQueryService commentService,
-        ITeamMemberQueryService teamMemberService
+        ITeamMemberQueryService teamMemberService,
+        ILogger<GetCommentByIdQueryHandler> logger
     )
     {
         _mapper = mapper;
         _userService = userService;
         _commentService = commentService;
         _teamMemberService = teamMemberService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -38,6 +43,11 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User with ID {UserId} is attempting to retrieve comment with ID {CommentId}.",
+            userId,
+            request.CommentId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -52,6 +62,11 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
         // only project members have access to related entities
         var projectId = comment.Task.ProjectId;
         await _teamMemberService.GetExistingTeamMemberAsync(userId, projectId, cancellationToken);
+
+        _logger.LogInformation(
+            "Successfully retrieved comment with ID {CommentId}.",
+            request.CommentId
+        );
 
         return response;
     }

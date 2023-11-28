@@ -5,6 +5,8 @@ using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;
 
@@ -17,6 +19,7 @@ public class GetAllProjectsTeamMembersQueryHandler
     private readonly IProjectQueryService _projectService;
     private readonly ITeamMemberQueryService _teamMemberService;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<GetAllProjectsTeamMembersQueryHandler> _logger;
 
     public GetAllProjectsTeamMembersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -24,7 +27,8 @@ public class GetAllProjectsTeamMembersQueryHandler
         IMapper mapper,
         IProjectQueryService projectService,
         ITeamMemberQueryService teamMemberService,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<GetAllProjectsTeamMembersQueryHandler> logger
     )
     {
         _teamMemberRepository = teamMemberRepository;
@@ -32,6 +36,7 @@ public class GetAllProjectsTeamMembersQueryHandler
         _projectService = projectService;
         _teamMemberService = teamMemberService;
         _userService = userService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -42,6 +47,12 @@ public class GetAllProjectsTeamMembersQueryHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to retrieve team members for project with id {ProjectId}.",
+            userId,
+            request.ProjectId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -68,6 +79,10 @@ public class GetAllProjectsTeamMembersQueryHandler
         );
         var usersResponseDto = teamMembers.Select(
             teamMember => _mapper.Map<UserResponseDto>(teamMember.User)
+        );
+
+        _logger.LogInformation(
+            $"Successfully retrieved team members for project with id {request.ProjectId}."
         );
 
         return usersResponseDto;

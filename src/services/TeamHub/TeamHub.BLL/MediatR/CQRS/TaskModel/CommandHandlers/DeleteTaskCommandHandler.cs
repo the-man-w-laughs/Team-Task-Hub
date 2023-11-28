@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -16,13 +18,15 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, TaskM
     private readonly ITaskModelRepository _taskRepository;
     private readonly ITaskQueryService _taskService;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<DeleteTaskCommandHandler> _logger;
 
     public DeleteTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskModelRepository taskModelRepository,
         ITaskQueryService taskService,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<DeleteTaskCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +34,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, TaskM
         _taskRepository = taskModelRepository;
         _taskService = taskService;
         _userService = userService;
+        _logger = logger;
     }
 
     public async Task<TaskModelResponseDto> Handle(
@@ -39,6 +44,12 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, TaskM
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to delete task with id {TaskId}.",
+            userId,
+            request.TaskId
+        );
 
         // Check if the user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -59,6 +70,8 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, TaskM
         await _taskRepository.SaveAsync(cancellationToken);
 
         var result = _mapper.Map<TaskModelResponseDto>(task);
+
+        _logger.LogInformation("Successfully deleted task with id {TaskId}.", request.TaskId);
 
         return result;
     }
