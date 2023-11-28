@@ -50,12 +50,6 @@ namespace ReportHub.BLL.Services
 
             if (project == null || project.ProjectAuthorId != userId)
             {
-                _logger.LogInformation(
-                    "Project with ID {ProjectId} not found or user with ID {UserId} is not the project author.",
-                    projectId,
-                    userId
-                );
-
                 throw new NotFoundException($"Project with ID {projectId} was not found.");
             }
 

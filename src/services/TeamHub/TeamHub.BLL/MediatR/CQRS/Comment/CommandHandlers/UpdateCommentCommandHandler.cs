@@ -62,12 +62,6 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         // only author can update comment
         if (userId != comment.AuthorId)
         {
-            _logger.LogWarning(
-                "User with ID {UserId} attempted to update comment with ID {CommentId} without proper rights.",
-                userId,
-                comment.Id
-            );
-
             throw new ForbiddenException(
                 $"User with id {userId} doesn't have rights to alter comment with id {comment.Id}."
             );

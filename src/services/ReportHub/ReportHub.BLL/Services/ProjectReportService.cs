@@ -56,11 +56,6 @@ namespace ReportHub.BLL.Services
 
             if (fullProjectResponseDto == null)
             {
-                _logger.LogError(
-                    "Failed to generate report for project with ID {ProjectId}. Full project data not found.",
-                    projectId
-                );
-
                 throw new NotFoundException(
                     $"Cannot fetch full project data for project with ID {projectId}."
                 );
@@ -116,11 +111,6 @@ namespace ReportHub.BLL.Services
 
             if (project == null || project.ProjectAuthorId != userId)
             {
-                _logger.LogError(
-                    "Failed to retrieve project report with filename {FileName}. Project not found or user does not have access.",
-                    path
-                );
-
                 throw new NotFoundException($"Project report with filename {path} was not found.");
             }
 
@@ -151,11 +141,6 @@ namespace ReportHub.BLL.Services
 
             if (project == null || project.ProjectAuthorId != userId)
             {
-                _logger.LogError(
-                    "Failed to delete project report with filename {FileName}. Project not found or user does not have access.",
-                    path
-                );
-
                 throw new NotFoundException($"Project report with filename {path} was not found.");
             }
 
@@ -177,11 +162,6 @@ namespace ReportHub.BLL.Services
             }
             else
             {
-                _logger.LogError(
-                    "Failed to delete project report with filename {FileName}. Report not found.",
-                    path
-                );
-
                 throw new NotFoundException($"Project report with filename {path} was not found.");
             }
         }

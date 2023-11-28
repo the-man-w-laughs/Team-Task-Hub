@@ -62,12 +62,6 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         // only author can delete comment
         if (userId != comment.AuthorId)
         {
-            _logger.LogWarning(
-                "User with ID {UserId} attempted to delete comment with ID {CommentId} without proper rights.",
-                userId,
-                comment.Id
-            );
-
             throw new ForbiddenException(
                 $"User with id {userId} doesn't have rights to delete comment with id {comment.Id}."
             );
