@@ -3,76 +3,68 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using Shared.Extensions;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos.TaskHandler;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TaskHandlers.Commands;
 
-public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandlerCommand, int>
+public class DeleteTaskHandlerCommandHandler
+    : IRequestHandler<DeleteTaskHandlerCommand, TaskHandlerResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly ITaskQueryService _taskService;
     private readonly ITaskHandlerRepository _taskHandlerRepository;
-    private readonly ITaskModelRepository _taskRepository;
-    private readonly ITeamMemberRepository _teamMemberRepository;
 
     public DeleteTaskHandlerCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
-        ITaskHandlerRepository taskHandlerRepository,
-        ITaskModelRepository taskRepository,
-        ITeamMemberRepository teamMemberRepository
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService,
+        ITaskQueryService taskService,
+        ITaskHandlerRepository taskHandlerRepository
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
+        _teamMemberService = teamMemberService;
+        _userService = userService;
+        _taskService = taskService;
         _taskHandlerRepository = taskHandlerRepository;
-        _taskRepository = taskRepository;
-        _teamMemberRepository = teamMemberRepository;
     }
 
-    public async Task<int> Handle(
+    public async Task<TaskHandlerResponseDto> Handle(
         DeleteTaskHandlerCommand request,
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        // Check if the requested task exists and current users team member exists.
+        // Check if the current user exists.
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
+        // Check if the target user exists.
+        await _userService.GetExistingUserAsync(request.UserId, cancellationToken);
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
-
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
+        // Check if the task exists.
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
         // Check if the current users team member exists.
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             task.ProjectId,
             cancellationToken
         );
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {task.ProjectId}."
-            );
-        }
-
         // Check if the target team member exists (the user to be assigned).
-        var targetTeamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        var targetTeamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             request.UserId,
             task.ProjectId,
             cancellationToken
         );
-
-        if (targetTeamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {request.UserId} doesn't have access to project with id {task.ProjectId}."
-            );
-        }
 
         // Check if the task handler already exists.
         var taskHandler = await _taskHandlerRepository.GetTaskHandlerAsync(
@@ -84,13 +76,15 @@ public class DeleteTaskHandlerCommandHandler : IRequestHandler<DeleteTaskHandler
         if (taskHandler == null)
         {
             throw new WrongActionException(
-                $"User with id {request.UserId} is already assigned to the task with Id {request.TaskId}."
+                $"User with id {request.UserId} is not assigned to the task with Id {request.TaskId}."
             );
         }
 
         _taskHandlerRepository.Delete(taskHandler);
         await _taskHandlerRepository.SaveAsync(cancellationToken);
 
-        return taskHandler.TeamMember.UserId;
+        var result = _mapper.Map<TaskHandlerResponseDto>(taskHandler);
+
+        return result;
     }
 }

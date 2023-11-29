@@ -11,7 +11,7 @@ namespace TeamHub.BLL.Services
         public MailMessage CreateDailyMailMessage(
             string sourceEmail,
             User user,
-            List<TeamMemberResponseDto> teamMemberResponseDtos
+            List<TeamMemberDto> teamMemberResponseDtos
         )
         {
             var body = ComposeMailBody(user, teamMemberResponseDtos);
@@ -25,10 +25,7 @@ namespace TeamHub.BLL.Services
             };
         }
 
-        private string ComposeMailBody(
-            User user,
-            List<TeamMemberResponseDto> teamMemberResponseDtos
-        )
+        private string ComposeMailBody(User user, List<TeamMemberDto> teamMemberResponseDtos)
         {
             var body = new StringBuilder();
 

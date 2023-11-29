@@ -20,7 +20,6 @@ namespace TeamHub.BLL.MassTransit.Consumers
         public async Task Consume(ConsumeContext<UserCreatedMessage> context)
         {
             var userToCreate = _mapper.Map<User>(context.Message);
-            userToCreate.CreatedAt = DateTime.Now;
             await _userRepository.AddAsync(userToCreate);
             await _userRepository.SaveAsync();
         }

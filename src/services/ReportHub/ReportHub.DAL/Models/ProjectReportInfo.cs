@@ -9,4 +9,13 @@ public class ProjectReportInfo : MongoBaseEntity
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public List<Report> Reports { get; set; }
+
+    public ProjectReportInfo(int projectId, int projectAuthorId)
+    {
+        ProjectId = projectId;
+        ProjectAuthorId = projectAuthorId;
+        CreatedAt = DateTime.Now;
+        UpdatedAt = DateTime.Now;
+        Reports = new();
+    }
 }

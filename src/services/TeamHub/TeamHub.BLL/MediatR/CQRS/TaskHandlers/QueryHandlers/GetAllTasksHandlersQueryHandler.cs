@@ -1,10 +1,10 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
+using TeamHub.BLL.Contracts;
 
 namespace TeamHub.BLL.MediatR.CQRS.TaskHandlers.Queries;
 
@@ -14,22 +14,25 @@ public class GetAllProjectsTeamMembersQueryHandler
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMapper _mapper;
     private readonly ITaskHandlerRepository _taskHandlerRepository;
-    private readonly ITaskModelRepository _taskRepository;
-    private readonly ITeamMemberRepository _teamMemberRepository;
+    private readonly ITaskQueryService _taskService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
 
     public GetAllProjectsTeamMembersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskHandlerRepository taskHandlerRepository,
-        ITaskModelRepository taskRepository,
-        ITeamMemberRepository teamMemberRepository
+        ITaskQueryService taskService,
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService
     )
     {
         _httpContextAccessor = httpContextAccessor;
         _mapper = mapper;
         _taskHandlerRepository = taskHandlerRepository;
-        _taskRepository = taskRepository;
-        _teamMemberRepository = teamMemberRepository;
+        _taskService = taskService;
+        _teamMemberService = teamMemberService;
+        _userService = userService;
     }
 
     public async Task<IEnumerable<UserResponseDto>> Handle(
@@ -37,37 +40,29 @@ public class GetAllProjectsTeamMembersQueryHandler
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
+        // Check if the user exists.
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
+
         // Check if the requested task exists and current users team member exists.
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
-
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
-
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        // Check if user has access to the project
+        var teamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             task.ProjectId,
             cancellationToken
         );
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {task.ProjectId}."
-            );
-        }
-
+        // get all task handlers
         var taskHandlers = await _taskHandlerRepository.GetAllAsync(
-            teamMember => teamMember.TasksId == request.TaskId,
+            teamMember => teamMember.TaskId == request.TaskId,
             request.Offset,
             request.Limit,
             cancellationToken
         );
-
         var usersResponseDto = taskHandlers.Select(
             taskHandler => _mapper.Map<UserResponseDto>(taskHandler.TeamMember.User)
         );

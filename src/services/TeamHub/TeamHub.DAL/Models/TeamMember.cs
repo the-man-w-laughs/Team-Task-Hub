@@ -10,9 +10,9 @@ public partial class TeamMember
 
     public DateTime CreatedAt { get; set; }
 
-    public virtual Project Projects { get; set; } = null!;
+    public virtual Project Project { get; set; } = null!;
 
-    public virtual ICollection<TaskModel> Tasks { get; set; } = new List<TaskModel>();
+    public virtual ICollection<TaskModel> CreatedTasks { get; set; } = new List<TaskModel>();
 
     public virtual ICollection<TaskHandler> TasksHandlers { get; set; } = new List<TaskHandler>();
 

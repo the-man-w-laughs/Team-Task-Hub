@@ -1,68 +1,66 @@
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Shared.Exceptions;
 using Shared.Extensions;
+using TeamHub.BLL.Contracts;
+using TeamHub.BLL.Dtos.TeamMember;
 using TeamHub.DAL.Contracts.Repositories;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Commands;
 
-public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCommand, int>
+public class DeleteTeamMemberCommandHandler
+    : IRequestHandler<DeleteTeamMemberCommand, TeamMemberResponseDto>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IProjectQueryService _projectService;
+    private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly IUserQueryService _userService;
+    private readonly IMapper _mapper;
     private readonly ITeamMemberRepository _teamMemberRepository;
-    private readonly IProjectRepository _projectRepository;
 
     public DeleteTeamMemberCommandHandler(
         IHttpContextAccessor httpContextAccessor,
-        ITeamMemberRepository teamMemberRepository,
-        IProjectRepository projectRepository
+        IProjectQueryService projectService,
+        ITeamMemberQueryService teamMemberService,
+        IUserQueryService userService,
+        IMapper mapper,
+        ITeamMemberRepository teamMemberRepository
     )
     {
         _httpContextAccessor = httpContextAccessor;
+        _projectService = projectService;
+        _teamMemberService = teamMemberService;
+        _userService = userService;
+        _mapper = mapper;
         _teamMemberRepository = teamMemberRepository;
-        _projectRepository = projectRepository;
     }
 
-    public async Task<int> Handle(
+    public async Task<TeamMemberResponseDto> Handle(
         DeleteTeamMemberCommand request,
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var project = await _projectRepository.GetByIdAsync(request.ProjectId, cancellationToken);
+        // check if current user exists
+        await _userService.GetExistingUserAsync(userId, cancellationToken);
 
-        if (project == null)
-        {
-            throw new NotFoundException($"Cannot find project with id {request.ProjectId}");
-        }
+        // get required project
+        var project = await _projectService.GetExistingProjectAsync(
+            request.ProjectId,
+            cancellationToken
+        );
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        // only team members can have access to this section
+        await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             request.ProjectId,
             cancellationToken
         );
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {request.ProjectId}."
-            );
-        }
-
-        var teamMemberToDelete = await _teamMemberRepository.GetTeamMemberAsync(
-            request.UserId,
-            request.ProjectId,
-            cancellationToken
-        );
-
-        if (teamMemberToDelete == null)
-        {
-            throw new WrongActionException(
-                $"User with id {request.UserId} is NOT a part of project with id {request.ProjectId}."
-            );
-        }
-
+        // no one except project author cannot delete other team members
         if (project.AuthorId != userId && userId != request.UserId)
         {
             throw new ForbiddenException(
@@ -70,6 +68,7 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
             );
         }
 
+        // author cannot delete themselves
         if (project.AuthorId == userId && userId == request.UserId)
         {
             throw new ForbiddenException(
@@ -77,9 +76,19 @@ public class DeleteTeamMemberCommandHandler : IRequestHandler<DeleteTeamMemberCo
             );
         }
 
+        // check if target team member exists
+        var teamMemberToDelete = await _teamMemberService.GetExistingTeamMemberAsync(
+            request.UserId,
+            request.ProjectId,
+            cancellationToken
+        );
+
+        // remove team member
         _teamMemberRepository.Delete(teamMemberToDelete);
         await _teamMemberRepository.SaveAsync(cancellationToken);
 
-        return teamMemberToDelete.Id;
+        var result = _mapper.Map<TeamMemberResponseDto>(teamMemberToDelete);
+
+        return result;
     }
 }

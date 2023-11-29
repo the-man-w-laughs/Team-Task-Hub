@@ -3,7 +3,7 @@ namespace TeamHub.BLL.Dtos
     public class ProjectResponseDto
     {
         public int Id { get; set; }
-        public int CreatorId { get; set; }
+        public int AuthorId { get; set; }
         public string Name { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
         public UserResponseDto Creator { get; set; } = null!;

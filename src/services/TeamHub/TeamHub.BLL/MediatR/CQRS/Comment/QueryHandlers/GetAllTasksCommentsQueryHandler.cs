@@ -1,11 +1,11 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
+using TeamHub.BLL.Contracts;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 
@@ -14,22 +14,25 @@ public class GetAllTasksCommentsQueryHandler
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ICommentRepository _commentRepository;
-    private readonly ITaskModelRepository _taskRepository;
-    private readonly ITeamMemberRepository _teamMemberRepository;
     private readonly IMapper _mapper;
+    private readonly IUserQueryService _userService;
+    private readonly ITaskQueryService _taskService;
+    private readonly ITeamMemberQueryService _teamMemberService;
 
     public GetAllTasksCommentsQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         ICommentRepository commentRepository,
-        ITaskModelRepository taskModelRepository,
-        ITeamMemberRepository teamMemberRepository,
-        IMapper mapper
+        IMapper mapper,
+        IUserQueryService userService,
+        ITaskQueryService taskService,
+        ITeamMemberQueryService teamMemberService
     )
     {
         _commentRepository = commentRepository;
-        _taskRepository = taskModelRepository;
-        _teamMemberRepository = teamMemberRepository;
         _mapper = mapper;
+        _userService = userService;
+        _taskService = taskService;
+        _teamMemberService = teamMemberService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -38,39 +41,31 @@ public class GetAllTasksCommentsQueryHandler
         CancellationToken cancellationToken
     )
     {
+        // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
-        var task = await _taskRepository.GetByIdAsync(request.TaskId, cancellationToken);
+        // check if current user exists
+        var user = await _userService.GetExistingUserAsync(userId, cancellationToken);
 
-        if (task == null)
-        {
-            throw new NotFoundException($"Task with id {request.TaskId} was not found.");
-        }
+        // retrieve required task
+        var task = await _taskService.GetExistingTaskAsync(request.TaskId, cancellationToken);
 
-        var teamMember = await _teamMemberRepository.GetTeamMemberAsync(
+        // only project members can access to related entites
+        var teamMember = await _teamMemberService.GetExistingTeamMemberAsync(
             userId,
             task.ProjectId,
             cancellationToken
         );
 
-        if (teamMember == null)
-        {
-            throw new ForbiddenException(
-                $"User with id {userId} doesn't have access to project with id {task.ProjectId}."
-            );
-        }
-
+        // retrieve all the comments
         var taskComments = await _commentRepository.GetAllAsync(
             comment => comment.TasksId == request.TaskId,
             request.Offset,
             request.Limit,
             cancellationToken
         );
+        var result = taskComments.Select(comment => _mapper.Map<CommentResponseDto>(comment));
 
-        var projectResponseDtos = taskComments.Select(
-            project => _mapper.Map<CommentResponseDto>(project)
-        );
-
-        return projectResponseDtos;
+        return result;
     }
 }

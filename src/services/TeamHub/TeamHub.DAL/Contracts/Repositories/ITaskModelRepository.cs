@@ -3,7 +3,4 @@ using TeamHub.DAL.Models;
 
 namespace TeamHub.DAL.Contracts.Repositories;
 
-public interface ITaskModelRepository : IRepository<TaskModel>
-{
-    public Task<TaskModel> GetTaskByIdAsync(int taskId, CancellationToken cancellationToken);
-}
+public interface ITaskModelRepository : IRepository<TaskModel> { }

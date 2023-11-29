@@ -45,7 +45,7 @@ namespace TeamHub.BLL.Services
             {
                 foreach (var user in users)
                 {
-                    var teamTeamberResponseDtos = _mapper.Map<List<TeamMemberResponseDto>>(
+                    var teamTeamberResponseDtos = _mapper.Map<List<TeamMemberDto>>(
                         user.TeamMembers
                     );
 

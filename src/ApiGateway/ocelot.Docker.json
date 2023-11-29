@@ -22,24 +22,6 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "teamhubwebapi",
-                    "Port": 5052
-                }
-            ],
-            "UpstreamPathTemplate": "/api/teamhub/{everything}",
-            "UpstreamHttpMethod": [
-                "Post",
-                "Get",
-                "Delete",
-                "Put"
-            ],
-            "SwaggerKey": "teamhub"
-        },
-        {
-            "DownstreamPathTemplate": "/api/{everything}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
                     "Host": "reporthubwebapi",
                     "Port": 5007
                 }
@@ -52,6 +34,40 @@
                 "Put"
             ],
             "SwaggerKey": "reporthub"
+        },
+        {
+            "DownstreamPathTemplate": "/api/{everything}",
+            "DownstreamScheme": "http",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "teamhubwebapi",
+                    "Port": 5052
+                }
+            ],
+            "UpstreamPathTemplate": "/api/teamhub/{everything}",
+            "UpstreamHttpMethod": [
+                "Post",
+                "Get",
+                "Delete",
+                "Put"
+            ],
+            "Priority": 0,
+            "SwaggerKey": "teamhub"
+        },
+        {
+            "DownstreamPathTemplate": "/commentshub/",
+            "DownstreamScheme": "ws",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "teamhubwebapi",
+                    "Port": 5052
+                }
+            ],
+            "UpstreamPathTemplate": "/commentshub/",
+            "UpstreamHttpMethod": [
+                "GET"
+            ],
+            "Priority": 1
         }
     ],
     "SwaggerEndPoints": [
