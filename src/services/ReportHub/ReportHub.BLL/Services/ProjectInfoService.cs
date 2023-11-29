@@ -44,9 +44,9 @@ namespace ReportHub.BLL.Services
             );
 
             var projects = await _projectReportInfoRepository.GetAllAsync(
-                project => project.ProjectAuthorId == userId,
                 offset,
-                limit
+                limit,
+                project => project.ProjectAuthorId == userId
             );
 
             var result = _mapper.Map<List<ProjectReportInfoDto>>(projects);
