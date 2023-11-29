@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -16,13 +18,15 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
     private readonly ITaskModelRepository _taskRepository;
     private readonly IUserQueryService _userService;
     private readonly ITaskQueryService _taskService;
+    private readonly ILogger<UpdateTaskCommandHandler> _logger;
 
     public UpdateTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ITaskModelRepository taskRepository,
         IUserQueryService userService,
-        ITaskQueryService taskService
+        ITaskQueryService taskService,
+        ILogger<UpdateTaskCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +34,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
         _taskRepository = taskRepository;
         _userService = userService;
         _taskService = taskService;
+        _logger = logger;
     }
 
     public async Task<TaskModelResponseDto> Handle(
@@ -39,6 +44,12 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to update task with id {TaskId}.",
+            userId,
+            request.TaskId
+        );
 
         // Check if the user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -60,6 +71,8 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskM
         await _taskRepository.SaveAsync(cancellationToken);
 
         var result = _mapper.Map<TaskModelResponseDto>(task);
+
+        _logger.LogInformation("Successfully updated task with id {TaskId}.", request.TaskId);
 
         return result;
     }

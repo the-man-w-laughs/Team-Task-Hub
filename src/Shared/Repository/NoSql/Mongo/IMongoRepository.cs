@@ -5,14 +5,13 @@ namespace Shared.Repository.NoSql
     public interface IMongoRepository<TEntity>
         where TEntity : MongoBaseEntity
     {
-        Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
-
-        Task<IEnumerable<TEntity>> GetAllAsync(
-            Expression<Func<TEntity, bool>> filter,
+        public Task<IEnumerable<TEntity>> GetAllAsync(
+            int offset,
+            int limit,
+            Expression<Func<TEntity, bool>> filter = null,
             CancellationToken cancellationToken = default
         );
-
-        public Task<TEntity> GetOneAsync(
+        Task<TEntity> GetOneAsync(
             Expression<Func<TEntity, bool>> filter,
             CancellationToken cancellationToken = default
         );

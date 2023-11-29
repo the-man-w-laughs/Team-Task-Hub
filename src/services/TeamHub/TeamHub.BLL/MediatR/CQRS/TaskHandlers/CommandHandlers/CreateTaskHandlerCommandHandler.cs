@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -19,6 +21,7 @@ public class CreateTaskHandlerCommandHandler
     private readonly IMapper _mapper;
     private readonly ITaskQueryService _taskService;
     private readonly ITaskHandlerRepository _taskHandlerRepository;
+    private readonly ILogger<CreateTaskHandlerCommandHandler> _logger;
 
     public CreateTaskHandlerCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -26,7 +29,8 @@ public class CreateTaskHandlerCommandHandler
         IUserQueryService userService,
         IMapper mapper,
         ITaskQueryService taskService,
-        ITaskHandlerRepository taskHandlerRepository
+        ITaskHandlerRepository taskHandlerRepository,
+        ILogger<CreateTaskHandlerCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -35,6 +39,7 @@ public class CreateTaskHandlerCommandHandler
         _mapper = mapper;
         _taskService = taskService;
         _taskHandlerRepository = taskHandlerRepository;
+        _logger = logger;
     }
 
     public async Task<TaskHandlerResponseDto> Handle(
@@ -44,6 +49,12 @@ public class CreateTaskHandlerCommandHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User {UserId} attempting to assign task with ID {TaskId} to user with ID {AssigneeId}.",
+            userId,
+            request.TaskId,
+            request.UserId
+        );
 
         // Check if the current user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -93,6 +104,12 @@ public class CreateTaskHandlerCommandHandler
         await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         var result = _mapper.Map<TaskHandlerResponseDto>(addedTaskHandler);
+        _logger.LogInformation(
+            "Task with ID {TaskId} assigned to user with ID {AssigneeId} successfully by user {UserId}.",
+            request.TaskId,
+            request.UserId,
+            userId
+        );
 
         return result;
     }

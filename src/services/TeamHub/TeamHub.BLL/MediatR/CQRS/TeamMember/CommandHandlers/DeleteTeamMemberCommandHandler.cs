@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -18,6 +20,7 @@ public class DeleteTeamMemberCommandHandler
     private readonly IUserQueryService _userService;
     private readonly IMapper _mapper;
     private readonly ITeamMemberRepository _teamMemberRepository;
+    private readonly ILogger<DeleteTeamMemberCommandHandler> _logger;
 
     public DeleteTeamMemberCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -25,7 +28,8 @@ public class DeleteTeamMemberCommandHandler
         ITeamMemberQueryService teamMemberService,
         IUserQueryService userService,
         IMapper mapper,
-        ITeamMemberRepository teamMemberRepository
+        ITeamMemberRepository teamMemberRepository,
+        ILogger<DeleteTeamMemberCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -34,6 +38,7 @@ public class DeleteTeamMemberCommandHandler
         _userService = userService;
         _mapper = mapper;
         _teamMemberRepository = teamMemberRepository;
+        _logger = logger;
     }
 
     public async Task<TeamMemberResponseDto> Handle(
@@ -43,6 +48,13 @@ public class DeleteTeamMemberCommandHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to delete user with id {TargetUserId} from project with id {ProjectId}.",
+            userId,
+            request.UserId,
+            request.ProjectId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -88,6 +100,12 @@ public class DeleteTeamMemberCommandHandler
         await _teamMemberRepository.SaveAsync(cancellationToken);
 
         var result = _mapper.Map<TeamMemberResponseDto>(teamMemberToDelete);
+
+        _logger.LogInformation(
+            "Successfully removed user {UserId} from project with id {ProjectId}.",
+            request.UserId,
+            request.ProjectId
+        );
 
         return result;
     }

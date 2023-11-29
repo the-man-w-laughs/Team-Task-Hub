@@ -25,6 +25,7 @@ builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.RegisterGrpcClient(config);
 builder.Services.ConfigureHttpClient(config);
+builder.Services.ConfigureLogging(builder, assemblyName);
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();
 

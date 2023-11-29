@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -18,6 +20,7 @@ public class DeleteTaskHandlerCommandHandler
     private readonly IUserQueryService _userService;
     private readonly ITaskQueryService _taskService;
     private readonly ITaskHandlerRepository _taskHandlerRepository;
+    private readonly ILogger<DeleteTaskHandlerCommandHandler> _logger;
 
     public DeleteTaskHandlerCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -25,7 +28,8 @@ public class DeleteTaskHandlerCommandHandler
         ITeamMemberQueryService teamMemberService,
         IUserQueryService userService,
         ITaskQueryService taskService,
-        ITaskHandlerRepository taskHandlerRepository
+        ITaskHandlerRepository taskHandlerRepository,
+        ILogger<DeleteTaskHandlerCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -34,6 +38,7 @@ public class DeleteTaskHandlerCommandHandler
         _userService = userService;
         _taskService = taskService;
         _taskHandlerRepository = taskHandlerRepository;
+        _logger = logger;
     }
 
     public async Task<TaskHandlerResponseDto> Handle(
@@ -43,6 +48,12 @@ public class DeleteTaskHandlerCommandHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User {UserId} attempting to unassign task with ID {TaskId} from user with ID {AssigneeId}.",
+            userId,
+            request.TaskId,
+            request.UserId
+        );
 
         // Check if the current user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -84,6 +95,12 @@ public class DeleteTaskHandlerCommandHandler
         await _taskHandlerRepository.SaveAsync(cancellationToken);
 
         var result = _mapper.Map<TaskHandlerResponseDto>(taskHandler);
+        _logger.LogInformation(
+            "Task with ID {TaskId} unassigned from user with ID {AssigneeId} successfully by user {UserId}.",
+            request.TaskId,
+            request.UserId,
+            userId
+        );
 
         return result;
     }

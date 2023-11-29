@@ -6,6 +6,8 @@ using Shared.Exceptions;
 using TeamHub.BLL.Dtos;
 using AutoMapper;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Commands;
 
@@ -16,19 +18,22 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     private readonly IMapper _mapper;
     private readonly IUserQueryService _userService;
     private readonly IProjectQueryService _projectService;
+    private readonly ILogger<DeleteProjectCommandHandler> _logger;
 
     public DeleteProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
         IUserQueryService userService,
-        IProjectQueryService projectService
+        IProjectQueryService projectService,
+        ILogger<DeleteProjectCommandHandler> logger
     )
     {
         _projectRepository = projectRepository;
         _mapper = mapper;
         _userService = userService;
         _projectService = projectService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -39,6 +44,12 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is attempting to delete project {ProjectId}.",
+            userId,
+            request.ProjectId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -61,6 +72,8 @@ public class DeleteProjectCommandHandler : IRequestHandler<DeleteProjectCommand,
         var result = _mapper.Map<ProjectResponseDto>(project);
         _projectRepository.Delete(project);
         await _projectRepository.SaveAsync(cancellationToken);
+
+        _logger.LogInformation("Project {ProjectId} deleted successfully.", result.Id);
 
         return result;
     }

@@ -6,6 +6,7 @@ using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.Contracts;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 
@@ -17,6 +18,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     private readonly IUserQueryService _userService;
     private readonly ITaskQueryService _taskService;
     private readonly ITeamMemberQueryService _teamMemberService;
+    private readonly ILogger<CreateCommentCommandHandler> _logger;
 
     public CreateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -24,7 +26,8 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         ICommentRepository commentRepository,
         IUserQueryService userService,
         ITaskQueryService taskService,
-        ITeamMemberQueryService teamMemberService
+        ITeamMemberQueryService teamMemberService,
+        ILogger<CreateCommentCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -33,6 +36,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         _userService = userService;
         _taskService = taskService;
         _teamMemberService = teamMemberService;
+        _logger = logger;
     }
 
     public async Task<CommentResponseDto> Handle(
@@ -42,6 +46,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation("User with ID {UserId} is creating a new comment.", userId);
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -62,7 +67,9 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
         commentToAdd.TasksId = request.TaskId;
         var addedComment = await _commentRepository.AddAsync(commentToAdd, cancellationToken);
         await _commentRepository.SaveAsync(cancellationToken);
+
         var result = _mapper.Map<CommentResponseDto>(addedComment);
+        _logger.LogInformation("Comment with ID {CommentId} created successfully.", result.Id);
 
         return result;
     }

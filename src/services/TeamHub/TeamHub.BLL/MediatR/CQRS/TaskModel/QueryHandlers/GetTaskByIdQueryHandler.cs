@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
 
@@ -14,19 +16,22 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
     private readonly IUserQueryService _userService;
     private readonly ITeamMemberQueryService _teamMemberService;
     private readonly ITaskQueryService _taskService;
+    private readonly ILogger<GetTaskByIdQueryHandler> _logger;
 
     public GetTaskByIdQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         IUserQueryService userService,
         ITeamMemberQueryService teamMemberService,
-        ITaskQueryService taskService
+        ITaskQueryService taskService,
+        ILogger<GetTaskByIdQueryHandler> logger
     )
     {
         _mapper = mapper;
         _userService = userService;
         _teamMemberService = teamMemberService;
         _taskService = taskService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -37,6 +42,12 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to retrieve task with id {TaskId}.",
+            userId,
+            request.TaskId
+        );
 
         // Check if the user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -51,6 +62,8 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskMod
             task.ProjectId,
             cancellationToken
         );
+
+        _logger.LogInformation("Successfully retrieved task with id {TaskId}.", request.TaskId);
 
         return response;
     }

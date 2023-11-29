@@ -5,6 +5,8 @@ using TeamHub.BLL.Dtos;
 using TeamHub.DAL.Contracts.Repositories;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Users.Queries;
 
@@ -15,16 +17,19 @@ public class GetAllUsersQueryHandler
     private readonly IUserRepository _userRepository;
     private readonly IMapper _mapper;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<GetAllUsersQueryHandler> _logger;
 
     public GetAllUsersQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IUserRepository userRepository,
         IMapper mapper,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<GetAllUsersQueryHandler> logger
     )
     {
         _mapper = mapper;
         _userService = userService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
         _userRepository = userRepository;
     }
@@ -37,6 +42,8 @@ public class GetAllUsersQueryHandler
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
 
+        _logger.LogInformation("User {UserId} is trying to retrieve all users.", userId);
+
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
 
@@ -47,6 +54,11 @@ public class GetAllUsersQueryHandler
             cancellationToken
         );
         var userResponseDtos = users.Select(project => _mapper.Map<UserResponseDto>(project));
+
+        _logger.LogInformation(
+            "Successfully retrieved all users: {Count}.",
+            userResponseDtos.Count()
+        );
 
         return userResponseDtos;
     }
