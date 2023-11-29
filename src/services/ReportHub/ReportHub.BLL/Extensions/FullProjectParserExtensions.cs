@@ -15,6 +15,7 @@ namespace ReportHub.BLL.Extensions
             report.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
 
             report.AppendLine("Team Members:");
+
             if (fullProjectInfo.TeamMembers != null)
             {
                 foreach (var teamMember in fullProjectInfo.TeamMembers)
@@ -28,6 +29,7 @@ namespace ReportHub.BLL.Extensions
             }
 
             report.AppendLine("Tasks:");
+
             if (fullProjectInfo.Tasks != null)
             {
                 foreach (var task in fullProjectInfo.Tasks)

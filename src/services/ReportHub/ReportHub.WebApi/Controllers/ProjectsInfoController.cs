@@ -25,8 +25,8 @@ public class ProjectsInfoController : ControllerBase
     /// <summary>
     /// Get all awailable user project infos
     /// </summary>
-    [HttpGet("all")]
-    public async Task<IActionResult> GetAllUserProjectInfos(
+    [HttpGet]
+    public async Task<IActionResult> GetAllUserProjectInfosAsync(
         [FromQuery] int offset = 0,
         [FromQuery] int limit = 100
     )

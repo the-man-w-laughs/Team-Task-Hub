@@ -43,9 +43,9 @@ namespace Shared.Repository.NoSql
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync(
+            int offset,
+            int limit,
             Expression<Func<TEntity, bool>> filter = null,
-            int offset = 0,
-            int limit = int.MaxValue,
             CancellationToken cancellationToken = default
         )
         {
