@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Domain", "Identity
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "..\..\Shared\Shared.csproj", "{F9359A87-9884-4826-948B-B6D9539E97B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Tests", "Identity.Tests\Identity.Tests.csproj", "{F85BF47D-77F2-432A-A55C-42F0B2E800A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F9359A87-9884-4826-948B-B6D9539E97B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9359A87-9884-4826-948B-B6D9539E97B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9359A87-9884-4826-948B-B6D9539E97B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F85BF47D-77F2-432A-A55C-42F0B2E800A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F85BF47D-77F2-432A-A55C-42F0B2E800A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F85BF47D-77F2-432A-A55C-42F0B2E800A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F85BF47D-77F2-432A-A55C-42F0B2E800A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
