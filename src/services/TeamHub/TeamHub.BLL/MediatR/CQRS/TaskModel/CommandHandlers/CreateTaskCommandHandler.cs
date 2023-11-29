@@ -6,6 +6,8 @@ using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Commands;
 
@@ -17,6 +19,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
     private readonly IProjectQueryService _projectService;
     private readonly ITeamMemberQueryService _teamMemberService;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<CreateTaskCommandHandler> _logger;
 
     public CreateTaskCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -24,7 +27,8 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
         ITaskModelRepository taskModelRepository,
         IProjectQueryService projectService,
         ITeamMemberQueryService teamMemberService,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<CreateTaskCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -33,6 +37,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
         _projectService = projectService;
         _teamMemberService = teamMemberService;
         _userService = userService;
+        _logger = logger;
     }
 
     public async Task<TaskModelResponseDto> Handle(
@@ -42,6 +47,12 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {UserId} is trying to create a new task for project {ProjectId}.",
+            userId,
+            request.ProjectId
+        );
 
         // Check if the user exists.
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -63,6 +74,12 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskM
         var addedTask = await _taskModelRepository.AddAsync(taskToAdd, cancellationToken);
         await _taskModelRepository.SaveAsync(cancellationToken);
         var result = _mapper.Map<TaskModelResponseDto>(addedTask);
+
+        _logger.LogInformation(
+            "Successfully created a new task with id {AddedTaskId} for project {ProjectId}.",
+            addedTask.Id,
+            request.ProjectId
+        );
 
         return result;
     }

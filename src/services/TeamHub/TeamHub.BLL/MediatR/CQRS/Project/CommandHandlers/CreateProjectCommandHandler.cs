@@ -6,6 +6,8 @@ using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Commands;
 
@@ -15,17 +17,20 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<CreateProjectCommandHandler> _logger;
 
     public CreateProjectCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<CreateProjectCommandHandler> logger
     )
     {
         _projectRepository = projectRepository;
         _mapper = mapper;
         _userService = userService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -36,6 +41,7 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation("User {UserId} starting project creation.", userId);
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -51,6 +57,12 @@ public class CreateProjectCommandHandler : IRequestHandler<CreateProjectCommand,
         var addedProject = await _projectRepository.AddAsync(projectToAdd, cancellationToken);
         await _projectRepository.SaveAsync(cancellationToken);
         var response = _mapper.Map<ProjectResponseDto>(addedProject);
+
+        _logger.LogInformation(
+            "User {UserId} created project {ProjectId}.",
+            userId,
+            addedProject.Id
+        );
 
         return response;
     }

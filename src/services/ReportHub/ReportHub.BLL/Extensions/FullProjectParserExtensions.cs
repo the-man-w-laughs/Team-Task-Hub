@@ -13,39 +13,62 @@ namespace ReportHub.BLL.Extensions
             report.AppendLine($"Name: {fullProjectInfo.Name}");
             report.AppendLine($"Created At: {fullProjectInfo.CreatedAt}");
             report.AppendLine($"Creator: {fullProjectInfo.Creator.Email}");
+
             report.AppendLine("Team Members:");
 
-            foreach (var teamMember in fullProjectInfo.TeamMembers)
+            if (fullProjectInfo.TeamMembers != null)
             {
-                report.AppendLine($"\t- {teamMember.Email}");
+                foreach (var teamMember in fullProjectInfo.TeamMembers)
+                {
+                    report.AppendLine($"\t- {teamMember.Email}");
+                }
+            }
+            else
+            {
+                report.AppendLine($"\tNo Team Members");
             }
 
             report.AppendLine("Tasks:");
 
-            foreach (var task in fullProjectInfo.Tasks)
+            if (fullProjectInfo.Tasks != null)
             {
-                report.AppendLine($"\tTask ID: {task.Id}");
-                report.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
-                report.AppendLine($"\tContent: {task.Content}");
-                report.AppendLine($"\tCreated At: {task.CreatedAt}");
-                report.AppendLine($"\tIs Completed: {task.IsCompleted}");
-                report.AppendLine("\tTask Handlers:");
-
-                foreach (var handlerId in task.TasksHandlersIds)
+                foreach (var task in fullProjectInfo.Tasks)
                 {
-                    var handler = fullProjectInfo.TeamMembers.FirstOrDefault(
-                        u => u.Id == handlerId
-                    );
+                    report.AppendLine($"\tTask ID: {task.Id}");
+                    report.AppendLine($"\tPriority: {task.PriorityId.ToString()}");
+                    report.AppendLine($"\tContent: {task.Content}");
+                    report.AppendLine($"\tCreated At: {task.CreatedAt}");
+                    report.AppendLine($"\tIs Completed: {task.IsCompleted}");
 
-                    if (handler != null)
+                    report.AppendLine("\tTask Handlers:");
+
+                    if (task.TasksHandlersIds != null)
                     {
-                        report.AppendLine($"\t\t- User: {handler.Email}");
+                        foreach (var handlerId in task.TasksHandlersIds)
+                        {
+                            var handler = fullProjectInfo.TeamMembers.FirstOrDefault(
+                                u => u.Id == handlerId
+                            );
+
+                            if (handler != null)
+                            {
+                                report.AppendLine($"\t\t- User: {handler.Email}");
+                            }
+                            else
+                            {
+                                report.AppendLine($"\t\t- User ID: {handlerId}");
+                            }
+                        }
                     }
                     else
                     {
-                        report.AppendLine($"\t\t- User ID: {handlerId}");
+                        report.AppendLine($"\t\tNo Task Handlers");
                     }
                 }
+            }
+            else
+            {
+                report.AppendLine($"\tNo tasks");
             }
 
             return report.ToString();

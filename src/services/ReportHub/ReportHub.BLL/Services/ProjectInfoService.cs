@@ -4,24 +4,23 @@ using Shared.Extensions;
 using ReportHub.BLL.Contracts;
 using ReportHub.BLL.Dtos;
 using ReportHub.DAL.Models;
-using Shared.Exceptions;
 using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
 
 namespace ReportHub.BLL.Services
 {
-    public class ProjectReportInfoService : IProjectReportInfoService
+    public class ProjectInfoService : IProjectInfoService
     {
         private readonly IProjectReportInfoRepository _projectReportInfoRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILogger<ProjectReportInfoService> _logger;
+        private readonly ILogger<ProjectInfoService> _logger;
 
-        public ProjectReportInfoService(
+        public ProjectInfoService(
             IProjectReportInfoRepository projectReportInfoRepository,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
-            ILogger<ProjectReportInfoService> logger
+            ILogger<ProjectInfoService> logger
         )
         {
             _projectReportInfoRepository = projectReportInfoRepository;
@@ -30,8 +29,7 @@ namespace ReportHub.BLL.Services
             _logger = logger;
         }
 
-        public async Task<List<ReportDto>> GetAllProjectReportsAsync(
-            int projectId,
+        public async Task<List<ProjectReportInfoDto>> GetAllUserProjectInfosAsync(
             int offset,
             int limit
         )
@@ -39,26 +37,22 @@ namespace ReportHub.BLL.Services
             var userId = _httpContextAccessor.GetUserId();
 
             _logger.LogInformation(
-                "Attempting to retrieve reports for project with ID {ProjectId} by user with ID {UserId}.",
-                projectId,
-                userId
+                "User with ID {UserId} is attempting to retrieve their projects with offset {Offset} and limit {Limit}.",
+                userId,
+                offset,
+                limit
             );
 
-            var project = await _projectReportInfoRepository.GetOneAsync(
-                info => info.ProjectId == projectId
+            var projects = await _projectReportInfoRepository.GetAllAsync(
+                offset,
+                limit,
+                project => project.ProjectAuthorId == userId
             );
 
-            if (project == null || project.ProjectAuthorId != userId)
-            {
-                throw new NotFoundException($"Project with ID {projectId} was not found.");
-            }
-
-            var reports = project.Reports.Skip(offset).Take(limit).ToList();
-            var result = _mapper.Map<List<ReportDto>>(reports);
+            var result = _mapper.Map<List<ProjectReportInfoDto>>(projects);
 
             _logger.LogInformation(
-                "Reports retrieved for project with ID {ProjectId} by user with ID {UserId}.",
-                projectId,
+                "Returning the list of projects for user with ID {UserId}.",
                 userId
             );
 

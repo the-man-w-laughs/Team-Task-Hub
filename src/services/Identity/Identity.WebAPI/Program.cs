@@ -32,6 +32,7 @@ builder.Services.AddUserRequestRepository(config);
 builder.Services.AddConfigurationSection<EmailCredentials>(config);
 builder.Services.AddConfigurationSection<UriOptions>(config, "EmailConfirmationLinkOptions");
 builder.Services.RegisterHangfire(config);
+builder.Services.ConfigureLogging(builder, assemblyName);
 builder.Services.AddSmtpClientFactory();
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();

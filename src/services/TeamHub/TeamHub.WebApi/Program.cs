@@ -35,6 +35,7 @@ builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
 });
+builder.Services.ConfigureLogging(builder, assemblyName);
 builder.Services.AddSmtpClientFactory();
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();

@@ -1,6 +1,8 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -16,13 +18,15 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
     private readonly ICommentRepository _commentRepository;
     private readonly IUserQueryService _userService;
     private readonly ICommentQueryService _commentService;
+    private readonly ILogger<UpdateCommentCommandHandler> _logger;
 
     public UpdateCommentCommandHandler(
         IHttpContextAccessor httpContextAccessor,
         IMapper mapper,
         ICommentRepository commentRepository,
         IUserQueryService userService,
-        ICommentQueryService commentService
+        ICommentQueryService commentService,
+        ILogger<UpdateCommentCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -30,6 +34,7 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         _commentRepository = commentRepository;
         _userService = userService;
         _commentService = commentService;
+        _logger = logger;
     }
 
     public async Task<CommentResponseDto> Handle(
@@ -39,6 +44,11 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
+        _logger.LogInformation(
+            "User with ID {UserId} is attempting to update a comment with ID {CommentId}.",
+            userId,
+            request.CommentId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
@@ -61,6 +71,9 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         _mapper.Map(request.CommentRequestDto, comment);
         _commentRepository.Update(comment);
         await _commentRepository.SaveAsync(cancellationToken);
+
+        _logger.LogInformation("Comment with ID {CommentId} updated successfully.", comment.Id);
+
         var result = _mapper.Map<CommentResponseDto>(comment);
 
         return result;

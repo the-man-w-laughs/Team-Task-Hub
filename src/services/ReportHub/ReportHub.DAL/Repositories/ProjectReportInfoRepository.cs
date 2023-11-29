@@ -20,8 +20,10 @@ namespace TeamHub.DAL.Repositories
         )
         {
             var usersProjects = await GetAllAsync(
+                offset: 0,
+                limit: int.MaxValue,
                 project => project.ProjectAuthorId == userId,
-                cancellationToken
+                cancellationToken: cancellationToken
             );
 
             return usersProjects

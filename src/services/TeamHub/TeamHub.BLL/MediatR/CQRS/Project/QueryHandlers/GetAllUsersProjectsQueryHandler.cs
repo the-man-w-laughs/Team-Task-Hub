@@ -5,6 +5,8 @@ using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.BLL.Contracts;
+using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 
@@ -15,17 +17,20 @@ public class GetAllUsersProjectsQueryHandler
     private readonly IProjectRepository _projectRepository;
     private readonly IMapper _mapper;
     private readonly IUserQueryService _userService;
+    private readonly ILogger<GetAllUsersProjectsQueryHandler> _logger;
 
     public GetAllUsersProjectsQueryHandler(
         IHttpContextAccessor httpContextAccessor,
         IProjectRepository projectRepository,
         IMapper mapper,
-        IUserQueryService userService
+        IUserQueryService userService,
+        ILogger<GetAllUsersProjectsQueryHandler> logger
     )
     {
         _projectRepository = projectRepository;
         _mapper = mapper;
         _userService = userService;
+        _logger = logger;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -36,7 +41,7 @@ public class GetAllUsersProjectsQueryHandler
     {
         // retrieve current user id
         var userId = _httpContextAccessor.GetUserId();
-
+        _logger.LogInformation("User {UserId} retrieving their projects as team member.", userId);
         // check if current user exists
         await _userService.GetExistingUserAsync(userId, cancellationToken);
 
@@ -50,6 +55,7 @@ public class GetAllUsersProjectsQueryHandler
         var projectResponseDtos = userProjects.Select(
             project => _mapper.Map<ProjectResponseDto>(project)
         );
+        _logger.LogInformation("Projects retrieved successfully for user {UserId}.", userId);
 
         return projectResponseDtos;
     }

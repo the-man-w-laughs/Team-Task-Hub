@@ -25,7 +25,12 @@ namespace Shared.Repository.NoSql
 
             if (!collectionExists)
             {
-                _mongoCollection.InsertMany(mongoDbSeeder.Seed());
+                var seedData = mongoDbSeeder.Seed();
+
+                if (seedData.Any())
+                {
+                    _mongoCollection.InsertMany(seedData);
+                }
             }
         }
 
@@ -38,22 +43,20 @@ namespace Shared.Repository.NoSql
         }
 
         public async Task<IEnumerable<TEntity>> GetAllAsync(
+            int offset,
+            int limit,
+            Expression<Func<TEntity, bool>> filter = null,
             CancellationToken cancellationToken = default
         )
         {
-            return await _mongoCollection
-                .Find(Builders<TEntity>.Filter.Empty)
-                .ToListAsync(cancellationToken);
-        }
+            var query =
+                filter == null
+                    ? _mongoCollection.Find(Builders<TEntity>.Filter.Empty)
+                    : _mongoCollection.Find(Builders<TEntity>.Filter.Where(filter));
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(
-            Expression<Func<TEntity, bool>> filter,
-            CancellationToken cancellationToken = default
-        )
-        {
-            var filterDefinition = Builders<TEntity>.Filter.Where(filter);
+            query = query.Skip(offset).Limit(limit);
 
-            return await _mongoCollection.Find(filterDefinition).ToListAsync(cancellationToken);
+            return await query.ToListAsync(cancellationToken);
         }
 
         public async Task<TEntity> GetOneAsync(

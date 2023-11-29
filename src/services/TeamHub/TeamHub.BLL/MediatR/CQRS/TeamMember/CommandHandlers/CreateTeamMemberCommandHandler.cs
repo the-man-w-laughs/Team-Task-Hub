@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Shared.Exceptions;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
@@ -19,6 +20,7 @@ public class CreateTeamMemberCommandHandler
     private readonly IUserQueryService _userService;
     private readonly IMapper _mapper;
     private readonly ITeamMemberRepository _teamMemberRepository;
+    private readonly ILogger<CreateTeamMemberCommandHandler> _logger;
 
     public CreateTeamMemberCommandHandler(
         IHttpContextAccessor httpContextAccessor,
@@ -26,7 +28,8 @@ public class CreateTeamMemberCommandHandler
         IProjectQueryService projectService,
         IUserQueryService userService,
         IMapper mapper,
-        ITeamMemberRepository teamMemberRepository
+        ITeamMemberRepository teamMemberRepository,
+        ILogger<CreateTeamMemberCommandHandler> logger
     )
     {
         _httpContextAccessor = httpContextAccessor;
@@ -35,6 +38,7 @@ public class CreateTeamMemberCommandHandler
         _userService = userService;
         _mapper = mapper;
         _teamMemberRepository = teamMemberRepository;
+        _logger = logger;
     }
 
     public async Task<TeamMemberResponseDto> Handle(
@@ -44,6 +48,13 @@ public class CreateTeamMemberCommandHandler
     {
         // retrieve current user id
         var currentUserId = _httpContextAccessor.GetUserId();
+
+        _logger.LogInformation(
+            "User {CurrentUserId} is trying to add user {UserId} to project with id {ProjectId}.",
+            currentUserId,
+            request.UserId,
+            request.ProjectId
+        );
 
         // check if current user exists
         await _userService.GetExistingUserAsync(currentUserId, cancellationToken);
@@ -85,6 +96,12 @@ public class CreateTeamMemberCommandHandler
         );
         await _teamMemberRepository.SaveAsync(cancellationToken);
         var result = _mapper.Map<TeamMemberResponseDto>(addedTeamMember);
+
+        _logger.LogInformation(
+            "Successfully added user {UserId} to project with id {ProjectId}.",
+            request.UserId,
+            request.ProjectId
+        );
 
         return result;
     }

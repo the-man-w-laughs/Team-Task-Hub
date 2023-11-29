@@ -1,5 +1,7 @@
 using System.Net;
+using Amazon.Runtime.Internal.Util;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Exceptions;
 
@@ -8,9 +10,11 @@ namespace Shared.Middleware;
 public class ExceptionMiddleware
 {
     private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionMiddleware> _logger;
 
-    public ExceptionMiddleware(RequestDelegate next)
+    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
     {
+        _logger = logger;
         _next = next;
     }
 
@@ -29,6 +33,8 @@ public class ExceptionMiddleware
     private async Task HandleExceptionAsync(HttpContext context, Exception exception)
     {
         context.Response.ContentType = "text/plain";
+
+        _logger.LogWarning("Error occured: {ErrorMessage}", exception.Message);
 
         switch (exception)
         {

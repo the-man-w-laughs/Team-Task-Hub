@@ -15,7 +15,6 @@ public class ProjectReportInfo : MongoBaseEntity
         ProjectId = projectId;
         ProjectAuthorId = projectAuthorId;
         CreatedAt = DateTime.Now;
-        UpdatedAt = DateTime.Now;
         Reports = new();
     }
 }
