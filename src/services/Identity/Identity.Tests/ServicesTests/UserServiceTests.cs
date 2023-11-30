@@ -130,6 +130,7 @@ public class UserServiceTests
         // Assert
         result.Should().BeOfType<SuccessResult<List<AppUserDto>>>();
         result.Value.Should().Equal(userDtos);
+        _appUserRepositoryMock.Verify(repo => repo.GetAllUsersAsync(offset, limit), Times.Once);
     }
 
     [Fact]
@@ -152,6 +153,7 @@ public class UserServiceTests
         result.Should().BeOfType<SuccessResult<List<AppUserDto>>>();
         result.Value.Should().NotBeNull();
         result.Value.Should().BeEmpty();
+        _appUserRepositoryMock.Verify(repo => repo.GetAllUsersAsync(offset, limit), Times.Once);
     }
 
     [Fact]
@@ -176,6 +178,10 @@ public class UserServiceTests
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().Be(targetUserId);
+        _appUserRepositoryMock.Verify(
+            repo => repo.GetUserByIdAsync(targetUserId.ToString()),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -195,6 +201,10 @@ public class UserServiceTests
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
+        _appUserRepositoryMock.Verify(
+            repo => repo.GetUserByIdAsync(targetUserId.ToString()),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -224,6 +234,7 @@ public class UserServiceTests
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
         result.Value.Should().NotBeNull();
         result.Value.Id.Should().Be(targetUserId);
+        _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
     }
 
     [Fact]
@@ -243,6 +254,10 @@ public class UserServiceTests
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
+        _appUserRepositoryMock.Verify(
+            repo => repo.DeleteUserAsync(It.IsAny<AppUser>()),
+            Times.Never
+        );
     }
 
     [Fact]
@@ -265,6 +280,10 @@ public class UserServiceTests
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
+        _appUserRepositoryMock.Verify(
+            repo => repo.DeleteUserAsync(It.IsAny<AppUser>()),
+            Times.Never
+        );
     }
 
     [Fact]
@@ -292,5 +311,6 @@ public class UserServiceTests
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
+        _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(user), Times.Once);
     }
 }
