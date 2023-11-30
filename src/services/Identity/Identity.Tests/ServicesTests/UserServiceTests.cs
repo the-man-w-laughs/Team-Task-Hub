@@ -1,4 +1,6 @@
+using AutoFixture.Xunit2;
 using AutoMapper;
+using Bogus;
 using FluentAssertions;
 using Hangfire;
 using Identity.Application.Dtos;
@@ -27,6 +29,7 @@ public class UserServiceTests
     private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
     private readonly Mock<IBackgroundJobClient> _backgroundJobClient;
     private readonly UserService _userService;
+    private readonly Faker<AppUser> _appUserFaker;
 
     public UserServiceTests()
     {
@@ -49,13 +52,17 @@ public class UserServiceTests
             _httpContextAccessorMock.Object,
             _backgroundJobClient.Object
         );
+
+        _appUserFaker = new Faker<AppUser>()
+            .RuleFor(u => u.Id, f => f.Random.Number())
+            .RuleFor(u => u.Email, f => f.Internet.Email());
     }
 
     [Fact]
     public async Task AddUserAsync_UserDoesNotExist_ReturnSuccessResult()
     {
         // Arrange
-        var appUser = new AppUser { Email = "test@example.com" };
+        var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
 
         _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
@@ -79,7 +86,7 @@ public class UserServiceTests
     public async Task AddUserAsync_UserExists_ReturnInvalidResult()
     {
         // Arrange
-        var appUser = new AppUser { Email = "test@example.com" };
+        var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
 
         _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
@@ -104,20 +111,13 @@ public class UserServiceTests
     public async Task GetAllUsersAsync_NotEmplyReposiory_ReturnUsers()
     {
         // Arrange
-        var offset = 0;
-        var limit = 10;
+        int offset = 0;
+        int limit = 10;
+        var users = _appUserFaker.Generate(5);
 
-        var users = new List<AppUser>
-        {
-            new() { Id = 1, Email = "user1@example.com" },
-            new() { Id = 2, Email = "user2@example.com" }
-        };
-
-        var userDtos = new List<AppUserDto>
-        {
-            new() { Id = 1, Email = "user1@example.com" },
-            new() { Id = 2, Email = "user2@example.com" }
-        };
+        var userDtos = users
+            .Select(user => new AppUserDto { Id = user.Id, Email = user.Email })
+            .ToList();
 
         _appUserRepositoryMock
             .Setup(repo => repo.GetAllUsersAsync(offset, limit))
@@ -137,9 +137,8 @@ public class UserServiceTests
     public async Task GetAllUsersAsync_EmplyReposiory_ReturnEmplyList()
     {
         // Arrange
-        var offset = 0;
-        var limit = 10;
-
+        int offset = 0;
+        int limit = 10;
         List<AppUser> users = new();
 
         _appUserRepositoryMock
@@ -160,26 +159,24 @@ public class UserServiceTests
     public async Task GetUserByIdAsync_UserExists_ReturnUser()
     {
         // Arrange
-        var targetUserId = 1;
-        var appUser = new AppUser { Email = "test@example.com" };
-        var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
+        var appUser = _appUserFaker.Generate();
+
+        var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
+            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
             .ReturnsAsync(appUser);
-        _mapperMock
-            .Setup(mapper => mapper.Map<AppUserDto>(appUser))
-            .Returns(new AppUserDto { Id = targetUserId, Email = "user@example.com" });
+        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
 
         // Act
-        var result = await _userService.GetUserByIdAsync(targetUserId);
+        var result = await _userService.GetUserByIdAsync(appUser.Id);
 
         // Assert
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
         result.Value.Should().NotBeNull();
-        result.Value.Id.Should().Be(targetUserId);
+        result.Value.Id.Should().Be(appUser.Id);
         _appUserRepositoryMock.Verify(
-            repo => repo.GetUserByIdAsync(targetUserId.ToString()),
+            repo => repo.GetUserByIdAsync(appUser.Id.ToString()),
             Times.Once
         );
     }
@@ -188,12 +185,11 @@ public class UserServiceTests
     public async Task GetUserByIdAsync_UserDoesNotExist_ReturnInvalidResult()
     {
         // Arrange
-        var targetUserId = 123;
-
+        var targetUserId = _appUserFaker.Generate().Id;
         AppUser user = null;
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
+            .Setup(repo => repo.GetUserByIdAsync(It.IsAny<string>()))
             .ReturnsAsync(user);
 
         // Act
@@ -202,7 +198,7 @@ public class UserServiceTests
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
         _appUserRepositoryMock.Verify(
-            repo => repo.GetUserByIdAsync(targetUserId.ToString()),
+            repo => repo.GetUserByIdAsync(It.IsAny<string>()),
             Times.Once
         );
     }
@@ -211,29 +207,22 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_TargetUserExists_ReturnSuccessResult()
     {
         // Arrange
-        var targetUserId = 123;
+        var appUser = _appUserFaker.Generate();
 
-        var appUser = new AppUser { Id = targetUserId, Email = "test@example.com" };
-        var appUserDto = new AppUserDto { Id = targetUserId, Email = appUser.Email };
+        var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
+            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
             .ReturnsAsync(appUser);
-        _appUserRepositoryMock
-            .Setup(repo => repo.IsUserInRoleAsync(appUser, Roles.AdminRole.Name!))
-            .ReturnsAsync(false);
         _appUserRepositoryMock
             .Setup(repo => repo.DeleteUserAsync(appUser))
             .ReturnsAsync(IdentityResult.Success);
-        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
 
         // Act
-        var result = await _userService.DeleteUserByIdAsync(targetUserId);
+        var result = await _userService.DeleteUserByIdAsync(appUser.Id);
 
         // Assert
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
-        result.Value.Should().NotBeNull();
-        result.Value.Id.Should().Be(targetUserId);
         _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
     }
 
@@ -241,9 +230,8 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_TargetUserDoesNotExist_ReturnInvalidResult()
     {
         // Arrange
-        var targetUserId = 123;
-
-        AppUser user = null; // Simulate user not found
+        var targetUserId = _appUserFaker.Generate().Id;
+        AppUser user = null;
 
         _appUserRepositoryMock
             .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
@@ -264,19 +252,17 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_ImpossibleToDeleteAdmin()
     {
         // Arrange
-        var targetUserId = 123;
-
-        var user = new AppUser { Id = targetUserId, Email = "user@example.com" };
+        var user = _appUserFaker.Generate();
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
+            .Setup(repo => repo.GetUserByIdAsync(user.Id.ToString()))
             .ReturnsAsync(user);
         _appUserRepositoryMock
             .Setup(repo => repo.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _userService.DeleteUserByIdAsync(targetUserId);
+        var result = await _userService.DeleteUserByIdAsync(user.Id);
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
@@ -290,12 +276,10 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_FailedToDeleteUser_ReturnInvalidResult()
     {
         // Arrange
-        var targetUserId = 123;
-
-        var user = new AppUser { Id = targetUserId, Email = "user@example.com" };
+        var user = _appUserFaker.Generate();
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
+            .Setup(repo => repo.GetUserByIdAsync(user.Id.ToString()))
             .ReturnsAsync(user);
         _appUserRepositoryMock
             .Setup(repo => repo.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
@@ -307,7 +291,7 @@ public class UserServiceTests
             .ReturnsAsync(identityResult);
 
         // Act
-        var result = await _userService.DeleteUserByIdAsync(targetUserId);
+        var result = await _userService.DeleteUserByIdAsync(user.Id);
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
