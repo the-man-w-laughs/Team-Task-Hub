@@ -1,5 +1,5 @@
 ﻿using Identity.Application.Dtos;
-using Identity.Application.Result;
+using Identity.Application.ResultPattern;
 
 namespace Identity.Application.Ports.Services
 {

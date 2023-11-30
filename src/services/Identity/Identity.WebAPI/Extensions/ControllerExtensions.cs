@@ -1,4 +1,4 @@
-﻿using Identity.Application.Result;
+﻿using Identity.Application.ResultPattern;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Identity.WebAPI.Extensions
@@ -10,7 +10,7 @@ namespace Identity.WebAPI.Extensions
             switch (result.ResultType)
             {
                 case ResultType.Ok:
-                    return controller.Ok(result.Data);
+                    return controller.Ok(result.Value);
 
                 case ResultType.NotFound:
                     return controller.NotFound(result.Errors);

@@ -1,4 +1,4 @@
-﻿namespace Identity.Application.Result
+﻿namespace Identity.Application.ResultPattern
 {
     public enum ResultType
     {

@@ -1,4 +1,4 @@
-﻿using Identity.Application.Result;
+﻿using Identity.Application.ResultPattern;
 
 namespace Identity.Application.ResultPattern.Results
 {
@@ -13,6 +13,6 @@ namespace Identity.Application.ResultPattern.Results
 
         public override ResultType ResultType => ResultType.Ok;
         public override List<string> Errors => new List<string>();
-        public override T Data => _data;
+        public override T Value => _data;
     }
 }

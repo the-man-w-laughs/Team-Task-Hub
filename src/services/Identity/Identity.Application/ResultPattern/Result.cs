@@ -1,9 +1,9 @@
-﻿namespace Identity.Application.Result
+﻿namespace Identity.Application.ResultPattern
 {
     public abstract class Result<T>
     {
         public abstract ResultType ResultType { get; }
         public abstract List<string> Errors { get; }
-        public abstract T Data { get; }
+        public abstract T Value { get; }
     }
 }
