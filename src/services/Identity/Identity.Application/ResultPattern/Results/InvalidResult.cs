@@ -1,6 +1,4 @@
-﻿using Identity.Application.ResultPattern;
-
-namespace Identity.Application.ResultPattern.Results
+﻿namespace Identity.Application.ResultPattern.Results
 {
     public class InvalidResult<T> : Result<T>
     {

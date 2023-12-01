@@ -1,18 +1,16 @@
-﻿using Identity.Application.ResultPattern;
-
-namespace Identity.Application.ResultPattern.Results
+﻿namespace Identity.Application.ResultPattern.Results
 {
     public class SuccessResult<T> : Result<T>
     {
-        private readonly T _data;
+        private readonly T _value;
 
-        public SuccessResult(T data)
+        public SuccessResult(T value)
         {
-            _data = data;
+            _value = value;
         }
 
         public override ResultType ResultType => ResultType.Ok;
         public override List<string> Errors => new List<string>();
-        public override T Value => _data;
+        public override T Value => _value;
     }
 }

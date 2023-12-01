@@ -1,4 +1,3 @@
-using AutoFixture.Xunit2;
 using AutoMapper;
 using Bogus;
 using FluentAssertions;
@@ -15,8 +14,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Shared.Helpers;
 using Shared.IdentityConstraints;
+using Shared.SharedModels;
 
-namespace Identity.Tests.ServicesTests;
+namespace Identity.Tests.ServiceTests;
 
 public class UserServiceTests
 {
@@ -66,7 +66,6 @@ public class UserServiceTests
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
 
         _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
-
         _appUserRepositoryMock
             .Setup(repo => repo.CreateUserAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
             .ReturnsAsync(IdentityResult.Success);
@@ -90,7 +89,6 @@ public class UserServiceTests
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
 
         _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
-
         var identityResult = IdentityResult.Failed();
         _appUserRepositoryMock
             .Setup(repo => repo.CreateUserAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
@@ -114,7 +112,6 @@ public class UserServiceTests
         int offset = 0;
         int limit = 10;
         var users = _appUserFaker.Generate(5);
-
         var userDtos = users
             .Select(user => new AppUserDto { Id = user.Id, Email = user.Email })
             .ToList();
@@ -160,7 +157,6 @@ public class UserServiceTests
     {
         // Arrange
         var appUser = _appUserFaker.Generate();
-
         var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
 
         _appUserRepositoryMock
@@ -208,9 +204,9 @@ public class UserServiceTests
     {
         // Arrange
         var appUser = _appUserFaker.Generate();
-
         var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
 
+        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
         _appUserRepositoryMock
             .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
             .ReturnsAsync(appUser);
@@ -223,7 +219,12 @@ public class UserServiceTests
 
         // Assert
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
+        result.Value.Should().Be(appUserDto);
         _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
+        _publishEndpointMock.Verify(
+            p => p.Publish(It.IsAny<UserDeletedMessage>(), default),
+            Times.Once
+        );
     }
 
     [Fact]
@@ -231,11 +232,11 @@ public class UserServiceTests
     {
         // Arrange
         var targetUserId = _appUserFaker.Generate().Id;
-        AppUser user = null;
+        AppUser appUser = null;
 
         _appUserRepositoryMock
             .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
-            .ReturnsAsync(user);
+            .ReturnsAsync(appUser);
 
         // Act
         var result = await _userService.DeleteUserByIdAsync(targetUserId);
@@ -252,17 +253,17 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_ImpossibleToDeleteAdmin()
     {
         // Arrange
-        var user = _appUserFaker.Generate();
+        var appUser = _appUserFaker.Generate();
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(user.Id.ToString()))
-            .ReturnsAsync(user);
+            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
+            .ReturnsAsync(appUser);
         _appUserRepositoryMock
-            .Setup(repo => repo.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
+            .Setup(repo => repo.IsUserInRoleAsync(appUser, Roles.AdminRole.Name!))
             .ReturnsAsync(true);
 
         // Act
-        var result = await _userService.DeleteUserByIdAsync(user.Id);
+        var result = await _userService.DeleteUserByIdAsync(appUser.Id);
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
@@ -276,25 +277,25 @@ public class UserServiceTests
     public async Task DeleteUserByIdAsync_FailedToDeleteUser_ReturnInvalidResult()
     {
         // Arrange
-        var user = _appUserFaker.Generate();
+        var appUser = _appUserFaker.Generate();
 
         _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(user.Id.ToString()))
-            .ReturnsAsync(user);
+            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
+            .ReturnsAsync(appUser);
         _appUserRepositoryMock
-            .Setup(repo => repo.IsUserInRoleAsync(user, Roles.AdminRole.Name!))
+            .Setup(repo => repo.IsUserInRoleAsync(appUser, Roles.AdminRole.Name!))
             .ReturnsAsync(false);
 
         var identityResult = IdentityResult.Failed();
         _appUserRepositoryMock
-            .Setup(repo => repo.DeleteUserAsync(user))
+            .Setup(repo => repo.DeleteUserAsync(appUser))
             .ReturnsAsync(identityResult);
 
         // Act
-        var result = await _userService.DeleteUserByIdAsync(user.Id);
+        var result = await _userService.DeleteUserByIdAsync(appUser.Id);
 
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
-        _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(user), Times.Once);
+        _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
     }
 }
