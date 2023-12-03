@@ -109,8 +109,8 @@ public class UserServiceTests
     public async Task GetAllUsersAsync_NotEmplyReposiory_ReturnUsers()
     {
         // Arrange
-        int offset = 0;
-        int limit = 10;
+        var offset = 0;
+        var limit = 10;
         var users = _appUserFaker.Generate(5);
         var userDtos = users
             .Select(user => new AppUserDto { Id = user.Id, Email = user.Email })
@@ -134,8 +134,8 @@ public class UserServiceTests
     public async Task GetAllUsersAsync_EmplyReposiory_ReturnEmplyList()
     {
         // Arrange
-        int offset = 0;
-        int limit = 10;
+        var offset = 0;
+        var limit = 10;
         List<AppUser> users = new();
 
         _appUserRepositoryMock
@@ -170,7 +170,7 @@ public class UserServiceTests
         // Assert
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
         result.Value.Should().NotBeNull();
-        result.Value.Id.Should().Be(appUser.Id);
+        result.Value.Should().Be(appUserDto);
         _appUserRepositoryMock.Verify(
             repo => repo.GetUserByIdAsync(appUser.Id.ToString()),
             Times.Once
@@ -297,5 +297,49 @@ public class UserServiceTests
         // Assert
         result.Should().BeOfType<InvalidResult<AppUserDto>>();
         _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetUserByEmailAsync_UserExists_ReturnUser()
+    {
+        // Arrange
+        var appUser = _appUserFaker.Generate();
+        var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
+
+        _appUserRepositoryMock
+            .Setup(repo => repo.GetUserByEmailAsync(appUser.Email))
+            .ReturnsAsync(appUser);
+        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
+
+        // Act
+        var result = await _userService.GetUserByEmailAsync(appUser.Email);
+
+        // Assert
+        result.Should().BeOfType<SuccessResult<AppUserDto>>();
+        result.Value.Should().NotBeNull();
+        result.Value.Should().Be(appUserDto);
+        _appUserRepositoryMock.Verify(repo => repo.GetUserByEmailAsync(appUser.Email), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetUserByEmailAsync_UserDoesNotExist_ReturnInvalidResult()
+    {
+        // Arrange
+        var targetUserEmail = _appUserFaker.Generate().Email;
+        AppUser user = null;
+
+        _appUserRepositoryMock
+            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+
+        // Act
+        var result = await _userService.GetUserByEmailAsync(targetUserEmail);
+
+        // Assert
+        result.Should().BeOfType<InvalidResult<AppUserDto>>();
+        _appUserRepositoryMock.Verify(
+            repo => repo.GetUserByEmailAsync(It.IsAny<string>()),
+            Times.Once
+        );
     }
 }
