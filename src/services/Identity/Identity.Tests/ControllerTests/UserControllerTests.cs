@@ -3,6 +3,7 @@ using FluentAssertions;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.ResultPattern.Results;
+using Identity.Tests.Helpers;
 using Identity.WebAPI.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -13,6 +14,7 @@ namespace Identity.Tests.ControllerTests
     {
         private readonly Mock<IUserService> _userService;
         private readonly UsersController _usersController;
+        private readonly UserServiceHelper _userServiceHelper;
         private readonly Faker<AppUserRegisterDto> _appUserRegisterDto;
         private readonly Faker<AppUserDto> _appUserDto;
 
@@ -20,27 +22,25 @@ namespace Identity.Tests.ControllerTests
         {
             _userService = new Mock<IUserService>();
             _usersController = new UsersController(_userService.Object);
+            _userServiceHelper = new UserServiceHelper(_userService);
 
             _appUserRegisterDto = new Faker<AppUserRegisterDto>()
                 .RuleFor(u => u.Email, f => f.Internet.Email())
                 .RuleFor(u => u.Password, f => f.Internet.Password());
 
             _appUserDto = new Faker<AppUserDto>()
-                .RuleFor(u => u.Id, f => f.Random.Number())
+                .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
                 .RuleFor(u => u.Email, f => f.Internet.Email())
                 .RuleFor(u => u.IsOnline, f => f.Random.Bool());
         }
 
         [Fact]
-        public async Task CreateNewUserAsync_SuccessfullyCreatedUser_ReturnsOk()
+        public async Task CreateNewUserAsync_UserDoesNotExist_ReturnsOk()
         {
             // Arrange
             var appUserRegisterDto = _appUserRegisterDto.Generate();
             var expectedResult = new SuccessResult<string>(string.Empty);
-
-            _userService
-                .Setup(service => service.AddUserAsync(appUserRegisterDto))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupAddUserAsync(expectedResult);
 
             // Act
             var result = await _usersController.CreateNewUserAsync(appUserRegisterDto);
@@ -51,15 +51,12 @@ namespace Identity.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task CreateNewUserAsync_FailedToCreateUser_ReturnBadRequest()
+        public async Task CreateNewUserAsync_UserExists_ReturnBadRequest()
         {
             // Arrange
             var appUserRegisterDto = _appUserRegisterDto.Generate();
             var expectedResult = new InvalidResult<string>(string.Empty);
-
-            _userService
-                .Setup(service => service.AddUserAsync(appUserRegisterDto))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupAddUserAsync(expectedResult);
 
             // Act
             var result = await _usersController.CreateNewUserAsync(appUserRegisterDto);
@@ -70,17 +67,17 @@ namespace Identity.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task GetAllUsersAsync_SuccessfullyRetrieveUsers_ReturnsOk()
+        public async Task GetAllUsersAsync_FullRepository_ReturnsOk()
         {
             // Arrange
+            var userCount = 10;
             var offset = 0;
-            var limit = 10;
-            var users = _appUserDto.Generate(10);
-            var expectedResult = new SuccessResult<List<AppUserDto>>(new List<AppUserDto>(users));
-
-            _userService
-                .Setup(service => service.GetAllUsersAsync(offset, limit))
-                .ReturnsAsync(expectedResult);
+            var limit = 5;
+            var users = _appUserDto.Generate(userCount);
+            var expectedResult = new SuccessResult<List<AppUserDto>>(
+                users.Skip(offset).Take(limit).ToList()
+            );
+            _userServiceHelper.SetupGetAllUsersAsync(offset, limit, expectedResult);
 
             // Act
             var result = await _usersController.GetAllUsersAsync(offset, limit);
@@ -90,7 +87,7 @@ namespace Identity.Tests.ControllerTests
                 .Should()
                 .BeAssignableTo<OkObjectResult>()
                 .Which.Value.Should()
-                .BeEquivalentTo(users);
+                .BeEquivalentTo(expectedResult.Value);
             _userService.Verify(repo => repo.GetAllUsersAsync(offset, limit), Times.Once);
         }
 
@@ -100,10 +97,7 @@ namespace Identity.Tests.ControllerTests
             // Arrange
             var user = _appUserDto.Generate();
             var expectedResult = new SuccessResult<AppUserDto>(user);
-
-            _userService
-                .Setup(service => service.GetUserByIdAsync(user.Id))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupGetUserByIdAsync(user.Id, expectedResult);
 
             // Act
             var result = await _usersController.GetUserByIdAsync(user.Id);
@@ -123,9 +117,7 @@ namespace Identity.Tests.ControllerTests
             // Arrange
             var user = _appUserDto.Generate();
             var expectedResult = new InvalidResult<AppUserDto>(string.Empty);
-            _userService
-                .Setup(service => service.GetUserByIdAsync(user.Id))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupGetUserByIdAsync(user.Id, expectedResult);
 
             // Act
             var result = await _usersController.GetUserByIdAsync(user.Id);
@@ -136,15 +128,12 @@ namespace Identity.Tests.ControllerTests
         }
 
         [Fact]
-        public async Task DeleteByIdUserAsync_SuccessfullyDeletedUser_ReturnsOk()
+        public async Task DeleteByIdUserAsync_UserExists_ReturnsOk()
         {
             // Arrange
             var appUserDto = _appUserDto.Generate();
             var expectedResult = new SuccessResult<AppUserDto>(appUserDto);
-
-            _userService
-                .Setup(service => service.DeleteUserByIdAsync(appUserDto.Id))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupDeleteUserByIdAsync(appUserDto.Id, expectedResult);
 
             // Act
             var result = await _usersController.DeleteUserByIdAsync(appUserDto.Id);
@@ -160,10 +149,7 @@ namespace Identity.Tests.ControllerTests
             // Arrange
             var appUserDto = _appUserDto.Generate();
             var expectedResult = new InvalidResult<AppUserDto>(string.Empty);
-
-            _userService
-                .Setup(service => service.DeleteUserByIdAsync(appUserDto.Id))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupDeleteUserByIdAsync(appUserDto.Id, expectedResult);
 
             // Act
             var result = await _usersController.DeleteUserByIdAsync(appUserDto.Id);
@@ -179,10 +165,7 @@ namespace Identity.Tests.ControllerTests
             // Arrange
             var user = _appUserDto.Generate();
             var expectedResult = new SuccessResult<AppUserDto>(user);
-
-            _userService
-                .Setup(service => service.GetUserByEmailAsync(user.Email))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupDeleteUserByIdAsync(user.Email, expectedResult);
 
             // Act
             var result = await _usersController.GetUserByEmailAsync(user.Email);
@@ -202,9 +185,7 @@ namespace Identity.Tests.ControllerTests
             // Arrange
             var user = _appUserDto.Generate();
             var expectedResult = new InvalidResult<AppUserDto>(string.Empty);
-            _userService
-                .Setup(service => service.GetUserByEmailAsync(user.Email))
-                .ReturnsAsync(expectedResult);
+            _userServiceHelper.SetupDeleteUserByIdAsync(user.Email, expectedResult);
 
             // Act
             var result = await _usersController.GetUserByEmailAsync(user.Email);

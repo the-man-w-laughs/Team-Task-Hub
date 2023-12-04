@@ -7,6 +7,7 @@ using Identity.Application.Ports.Utils;
 using Identity.Application.ResultPattern.Results;
 using Identity.Application.Services;
 using Identity.Domain.Entities;
+using Identity.Tests.Helpers;
 using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -27,8 +28,10 @@ public class UserServiceTests
     private readonly Mock<IConfirmationEmailSender> _emailConfirmationHelperMock;
     private readonly Mock<ILogger<UserService>> _loggerMock;
     private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
-    private readonly Mock<IBackgroundJobClient> _backgroundJobClient;
+    private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock;
     private readonly UserService _userService;
+    private readonly MapperHelper _mapperHelper;
+    private readonly AppUserRepositoryHelper _appUserRepositoryHelper;
     private readonly Faker<AppUser> _appUserFaker;
 
     public UserServiceTests()
@@ -41,7 +44,7 @@ public class UserServiceTests
         _httpContextAccessorMock = HttpContextAccessorProvider.MockHttpContextWithUserIdClaim(
             UserId
         );
-        _backgroundJobClient = new Mock<IBackgroundJobClient>();
+        _backgroundJobClientMock = new Mock<IBackgroundJobClient>();
 
         _userService = new UserService(
             _mapperMock.Object,
@@ -50,11 +53,14 @@ public class UserServiceTests
             _emailConfirmationHelperMock.Object,
             _loggerMock.Object,
             _httpContextAccessorMock.Object,
-            _backgroundJobClient.Object
+            _backgroundJobClientMock.Object
         );
 
+        _mapperHelper = new MapperHelper(_mapperMock);
+        _appUserRepositoryHelper = new AppUserRepositoryHelper(_appUserRepositoryMock);
+
         _appUserFaker = new Faker<AppUser>()
-            .RuleFor(u => u.Id, f => f.Random.Number())
+            .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
             .RuleFor(u => u.Email, f => f.Internet.Email());
     }
 
@@ -64,11 +70,8 @@ public class UserServiceTests
         // Arrange
         var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
-
-        _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
-        _appUserRepositoryMock
-            .Setup(repo => repo.CreateUserAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-            .ReturnsAsync(IdentityResult.Success);
+        _mapperHelper.SetupMap(appUserDto, appUser);
+        _appUserRepositoryHelper.SetupCreateUserAsync(IdentityResult.Success);
 
         // Act
         var result = await _userService.AddUserAsync(appUserDto);
@@ -87,12 +90,9 @@ public class UserServiceTests
         // Arrange
         var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserRegisterDto { Email = appUser.Email };
-
-        _mapperMock.Setup(mapper => mapper.Map<AppUser>(appUserDto)).Returns(appUser);
         var identityResult = IdentityResult.Failed();
-        _appUserRepositoryMock
-            .Setup(repo => repo.CreateUserAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
-            .ReturnsAsync(identityResult);
+        _mapperHelper.SetupMap(appUserDto, appUser);
+        _appUserRepositoryHelper.SetupCreateUserAsync(identityResult);
 
         // Act
         var result = await _userService.AddUserAsync(appUserDto);
@@ -111,22 +111,19 @@ public class UserServiceTests
         // Arrange
         var offset = 0;
         var limit = 10;
-        var users = _appUserFaker.Generate(5);
-        var userDtos = users
+        var appUsers = _appUserFaker.Generate(5);
+        var appUserDtos = appUsers
             .Select(user => new AppUserDto { Id = user.Id, Email = user.Email })
             .ToList();
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetAllUsersAsync(offset, limit))
-            .ReturnsAsync(users);
-        _mapperMock.Setup(mapper => mapper.Map<List<AppUserDto>>(users)).Returns(userDtos);
+        _mapperHelper.SetupMap(appUsers, appUserDtos);
+        _appUserRepositoryHelper.SetupGetAllUsersAsync(offset, limit, appUsers);
 
         // Act
         var result = await _userService.GetAllUsersAsync(offset, limit);
 
         // Assert
         result.Should().BeOfType<SuccessResult<List<AppUserDto>>>();
-        result.Value.Should().Equal(userDtos);
+        result.Value.Should().Equal(appUserDtos);
         _appUserRepositoryMock.Verify(repo => repo.GetAllUsersAsync(offset, limit), Times.Once);
     }
 
@@ -136,11 +133,8 @@ public class UserServiceTests
         // Arrange
         var offset = 0;
         var limit = 10;
-        List<AppUser> users = new();
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetAllUsersAsync(offset, limit))
-            .ReturnsAsync(users);
+        List<AppUser> appUsers = new();
+        _appUserRepositoryHelper.SetupGetAllUsersAsync(offset, limit, appUsers);
 
         // Act
         var result = await _userService.GetAllUsersAsync(offset, limit);
@@ -158,11 +152,8 @@ public class UserServiceTests
         // Arrange
         var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
-            .ReturnsAsync(appUser);
-        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(appUser.Id.ToString(), appUser);
+        _mapperHelper.SetupMap(appUser, appUserDto);
 
         // Act
         var result = await _userService.GetUserByIdAsync(appUser.Id);
@@ -182,11 +173,8 @@ public class UserServiceTests
     {
         // Arrange
         var targetUserId = _appUserFaker.Generate().Id;
-        AppUser user = null;
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(It.IsAny<string>()))
-            .ReturnsAsync(user);
+        AppUser appUser = null;
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(targetUserId.ToString(), appUser);
 
         // Act
         var result = await _userService.GetUserByIdAsync(targetUserId);
@@ -205,14 +193,9 @@ public class UserServiceTests
         // Arrange
         var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
-
-        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
-            .ReturnsAsync(appUser);
-        _appUserRepositoryMock
-            .Setup(repo => repo.DeleteUserAsync(appUser))
-            .ReturnsAsync(IdentityResult.Success);
+        _mapperHelper.SetupMap(appUser, appUserDto);
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(appUser.Id.ToString(), appUser);
+        _appUserRepositoryHelper.SetupDeleteUserAsync(appUser, IdentityResult.Success);
 
         // Act
         var result = await _userService.DeleteUserByIdAsync(appUser.Id);
@@ -220,6 +203,10 @@ public class UserServiceTests
         // Assert
         result.Should().BeOfType<SuccessResult<AppUserDto>>();
         result.Value.Should().Be(appUserDto);
+        _appUserRepositoryMock.Verify(
+            repo => repo.GetUserByIdAsync(appUser.Id.ToString()),
+            Times.Once
+        );
         _appUserRepositoryMock.Verify(repo => repo.DeleteUserAsync(appUser), Times.Once);
         _publishEndpointMock.Verify(
             p => p.Publish(It.IsAny<UserDeletedMessage>(), default),
@@ -233,10 +220,7 @@ public class UserServiceTests
         // Arrange
         var targetUserId = _appUserFaker.Generate().Id;
         AppUser appUser = null;
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(targetUserId.ToString()))
-            .ReturnsAsync(appUser);
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(targetUserId.ToString(), appUser);
 
         // Act
         var result = await _userService.DeleteUserByIdAsync(targetUserId);
@@ -250,17 +234,12 @@ public class UserServiceTests
     }
 
     [Fact]
-    public async Task DeleteUserByIdAsync_ImpossibleToDeleteAdmin()
+    public async Task DeleteUserByIdAsync_AttempToDeleteAdmin_ImpossibleToDeleteAdmin()
     {
         // Arrange
         var appUser = _appUserFaker.Generate();
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
-            .ReturnsAsync(appUser);
-        _appUserRepositoryMock
-            .Setup(repo => repo.IsUserInRoleAsync(appUser, Roles.AdminRole.Name!))
-            .ReturnsAsync(true);
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(appUser.Id.ToString(), appUser);
+        _appUserRepositoryHelper.SetupIsUserInRoleAsync(appUser, Roles.AdminRole, true);
 
         // Act
         var result = await _userService.DeleteUserByIdAsync(appUser.Id);
@@ -278,18 +257,9 @@ public class UserServiceTests
     {
         // Arrange
         var appUser = _appUserFaker.Generate();
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByIdAsync(appUser.Id.ToString()))
-            .ReturnsAsync(appUser);
-        _appUserRepositoryMock
-            .Setup(repo => repo.IsUserInRoleAsync(appUser, Roles.AdminRole.Name!))
-            .ReturnsAsync(false);
-
-        var identityResult = IdentityResult.Failed();
-        _appUserRepositoryMock
-            .Setup(repo => repo.DeleteUserAsync(appUser))
-            .ReturnsAsync(identityResult);
+        _appUserRepositoryHelper.SetupGetUserByIdAsync(appUser.Id.ToString(), appUser);
+        _appUserRepositoryHelper.SetupIsUserInRoleAsync(appUser, Roles.AdminRole, false);
+        _appUserRepositoryHelper.SetupDeleteUserAsync(appUser, IdentityResult.Failed());
 
         // Act
         var result = await _userService.DeleteUserByIdAsync(appUser.Id);
@@ -305,11 +275,8 @@ public class UserServiceTests
         // Arrange
         var appUser = _appUserFaker.Generate();
         var appUserDto = new AppUserDto { Id = appUser.Id, Email = appUser.Email };
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByEmailAsync(appUser.Email))
-            .ReturnsAsync(appUser);
-        _mapperMock.Setup(mapper => mapper.Map<AppUserDto>(appUser)).Returns(appUserDto);
+        _appUserRepositoryHelper.SetupGetUserByEmailAsync(appUser.Email, appUser);
+        _mapperHelper.SetupMap(appUser, appUserDto);
 
         // Act
         var result = await _userService.GetUserByEmailAsync(appUser.Email);
@@ -326,11 +293,8 @@ public class UserServiceTests
     {
         // Arrange
         var targetUserEmail = _appUserFaker.Generate().Email;
-        AppUser user = null;
-
-        _appUserRepositoryMock
-            .Setup(repo => repo.GetUserByEmailAsync(It.IsAny<string>()))
-            .ReturnsAsync(user);
+        AppUser appUser = null;
+        _appUserRepositoryHelper.SetupGetUserByEmailAsync(targetUserEmail, appUser);
 
         // Act
         var result = await _userService.GetUserByEmailAsync(targetUserEmail);

@@ -18,6 +18,7 @@ public class HttpContextAccessorProvider
             )
         };
         httpContextAccessorMock.SetupProperty(x => x.HttpContext, httpContext);
+
         return httpContextAccessorMock;
     }
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using Bogus;
 using Identity.Application.Services;
 using Identity.Domain.Entities;
+using Identity.Tests.Helpers;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -15,6 +16,7 @@ public class EmailConfirmationServiceTests
 {
     private readonly Mock<IMapper> _mapperMock;
     private readonly Mock<UserManager<AppUser>> _userManagerMock;
+    private readonly UserManagerHelper _userManagerHelper;
     private readonly Mock<IPublishEndpoint> _publishEndpointMock;
     private readonly Mock<ILogger<EmailConfirmationService>> _loggerMock;
     private readonly EmailConfirmationService _emailConfirmationService;
@@ -34,6 +36,7 @@ public class EmailConfirmationServiceTests
             null,
             null
         );
+        _userManagerHelper = new UserManagerHelper(_userManagerMock);
         _publishEndpointMock = new Mock<IPublishEndpoint>();
         _loggerMock = new Mock<ILogger<EmailConfirmationService>>();
 
@@ -79,8 +82,8 @@ public class EmailConfirmationServiceTests
         // Arrange
         var email = _faker.Internet.Email();
         var token = "valid_token";
-
-        _userManagerMock.Setup(m => m.FindByEmailAsync(email)).ReturnsAsync((AppUser)null);
+        AppUser expectedResult = null;
+        _userManagerHelper.SetupFindByEmailAsync(email, expectedResult);
 
         // Act
         async Task Act() => await _emailConfirmationService.ConfirmEmailAsync(token, email);
@@ -97,10 +100,8 @@ public class EmailConfirmationServiceTests
         var token = "invalid_token";
         var user = new AppUser { Email = email };
 
-        _userManagerMock.Setup(m => m.FindByEmailAsync(email)).ReturnsAsync(user);
-        _userManagerMock
-            .Setup(m => m.ConfirmEmailAsync(user, token))
-            .ReturnsAsync(IdentityResult.Failed());
+        _userManagerHelper.SetupFindByEmailAsync(email, user);
+        _userManagerHelper.SetupConfirmEmailAsync(user, token, IdentityResult.Failed());
 
         // Act
         async Task Act() => await _emailConfirmationService.ConfirmEmailAsync(token, email);
@@ -117,10 +118,8 @@ public class EmailConfirmationServiceTests
         var token = "valid_token";
         var user = new AppUser { Email = email };
 
-        _userManagerMock.Setup(m => m.FindByEmailAsync(email)).ReturnsAsync(user);
-        _userManagerMock
-            .Setup(m => m.ConfirmEmailAsync(user, token))
-            .ReturnsAsync(IdentityResult.Success);
+        _userManagerHelper.SetupFindByEmailAsync(email, user);
+        _userManagerHelper.SetupConfirmEmailAsync(user, token, IdentityResult.Success);
 
         // Act
         await _emailConfirmationService.ConfirmEmailAsync(token, email);
