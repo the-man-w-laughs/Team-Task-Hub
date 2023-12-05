@@ -5,7 +5,6 @@ using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.BLL.Contracts;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.TeamMembers.Queries;

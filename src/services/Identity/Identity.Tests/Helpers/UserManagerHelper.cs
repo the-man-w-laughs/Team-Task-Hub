@@ -22,7 +22,9 @@ namespace Identity.Tests.Helpers
         public void SetupCreateAsync(List<AppUser> users)
         {
             _userManagerMock
-                .Setup(u => u.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
+                .Setup(
+                    userManager => userManager.CreateAsync(It.IsAny<AppUser>(), It.IsAny<string>())
+                )
                 .ReturnsAsync(
                     (AppUser user, string password) =>
                     {
@@ -35,7 +37,7 @@ namespace Identity.Tests.Helpers
         public void SetupDeleteAsync(List<AppUser> users)
         {
             _userManagerMock
-                .Setup(u => u.DeleteAsync(It.IsAny<AppUser>()))
+                .Setup(userManager => userManager.DeleteAsync(It.IsAny<AppUser>()))
                 .ReturnsAsync(
                     (AppUser user) =>
                     {
@@ -48,7 +50,7 @@ namespace Identity.Tests.Helpers
         public void SetupFindByEmailAsync(List<AppUser> users)
         {
             _userManagerMock
-                .Setup(u => u.FindByEmailAsync(It.IsAny<string>()))
+                .Setup(userManager => userManager.FindByEmailAsync(It.IsAny<string>()))
                 .ReturnsAsync(
                     (string email) =>
                     {
@@ -60,7 +62,7 @@ namespace Identity.Tests.Helpers
         public void SetupFindByIdAsync(List<AppUser> users)
         {
             _userManagerMock
-                .Setup(u => u.FindByIdAsync(It.IsAny<string>()))
+                .Setup(userManager => userManager.FindByIdAsync(It.IsAny<string>()))
                 .ReturnsAsync(
                     (string id) =>
                     {
@@ -72,7 +74,10 @@ namespace Identity.Tests.Helpers
         public void SetupIsInRoleAsync(Dictionary<AppUser, string> roles)
         {
             _userManagerMock
-                .Setup(u => u.IsInRoleAsync(It.IsAny<AppUser>(), It.IsAny<string>()))
+                .Setup(
+                    userManager =>
+                        userManager.IsInRoleAsync(It.IsAny<AppUser>(), It.IsAny<string>())
+                )
                 .ReturnsAsync(
                     (AppUser user, string role) =>
                     {
@@ -83,7 +88,9 @@ namespace Identity.Tests.Helpers
 
         public void SetupFindByEmailAsync(string email, AppUser expectedResult)
         {
-            _userManagerMock.Setup(m => m.FindByEmailAsync(email)).ReturnsAsync(expectedResult);
+            _userManagerMock
+                .Setup(userManager => userManager.FindByEmailAsync(email))
+                .ReturnsAsync(expectedResult);
         }
 
         public void SetupConfirmEmailAsync(
@@ -93,7 +100,7 @@ namespace Identity.Tests.Helpers
         )
         {
             _userManagerMock
-                .Setup(m => m.ConfirmEmailAsync(user, token))
+                .Setup(userManager => userManager.ConfirmEmailAsync(user, token))
                 .ReturnsAsync(expectedResult);
         }
     }

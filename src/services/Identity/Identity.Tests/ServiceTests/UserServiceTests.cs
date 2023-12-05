@@ -21,7 +21,6 @@ namespace Identity.Tests.ServiceTests;
 
 public class UserServiceTests
 {
-    private const int UserId = 1;
     private readonly Mock<IMapper> _mapperMock;
     private readonly Mock<IAppUserRepository> _appUserRepositoryMock;
     private readonly Mock<IPublishEndpoint> _publishEndpointMock;
@@ -29,9 +28,13 @@ public class UserServiceTests
     private readonly Mock<ILogger<UserService>> _loggerMock;
     private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
     private readonly Mock<IBackgroundJobClient> _backgroundJobClientMock;
+
     private readonly UserService _userService;
+
+    private readonly HttpContextAccessorHelper _httpContextAccessorHelper;
     private readonly MapperHelper _mapperHelper;
     private readonly AppUserRepositoryHelper _appUserRepositoryHelper;
+
     private readonly Faker<AppUser> _appUserFaker;
 
     public UserServiceTests()
@@ -41,9 +44,7 @@ public class UserServiceTests
         _publishEndpointMock = new Mock<IPublishEndpoint>();
         _emailConfirmationHelperMock = new Mock<IConfirmationEmailSender>();
         _loggerMock = new Mock<ILogger<UserService>>();
-        _httpContextAccessorMock = HttpContextAccessorProvider.MockHttpContextWithUserIdClaim(
-            UserId
-        );
+        _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         _backgroundJobClientMock = new Mock<IBackgroundJobClient>();
 
         _userService = new UserService(
@@ -56,12 +57,14 @@ public class UserServiceTests
             _backgroundJobClientMock.Object
         );
 
+        _httpContextAccessorHelper = new HttpContextAccessorHelper(_httpContextAccessorMock);
         _mapperHelper = new MapperHelper(_mapperMock);
         _appUserRepositoryHelper = new AppUserRepositoryHelper(_appUserRepositoryMock);
 
         _appUserFaker = new Faker<AppUser>()
             .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
             .RuleFor(u => u.Email, f => f.Internet.Email());
+        _httpContextAccessorHelper.SetupHttpContextProperty(1);
     }
 
     [Fact]
