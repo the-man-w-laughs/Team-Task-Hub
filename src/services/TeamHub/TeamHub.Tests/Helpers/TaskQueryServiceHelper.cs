@@ -23,5 +23,16 @@ namespace TeamHub.Tests.Helpers
                 .Setup(x => x.GetExistingTaskAsync(taskId, cancellationToken))
                 .ReturnsAsync(result);
         }
+
+        public void SetupGetExistingTaskAsync(
+            int taskId,
+            CancellationToken cancellationToken,
+            Exception exceptionToThrow
+        )
+        {
+            _taskQueryServiceMock
+                .Setup(x => x.GetExistingTaskAsync(taskId, cancellationToken))
+                .ThrowsAsync(exceptionToThrow);
+        }
     }
 }

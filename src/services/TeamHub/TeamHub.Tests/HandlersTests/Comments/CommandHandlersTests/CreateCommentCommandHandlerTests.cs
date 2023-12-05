@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Shared.Exceptions;
 using Shared.Helpers;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos;
@@ -74,7 +75,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
             _userFaker = new UserFaker();
             _taskFaker = new TaskModelFaker();
 
-            _httpContextAccessorHelper.SetupHttpContextProperty(1);
+            _httpContextAccessorHelper.SetupHttpContextProperty(It.IsAny<int>());
         }
 
         [Fact]
@@ -130,6 +131,79 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 Times.Once
             );
             _commentRepositoryMock.Verify(x => x.SaveAsync(CancellationToken.None), Times.Once);
+        }
+
+        [Fact]
+        public async Task Handle_UserDoesNotExist_ShouldThrowException()
+        {
+            // Arrange
+            var user = _userFaker.Generate();
+            _httpContextAccessorHelper.SetupHttpContextProperty(user.Id);
+            _userQueryServiceHelper.SetupGetExistingUserAsync(
+                user.Id,
+                CancellationToken.None,
+                new NotFoundException()
+            );
+
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+            var task = _taskFaker.Generate();
+
+            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+
+            // Act
+            Func<Task> act = async () => await _handler.Handle(request, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<NotFoundException>(act);
+        }
+
+        [Fact]
+        public async Task Handle_TaskDoesNotExists_ShouldThrowException()
+        {
+            // Arrange
+            var task = _taskFaker.Generate();
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+
+            _taskQueryServiceHelper.SetupGetExistingTaskAsync(
+                task.Id,
+                CancellationToken.None,
+                new NotFoundException()
+            );
+
+            // Act
+            Func<Task> act = async () => await _handler.Handle(request, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<NotFoundException>(act);
+        }
+
+        [Fact]
+        public async Task Handle_UserIsNotInProject_ShouldThrowException()
+        {
+            // Arrange
+            var task = _taskFaker.Generate();
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+
+            _taskQueryServiceHelper.SetupGetExistingTaskAsync(
+                task.Id,
+                CancellationToken.None,
+                task
+            );
+
+            _teamMemberQueryServiceHelper.SetupGetExistingTeamMemberAsync(
+                It.IsAny<int>(),
+                task.ProjectId,
+                CancellationToken.None,
+                new NotFoundException()
+            );
+
+            // Act
+            Func<Task> act = async () => await _handler.Handle(request, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<NotFoundException>(act);
         }
     }
 }

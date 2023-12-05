@@ -1,3 +1,4 @@
+using FluentAssertions;
 using Moq;
 using TeamHub.BLL.Contracts;
 using TeamHub.DAL.Models;
@@ -25,6 +26,18 @@ namespace TeamHub.Tests.Helpers
             _teamMemberQueryServiceMock
                 .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, cancellationToken))
                 .ReturnsAsync(result);
+        }
+
+        public void SetupGetExistingTeamMemberAsync(
+            int userId,
+            int projectId,
+            CancellationToken cancellationToken,
+            Exception exceptionToThrow
+        )
+        {
+            _teamMemberQueryServiceMock
+                .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, cancellationToken))
+                .Throws(exceptionToThrow);
         }
     }
 }
