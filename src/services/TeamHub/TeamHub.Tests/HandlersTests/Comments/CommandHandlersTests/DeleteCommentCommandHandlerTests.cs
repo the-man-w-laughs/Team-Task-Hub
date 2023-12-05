@@ -1,6 +1,7 @@
 using AutoMapper;
 using Bogus;
 using FluentAssertions;
+using MassTransit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,70 +17,59 @@ using TeamHub.Tests.Helpers;
 
 namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 {
-    public class CreateCommentCommandHandlerTests
+    public class DeleteCommentCommandHandlerTests
     {
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<ICommentRepository> _commentRepositoryMock;
         private readonly Mock<IUserQueryService> _userQueryServiceMock;
-        private readonly Mock<ITaskQueryService> _taskQueryServiceMock;
-        private readonly Mock<ITeamMemberQueryService> _teamMemberQueryServiceMock;
-        private readonly Mock<ILogger<CreateCommentCommandHandler>> _loggerMock;
+        private readonly Mock<ICommentQueryService> _commentQueryServiceMock;
+        private readonly Mock<ILogger<DeleteCommentCommandHandler>> _loggerMock;
 
-        private readonly TeamMemberQueryServiceHelper _teamMemberQueryServiceHelper;
         private readonly MapperHelper _mapperHelper;
         private readonly CommentRepositoryHelper _commentRepositoryHelper;
+        private readonly CommentQueryServiceHelper _commentQueryServiceHelper;
         private readonly UserQueryServiceHelper _userQueryServiceHelper;
-        private readonly TaskQueryServiceHelper _taskQueryServiceHelper;
         private readonly HttpContextAccessorHelper _httpContextAccessorHelper;
 
-        private readonly Faker _faker;
-        private readonly Faker<CommentRequestDto> _commentRequestDtoFaker;
         private readonly Faker<User> _userFaker;
         private readonly TaskModelFaker _taskFaker;
-        private readonly CreateCommentCommandHandler _handler;
+        private readonly CommentFaker _commentFaker;
+        private readonly DeleteCommentCommandHandler _handler;
 
-        public CreateCommentCommandHandlerTests()
+        public DeleteCommentCommandHandlerTests()
         {
             _mapperMock = new Mock<IMapper>();
             _commentRepositoryMock = new Mock<ICommentRepository>();
             _userQueryServiceMock = new Mock<IUserQueryService>();
-            _taskQueryServiceMock = new Mock<ITaskQueryService>();
-            _teamMemberQueryServiceMock = new Mock<ITeamMemberQueryService>();
-            _loggerMock = new Mock<ILogger<CreateCommentCommandHandler>>();
+            _commentQueryServiceMock = new Mock<ICommentQueryService>();
+            _loggerMock = new Mock<ILogger<DeleteCommentCommandHandler>>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
             _httpContextAccessorHelper = new HttpContextAccessorHelper(_httpContextAccessorMock);
             _mapperHelper = new MapperHelper(_mapperMock);
-            _teamMemberQueryServiceHelper = new TeamMemberQueryServiceHelper(
-                _teamMemberQueryServiceMock
-            );
             _userQueryServiceHelper = new UserQueryServiceHelper(_userQueryServiceMock);
             _commentRepositoryHelper = new CommentRepositoryHelper(_commentRepositoryMock);
-            _taskQueryServiceHelper = new TaskQueryServiceHelper(_taskQueryServiceMock);
+            _commentQueryServiceHelper = new CommentQueryServiceHelper(_commentQueryServiceMock);
 
-            _handler = new CreateCommentCommandHandler(
+            _handler = new DeleteCommentCommandHandler(
                 _httpContextAccessorMock.Object,
-                _mapperMock.Object,
                 _commentRepositoryMock.Object,
+                _mapperMock.Object,
+                _commentQueryServiceMock.Object,
                 _userQueryServiceMock.Object,
-                _taskQueryServiceMock.Object,
-                _teamMemberQueryServiceMock.Object,
                 _loggerMock.Object
             );
 
-            _faker = new Faker();
-
-            _commentRequestDtoFaker = new CommentRequestDtoFaker();
-
             _userFaker = new UserFaker();
             _taskFaker = new TaskModelFaker();
+            _commentFaker = new CommentFaker();
 
             _httpContextAccessorHelper.SetupHttpContextProperty(It.IsAny<int>());
         }
 
         [Fact]
-        public async Task Handle_ValidRequest_CommentCreatedSuccessfully()
+        public async Task Handle_ValidRequest_CommentDeletedSuccessFully()
         {
             // Arrange
             var user = _userFaker.Generate();
@@ -90,33 +80,24 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 user
             );
 
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            var comment = new Comment() { Content = commentRequestDto.Content };
-            _mapperHelper.SetupMap(commentRequestDto, comment);
+            var comment = _commentFaker.Generate();
+            comment.AuthorId = user.Id;
 
-            var task = _taskFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var request = new DeleteCommentCommand(comment.Id);
 
-            _taskQueryServiceHelper.SetupGetExistingTaskAsync(
-                task.Id,
+            _commentQueryServiceHelper.SetupGetExistingCommentAsync(
+                comment.Id,
                 CancellationToken.None,
-                task
+                comment
             );
 
-            var teamMember = new TeamMember() { UserId = user.Id, ProjectId = task.ProjectId };
-            _teamMemberQueryServiceHelper.SetupGetExistingTeamMemberAsync(
-                user.Id,
-                task.ProjectId,
-                CancellationToken.None,
-                teamMember
-            );
-
-            _commentRepositoryHelper.SetupAddAsync(comment, CancellationToken.None, comment);
+            _commentRepositoryHelper.SetupDelete(comment);
             _commentRepositoryHelper.SetupSaveAsync(CancellationToken.None);
 
             var commentResponseDto = new CommentResponseDto()
             {
                 Id = comment.Id,
+                AuthorId = comment.AuthorId,
                 Content = comment.Content
             };
             _mapperHelper.SetupMap(comment, commentResponseDto);
@@ -126,10 +107,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             // Assert
             result.Should().Be(commentResponseDto);
-            _commentRepositoryMock.Verify(
-                x => x.AddAsync(comment, CancellationToken.None),
-                Times.Once
-            );
+            _commentRepositoryMock.Verify(x => x.Delete(comment), Times.Once);
             _commentRepositoryMock.Verify(x => x.SaveAsync(CancellationToken.None), Times.Once);
         }
 
@@ -145,10 +123,11 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 new NotFoundException()
             );
 
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
             var task = _taskFaker.Generate();
 
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var comment = _commentFaker.Generate();
+
+            var request = new DeleteCommentCommand(comment.Id);
 
             // Act
             var act = async () => await _handler.Handle(request, CancellationToken.None);
@@ -158,15 +137,22 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         }
 
         [Fact]
-        public async Task Handle_TaskDoesNotExists_ShouldThrowException()
+        public async Task Handle_CommentDoesNotExists_ShouldThrowException()
         {
             // Arrange
-            var task = _taskFaker.Generate();
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var user = _userFaker.Generate();
+            _httpContextAccessorHelper.SetupHttpContextProperty(user.Id);
+            _userQueryServiceHelper.SetupGetExistingUserAsync(
+                user.Id,
+                CancellationToken.None,
+                user
+            );
 
-            _taskQueryServiceHelper.SetupGetExistingTaskAsync(
-                task.Id,
+            var comment = _commentFaker.Generate();
+            var request = new DeleteCommentCommand(comment.Id);
+
+            _commentQueryServiceHelper.SetupGetExistingCommentAsync(
+                comment.Id,
                 CancellationToken.None,
                 new NotFoundException()
             );
@@ -179,31 +165,32 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         }
 
         [Fact]
-        public async Task Handle_UserIsNotInProject_ShouldThrowException()
+        public async Task Handle_UserIsNotACommentAuthor_ShouldThrowException()
         {
             // Arrange
-            var task = _taskFaker.Generate();
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
-
-            _taskQueryServiceHelper.SetupGetExistingTaskAsync(
-                task.Id,
+            var user = _userFaker.Generate();
+            _httpContextAccessorHelper.SetupHttpContextProperty(user.Id);
+            _userQueryServiceHelper.SetupGetExistingUserAsync(
+                user.Id,
                 CancellationToken.None,
-                task
+                user
             );
 
-            _teamMemberQueryServiceHelper.SetupGetExistingTeamMemberAsync(
-                It.IsAny<int>(),
-                task.ProjectId,
+            var comment = _commentFaker.Generate();
+            comment.AuthorId = user.Id == int.MaxValue ? user.Id + 1 : int.MinValue;
+            var request = new DeleteCommentCommand(comment.Id);
+
+            _commentQueryServiceHelper.SetupGetExistingCommentAsync(
+                comment.Id,
                 CancellationToken.None,
-                new NotFoundException()
+                new ForbiddenException()
             );
 
             // Act
             var act = async () => await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            await Assert.ThrowsAsync<NotFoundException>(act);
+            await Assert.ThrowsAsync<ForbiddenException>(act);
         }
     }
 }

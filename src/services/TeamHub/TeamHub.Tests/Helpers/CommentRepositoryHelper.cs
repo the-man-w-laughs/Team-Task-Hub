@@ -30,5 +30,10 @@ namespace TeamHub.Tests.Helpers
                 .Setup(x => x.SaveAsync(cancellationToken))
                 .Returns(Task.CompletedTask);
         }
+
+        public void SetupDelete(Comment comment)
+        {
+            _commentRepositoryMock.Setup(x => x.Delete(comment));
+        }
     }
 }
