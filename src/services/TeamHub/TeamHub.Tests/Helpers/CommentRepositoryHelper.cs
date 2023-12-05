@@ -35,5 +35,10 @@ namespace TeamHub.Tests.Helpers
         {
             _commentRepositoryMock.Setup(x => x.Delete(comment));
         }
+
+        public void SetupUpdate(Comment comment)
+        {
+            _commentRepositoryMock.Setup(x => x.Update(comment));
+        }
     }
 }

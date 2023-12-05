@@ -16,14 +16,14 @@ using TeamHub.Tests.Helpers;
 
 namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 {
-    public class DeleteCommentCommandHandlerTests
+    public class UpdateCommentCommandHandlerTests
     {
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<ICommentRepository> _commentRepositoryMock;
         private readonly Mock<IUserQueryService> _userQueryServiceMock;
         private readonly Mock<ICommentQueryService> _commentQueryServiceMock;
-        private readonly Mock<ILogger<DeleteCommentCommandHandler>> _loggerMock;
+        private readonly Mock<ILogger<UpdateCommentCommandHandler>> _loggerMock;
 
         private readonly MapperHelper _mapperHelper;
         private readonly CommentRepositoryHelper _commentRepositoryHelper;
@@ -32,17 +32,17 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         private readonly HttpContextAccessorHelper _httpContextAccessorHelper;
 
         private readonly Faker<User> _userFaker;
-        private readonly TaskModelFaker _taskFaker;
         private readonly CommentFaker _commentFaker;
-        private readonly DeleteCommentCommandHandler _handler;
+        private readonly CommentRequestDtoFaker _commentRequestDtoFaker;
+        private readonly UpdateCommentCommandHandler _handler;
 
-        public DeleteCommentCommandHandlerTests()
+        public UpdateCommentCommandHandlerTests()
         {
             _mapperMock = new Mock<IMapper>();
             _commentRepositoryMock = new Mock<ICommentRepository>();
             _userQueryServiceMock = new Mock<IUserQueryService>();
             _commentQueryServiceMock = new Mock<ICommentQueryService>();
-            _loggerMock = new Mock<ILogger<DeleteCommentCommandHandler>>();
+            _loggerMock = new Mock<ILogger<UpdateCommentCommandHandler>>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
             _httpContextAccessorHelper = new HttpContextAccessorHelper(_httpContextAccessorMock);
@@ -51,18 +51,18 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
             _commentRepositoryHelper = new CommentRepositoryHelper(_commentRepositoryMock);
             _commentQueryServiceHelper = new CommentQueryServiceHelper(_commentQueryServiceMock);
 
-            _handler = new DeleteCommentCommandHandler(
+            _handler = new UpdateCommentCommandHandler(
                 _httpContextAccessorMock.Object,
-                _commentRepositoryMock.Object,
                 _mapperMock.Object,
-                _commentQueryServiceMock.Object,
+                _commentRepositoryMock.Object,
                 _userQueryServiceMock.Object,
+                _commentQueryServiceMock.Object,
                 _loggerMock.Object
             );
 
             _userFaker = new UserFaker();
-            _taskFaker = new TaskModelFaker();
             _commentFaker = new CommentFaker();
+            _commentRequestDtoFaker = new CommentRequestDtoFaker();
 
             _httpContextAccessorHelper.SetupHttpContextProperty(It.IsAny<int>());
         }
@@ -82,7 +82,11 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
             var comment = _commentFaker.Generate();
             comment.AuthorId = user.Id;
 
-            var request = new DeleteCommentCommand(comment.Id);
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+            var commentRequest = new Comment() { Content = commentRequestDto.Content };
+
+            _mapperHelper.SetupMap(commentRequestDto, commentRequest);
+            var request = new UpdateCommentCommand(comment.Id, commentRequestDto);
 
             _commentQueryServiceHelper.SetupGetExistingCommentAsync(
                 comment.Id,
@@ -90,7 +94,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 comment
             );
 
-            _commentRepositoryHelper.SetupDelete(comment);
+            _commentRepositoryHelper.SetupUpdate(comment);
             _commentRepositoryHelper.SetupSaveAsync(CancellationToken.None);
 
             var commentResponseDto = new CommentResponseDto()
@@ -106,7 +110,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             // Assert
             result.Should().Be(commentResponseDto);
-            _commentRepositoryMock.Verify(x => x.Delete(comment), Times.Once);
+            _commentRepositoryMock.Verify(x => x.Update(comment), Times.Once);
             _commentRepositoryMock.Verify(x => x.SaveAsync(CancellationToken.None), Times.Once);
         }
 
@@ -122,11 +126,10 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 new NotFoundException()
             );
 
-            var task = _taskFaker.Generate();
-
             var comment = _commentFaker.Generate();
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
 
-            var request = new DeleteCommentCommand(comment.Id);
+            var request = new UpdateCommentCommand(comment.Id, commentRequestDto);
 
             // Act
             var act = async () => await _handler.Handle(request, CancellationToken.None);
@@ -148,7 +151,9 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
             );
 
             var comment = _commentFaker.Generate();
-            var request = new DeleteCommentCommand(comment.Id);
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+
+            var request = new UpdateCommentCommand(comment.Id, commentRequestDto);
 
             _commentQueryServiceHelper.SetupGetExistingCommentAsync(
                 comment.Id,
@@ -177,7 +182,9 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             var comment = _commentFaker.Generate();
             comment.AuthorId = user.Id == int.MaxValue ? user.Id + 1 : int.MinValue;
-            var request = new DeleteCommentCommand(comment.Id);
+            var commentRequestDto = _commentRequestDtoFaker.Generate();
+
+            var request = new UpdateCommentCommand(comment.Id, commentRequestDto);
 
             _commentQueryServiceHelper.SetupGetExistingCommentAsync(
                 comment.Id,

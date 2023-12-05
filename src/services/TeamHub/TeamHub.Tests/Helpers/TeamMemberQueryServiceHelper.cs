@@ -1,4 +1,3 @@
-using FluentAssertions;
 using Moq;
 using TeamHub.BLL.Contracts;
 using TeamHub.DAL.Models;
