@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Moq;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
@@ -13,32 +14,43 @@ namespace TeamHub.Tests.Helpers
             _commentRepositoryMock = commentRepositoryMock;
         }
 
-        public void SetupAddAsync(
-            Comment comment,
-            CancellationToken cancellationToken,
-            Comment result
-        )
+        public void SetupAddAsync(Comment result)
         {
             _commentRepositoryMock
-                .Setup(x => x.AddAsync(comment, cancellationToken))
+                .Setup(x => x.AddAsync(It.IsAny<Comment>(), CancellationToken.None))
                 .ReturnsAsync(result);
         }
 
-        public void SetupSaveAsync(CancellationToken cancellationToken)
+        public void SetupSaveAsync()
         {
             _commentRepositoryMock
-                .Setup(x => x.SaveAsync(cancellationToken))
+                .Setup(x => x.SaveAsync(CancellationToken.None))
                 .Returns(Task.CompletedTask);
         }
 
-        public void SetupDelete(Comment comment)
+        public void SetupDelete()
         {
-            _commentRepositoryMock.Setup(x => x.Delete(comment));
+            _commentRepositoryMock.Setup(x => x.Delete(It.IsAny<Comment>()));
         }
 
-        public void SetupUpdate(Comment comment)
+        public void SetupUpdate()
         {
-            _commentRepositoryMock.Setup(x => x.Update(comment));
+            _commentRepositoryMock.Setup(x => x.Update(It.IsAny<Comment>()));
+        }
+
+        public void SetupGetAllAsync(int offset, int limit, List<Comment> comments)
+        {
+            _commentRepositoryMock
+                .Setup(
+                    x =>
+                        x.GetAllAsync(
+                            It.IsAny<Expression<Func<Comment, bool>>>(),
+                            offset,
+                            limit,
+                            CancellationToken.None
+                        )
+                )
+                .ReturnsAsync(comments);
         }
     }
 }

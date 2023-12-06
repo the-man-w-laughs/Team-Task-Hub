@@ -84,29 +84,20 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             var request = new DeleteCommentCommand(comment.Id);
 
-            _commentQueryServiceHelper.SetupGetExistingCommentAsync(
-                comment.Id,
-                CancellationToken.None,
-                comment
-            );
+            _commentQueryServiceHelper.SetupGetExistingCommentAsync(comment.Id, comment);
 
-            _commentRepositoryHelper.SetupDelete(comment);
-            _commentRepositoryHelper.SetupSaveAsync(CancellationToken.None);
+            _commentRepositoryHelper.SetupDelete();
+            _commentRepositoryHelper.SetupSaveAsync();
 
-            var commentResponseDto = new CommentResponseDto()
-            {
-                Id = comment.Id,
-                AuthorId = comment.AuthorId,
-                Content = comment.Content
-            };
-            _mapperHelper.SetupMap(comment, commentResponseDto);
+            _mapperHelper.SetupMapCommentToCommentResponseDto();
+            var commentResponseDto = _mapperMock.Object.Map<CommentResponseDto>(comment);
 
             // Act
             var result = await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            result.Should().Be(commentResponseDto);
-            _commentRepositoryMock.Verify(x => x.Delete(comment), Times.Once);
+            result.Should().BeEquivalentTo(commentResponseDto);
+            _commentRepositoryMock.Verify(x => x.Delete(It.IsAny<Comment>()), Times.Once);
             _commentRepositoryMock.Verify(x => x.SaveAsync(CancellationToken.None), Times.Once);
         }
 
@@ -152,7 +143,6 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             _commentQueryServiceHelper.SetupGetExistingCommentAsync(
                 comment.Id,
-                CancellationToken.None,
                 new NotFoundException()
             );
 
@@ -181,7 +171,6 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             _commentQueryServiceHelper.SetupGetExistingCommentAsync(
                 comment.Id,
-                CancellationToken.None,
                 new ForbiddenException()
             );
 

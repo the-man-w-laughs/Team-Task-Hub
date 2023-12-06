@@ -14,16 +14,28 @@ namespace TeamHub.Tests.Helpers
             _mapperMock = mapperMock;
         }
 
-        public void SetupMap(CommentRequestDto commentRequestDto, Comment comment)
-        {
-            _mapperMock.Setup(mapper => mapper.Map<Comment>(commentRequestDto)).Returns(comment);
-        }
-
-        public void SetupMap(Comment comment, CommentResponseDto commentResponseDto)
+        public void SetupMapCommentRequestDtoToComment()
         {
             _mapperMock
-                .Setup(mapper => mapper.Map<CommentResponseDto>(comment))
-                .Returns(commentResponseDto);
+                .Setup(mapper => mapper.Map<Comment>(It.IsAny<CommentRequestDto>()))
+                .Returns((CommentRequestDto source) => new Comment() { Content = source.Content, });
+        }
+
+        public void SetupMapCommentToCommentResponseDto()
+        {
+            _mapperMock
+                .Setup(mapper => mapper.Map<CommentResponseDto>(It.IsAny<Comment>()))
+                .Returns(
+                    (Comment source) =>
+                        new CommentResponseDto()
+                        {
+                            Id = source.Id,
+                            AuthorId = source.AuthorId,
+                            Content = source.Content,
+                            CreatedAt = source.CreatedAt,
+                            TasksId = source.TasksId
+                        }
+                );
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using Bogus;
 using FluentAssertions;
@@ -9,14 +10,16 @@ using Shared.Helpers;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos;
 using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
+using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
+using TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.DAL.Models;
 using TeamHub.Tests.Fakers;
 using TeamHub.Tests.Helpers;
 
-namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
+namespace TeamHub.Tests.HandlersTests.Comments.QueryHandlersTests
 {
-    public class CreateCommentCommandHandlerTests
+    public class GetAllTasksCommentsQueryHandlerTests
     {
         private readonly Mock<IHttpContextAccessor> _httpContextAccessorMock;
         private readonly Mock<IMapper> _mapperMock;
@@ -24,7 +27,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         private readonly Mock<IUserQueryService> _userQueryServiceMock;
         private readonly Mock<ITaskQueryService> _taskQueryServiceMock;
         private readonly Mock<ITeamMemberQueryService> _teamMemberQueryServiceMock;
-        private readonly Mock<ILogger<CreateCommentCommandHandler>> _loggerMock;
+        private readonly Mock<ILogger<GetAllTasksCommentsQueryHandler>> _loggerMock;
 
         private readonly TeamMemberQueryServiceHelper _teamMemberQueryServiceHelper;
         private readonly MapperHelper _mapperHelper;
@@ -37,16 +40,17 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         private readonly Faker<CommentRequestDto> _commentRequestDtoFaker;
         private readonly Faker<User> _userFaker;
         private readonly TaskModelFaker _taskFaker;
-        private readonly CreateCommentCommandHandler _handler;
+        private readonly CommentFaker _commentFaker;
+        private readonly GetAllTasksCommentsQueryHandler _handler;
 
-        public CreateCommentCommandHandlerTests()
+        public GetAllTasksCommentsQueryHandlerTests()
         {
             _mapperMock = new Mock<IMapper>();
             _commentRepositoryMock = new Mock<ICommentRepository>();
             _userQueryServiceMock = new Mock<IUserQueryService>();
             _taskQueryServiceMock = new Mock<ITaskQueryService>();
             _teamMemberQueryServiceMock = new Mock<ITeamMemberQueryService>();
-            _loggerMock = new Mock<ILogger<CreateCommentCommandHandler>>();
+            _loggerMock = new Mock<ILogger<GetAllTasksCommentsQueryHandler>>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
             _httpContextAccessorHelper = new HttpContextAccessorHelper(_httpContextAccessorMock);
@@ -58,10 +62,10 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
             _commentRepositoryHelper = new CommentRepositoryHelper(_commentRepositoryMock);
             _taskQueryServiceHelper = new TaskQueryServiceHelper(_taskQueryServiceMock);
 
-            _handler = new CreateCommentCommandHandler(
+            _handler = new GetAllTasksCommentsQueryHandler(
                 _httpContextAccessorMock.Object,
-                _mapperMock.Object,
                 _commentRepositoryMock.Object,
+                _mapperMock.Object,
                 _userQueryServiceMock.Object,
                 _taskQueryServiceMock.Object,
                 _teamMemberQueryServiceMock.Object,
@@ -74,6 +78,7 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
 
             _userFaker = new UserFaker();
             _taskFaker = new TaskModelFaker();
+            _commentFaker = new CommentFaker();
 
             _httpContextAccessorHelper.SetupHttpContextProperty(It.IsAny<int>());
         }
@@ -90,12 +95,10 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 user
             );
 
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            _mapperHelper.SetupMapCommentRequestDtoToComment();
-            var comment = _mapperMock.Object.Map<Comment>(commentRequestDto);
-
             var task = _taskFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var offset = 0;
+            var limit = 10;
+            var request = new GetAllTasksCommentsQuery(task.Id, offset, limit);
 
             _taskQueryServiceHelper.SetupGetExistingTaskAsync(task.Id, task);
 
@@ -106,22 +109,31 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 teamMember
             );
 
-            _commentRepositoryHelper.SetupAddAsync(comment);
-            _commentRepositoryHelper.SetupSaveAsync();
+            var comments = _commentFaker.Generate(10).ToList();
+
+            _commentRepositoryHelper.SetupGetAllAsync(offset, limit, comments);
 
             _mapperHelper.SetupMapCommentToCommentResponseDto();
-            var commentResponseDto = _mapperMock.Object.Map<CommentResponseDto>(comment);
+
+            var expectedResult = comments
+                .Select(_mapperMock.Object.Map<CommentResponseDto>)
+                .ToList();
 
             // Act
             var result = await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            result.Should().BeEquivalentTo(commentResponseDto);
+            result.Should().BeEquivalentTo(expectedResult);
             _commentRepositoryMock.Verify(
-                x => x.AddAsync(It.IsAny<Comment>(), CancellationToken.None),
+                x =>
+                    x.GetAllAsync(
+                        comment => comment.TasksId == request.TaskId,
+                        offset,
+                        limit,
+                        CancellationToken.None
+                    ),
                 Times.Once
             );
-            _commentRepositoryMock.Verify(x => x.SaveAsync(CancellationToken.None), Times.Once);
         }
 
         [Fact]
@@ -136,10 +148,11 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 new NotFoundException()
             );
 
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
             var task = _taskFaker.Generate();
-
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var offset = 0;
+            var limit = 10;
+            var comments = _commentFaker.Generate(10).ToList();
+            var request = new GetAllTasksCommentsQuery(task.Id, offset, limit);
 
             // Act
             var act = async () => await _handler.Handle(request, CancellationToken.None);
@@ -153,8 +166,10 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         {
             // Arrange
             var task = _taskFaker.Generate();
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
+            var offset = 0;
+            var limit = 10;
+            var comments = _commentFaker.Generate(10).ToList();
+            var request = new GetAllTasksCommentsQuery(task.Id, offset, limit);
 
             _taskQueryServiceHelper.SetupGetExistingTaskAsync(task.Id, new NotFoundException());
 
@@ -170,8 +185,6 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
         {
             // Arrange
             var task = _taskFaker.Generate();
-            var commentRequestDto = _commentRequestDtoFaker.Generate();
-            var request = new CreateCommentCommand(task.Id, commentRequestDto);
 
             _taskQueryServiceHelper.SetupGetExistingTaskAsync(task.Id, task);
 
@@ -180,6 +193,11 @@ namespace TeamHub.Tests.HandlersTests.Comments.CommandHandlersTests
                 task.ProjectId,
                 new NotFoundException()
             );
+
+            var offset = 0;
+            var limit = 10;
+            var comments = _commentFaker.Generate(10).ToList();
+            var request = new GetAllTasksCommentsQuery(task.Id, offset, limit);
 
             // Act
             var act = async () => await _handler.Handle(request, CancellationToken.None);

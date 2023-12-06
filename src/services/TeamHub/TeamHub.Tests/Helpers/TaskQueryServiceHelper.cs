@@ -13,25 +13,17 @@ namespace TeamHub.Tests.Helpers
             _taskQueryServiceMock = taskQueryServiceMock;
         }
 
-        public void SetupGetExistingTaskAsync(
-            int taskId,
-            CancellationToken cancellationToken,
-            TaskModel result
-        )
+        public void SetupGetExistingTaskAsync(int taskId, TaskModel result)
         {
             _taskQueryServiceMock
-                .Setup(x => x.GetExistingTaskAsync(taskId, cancellationToken))
+                .Setup(x => x.GetExistingTaskAsync(taskId, CancellationToken.None))
                 .ReturnsAsync(result);
         }
 
-        public void SetupGetExistingTaskAsync(
-            int taskId,
-            CancellationToken cancellationToken,
-            Exception exceptionToThrow
-        )
+        public void SetupGetExistingTaskAsync(int taskId, Exception exceptionToThrow)
         {
             _taskQueryServiceMock
-                .Setup(x => x.GetExistingTaskAsync(taskId, cancellationToken))
+                .Setup(x => x.GetExistingTaskAsync(taskId, CancellationToken.None))
                 .ThrowsAsync(exceptionToThrow);
         }
     }

@@ -13,25 +13,17 @@ namespace TeamHub.Tests.Helpers
             _commentQueryServiceMock = commentQueryServiceMock;
         }
 
-        public void SetupGetExistingCommentAsync(
-            int commentId,
-            CancellationToken cancellationToken,
-            Comment result
-        )
+        public void SetupGetExistingCommentAsync(int commentId, Comment result)
         {
             _commentQueryServiceMock
-                .Setup(x => x.GetExistingCommentAsync(commentId, cancellationToken))
+                .Setup(x => x.GetExistingCommentAsync(commentId, CancellationToken.None))
                 .ReturnsAsync(result);
         }
 
-        public void SetupGetExistingCommentAsync(
-            int commentId,
-            CancellationToken cancellationToken,
-            Exception exceptionToThrow
-        )
+        public void SetupGetExistingCommentAsync(int commentId, Exception exceptionToThrow)
         {
             _commentQueryServiceMock
-                .Setup(x => x.GetExistingCommentAsync(commentId, cancellationToken))
+                .Setup(x => x.GetExistingCommentAsync(commentId, CancellationToken.None))
                 .ThrowsAsync(exceptionToThrow);
         }
     }

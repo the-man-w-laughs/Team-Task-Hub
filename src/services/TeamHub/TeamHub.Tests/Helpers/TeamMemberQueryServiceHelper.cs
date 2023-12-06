@@ -15,27 +15,21 @@ namespace TeamHub.Tests.Helpers
             _teamMemberQueryServiceMock = teamMemberQueryServiceMock;
         }
 
-        public void SetupGetExistingTeamMemberAsync(
-            int userId,
-            int projectId,
-            CancellationToken cancellationToken,
-            TeamMember result
-        )
+        public void SetupGetExistingTeamMemberAsync(int userId, int projectId, TeamMember result)
         {
             _teamMemberQueryServiceMock
-                .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, cancellationToken))
+                .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, CancellationToken.None))
                 .ReturnsAsync(result);
         }
 
         public void SetupGetExistingTeamMemberAsync(
             int userId,
             int projectId,
-            CancellationToken cancellationToken,
             Exception exceptionToThrow
         )
         {
             _teamMemberQueryServiceMock
-                .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, cancellationToken))
+                .Setup(x => x.GetExistingTeamMemberAsync(userId, projectId, CancellationToken.None))
                 .Throws(exceptionToThrow);
         }
     }
