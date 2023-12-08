@@ -18,6 +18,8 @@
 # ridis data
 redis-data
 
+keys
+
 # passwords configuration
 **/passwords.json
 
