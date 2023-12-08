@@ -3,6 +3,7 @@ using FluentAssertions;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.ResultPattern.Results;
+using Identity.Tests.Fakers;
 using Identity.Tests.Helpers;
 using Identity.WebAPI.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -24,14 +25,9 @@ namespace Identity.Tests.ControllerTests
             _usersController = new UsersController(_userService.Object);
             _userServiceHelper = new UserServiceHelper(_userService);
 
-            _appUserRegisterDto = new Faker<AppUserRegisterDto>()
-                .RuleFor(u => u.Email, f => f.Internet.Email())
-                .RuleFor(u => u.Password, f => f.Internet.Password());
+            _appUserRegisterDto = new AppUserRegisterDtoFaker();
 
-            _appUserDto = new Faker<AppUserDto>()
-                .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
-                .RuleFor(u => u.Email, f => f.Internet.Email())
-                .RuleFor(u => u.IsOnline, f => f.Random.Bool());
+            _appUserDto = new AppUserDtoFaker();
         }
 
         [Fact]

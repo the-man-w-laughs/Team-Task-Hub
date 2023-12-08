@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AutoMapper;
 using Bogus;
 using FluentAssertions;
@@ -9,7 +8,6 @@ using Shared.Exceptions;
 using Shared.Helpers;
 using TeamHub.BLL.Contracts;
 using TeamHub.BLL.Dtos;
-using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.BLL.MediatR.CQRS.Projects.Queries;
 using TeamHub.DAL.Contracts.Repositories;
@@ -36,8 +34,6 @@ namespace TeamHub.Tests.HandlersTests.Comments.QueryHandlersTests
         private readonly TaskQueryServiceHelper _taskQueryServiceHelper;
         private readonly HttpContextAccessorHelper _httpContextAccessorHelper;
 
-        private readonly Faker _faker;
-        private readonly Faker<CommentRequestDto> _commentRequestDtoFaker;
         private readonly Faker<User> _userFaker;
         private readonly TaskModelFaker _taskFaker;
         private readonly CommentFaker _commentFaker;
@@ -71,10 +67,6 @@ namespace TeamHub.Tests.HandlersTests.Comments.QueryHandlersTests
                 _teamMemberQueryServiceMock.Object,
                 _loggerMock.Object
             );
-
-            _faker = new Faker();
-
-            _commentRequestDtoFaker = new CommentRequestDtoFaker();
 
             _userFaker = new UserFaker();
             _taskFaker = new TaskModelFaker();

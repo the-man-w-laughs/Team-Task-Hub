@@ -7,6 +7,7 @@ using Identity.Application.Ports.Utils;
 using Identity.Application.ResultPattern.Results;
 using Identity.Application.Services;
 using Identity.Domain.Entities;
+using Identity.Tests.Fakers;
 using Identity.Tests.Helpers;
 using MassTransit;
 using Microsoft.AspNetCore.Http;
@@ -61,9 +62,7 @@ public class UserServiceTests
         _mapperHelper = new MapperHelper(_mapperMock);
         _appUserRepositoryHelper = new AppUserRepositoryHelper(_appUserRepositoryMock);
 
-        _appUserFaker = new Faker<AppUser>()
-            .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
-            .RuleFor(u => u.Email, f => f.Internet.Email());
+        _appUserFaker = new AppUserFaker();
         _httpContextAccessorHelper.SetupHttpContextProperty(1);
     }
 

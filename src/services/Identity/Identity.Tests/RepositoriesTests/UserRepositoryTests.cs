@@ -2,6 +2,7 @@ using Bogus;
 using FluentAssertions;
 using Identity.Domain.Entities;
 using Identity.Infrastructure.Repositories;
+using Identity.Tests.Fakers;
 using Identity.Tests.Helpers;
 using Microsoft.AspNetCore.Identity;
 using Moq;
@@ -33,9 +34,7 @@ namespace Identity.Tests.RepositoriesTests
 
             _userManagerHelper = new UserManagerHelper(_userManagerMock);
             _appUserRepository = new AppUserRepository(_userManagerMock.Object);
-            _appUserFaker = new Faker<AppUser>()
-                .RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue))
-                .RuleFor(u => u.Email, f => f.Internet.Email());
+            _appUserFaker = new AppUserFaker();
             _faker = new Faker();
         }
 
