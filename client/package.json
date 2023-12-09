@@ -1,5 +1,5 @@
 {
-  "name": "team-task-hub-client",
+  "name": "angular-client",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",

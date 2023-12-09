@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "team-task-hub-client": {
+    "angular-client": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -16,7 +16,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/team-task-hub-client",
+            "outputPath": "dist/angular-client",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -60,10 +60,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "team-task-hub-client:build:production"
+              "buildTarget": "angular-client:build:production"
             },
             "development": {
-              "buildTarget": "team-task-hub-client:build:development"
+              "buildTarget": "angular-client:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -71,7 +71,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "team-task-hub-client:build"
+            "buildTarget": "angular-client:build"
           }
         },
         "test": {
