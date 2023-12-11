@@ -41,7 +41,7 @@ var app = builder.Build();
 
 app.InitializeDatabase<AuthDbContext>();
 
-app.UseCors();
+app.UseCors("AllowAngularClient");
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())

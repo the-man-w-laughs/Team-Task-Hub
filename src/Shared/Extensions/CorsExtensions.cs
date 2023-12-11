@@ -8,10 +8,17 @@ namespace Shared.Extensions
         {
             services.AddCors(options =>
             {
-                options.AddDefaultPolicy(builder =>
-                {
-                    builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                });
+                options.AddPolicy(
+                    "AllowAngularClient",
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:4200")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .WithHeaders("Content-Type");
+                    }
+                );
             });
         }
     }

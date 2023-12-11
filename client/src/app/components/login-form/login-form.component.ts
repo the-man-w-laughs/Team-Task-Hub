@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { HttpParams } from '@angular/common/http';
 
 @Component({
   selector: 'app-login-form',
@@ -28,23 +29,37 @@ export class LoginFormComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const formData = this.loginForm.value;
+      const apiUrl = 'http://localhost:5000/connect/token';
 
-      const apiUrl = 'https://example.com/login';
+      // Create a new instance of HttpParams
+      const body = new HttpParams()
+        .set('client_id', 'client')
+        .set('grant_type', 'password')
+        .set('username', this.loginForm.get('username')?.value)
+        .set('password', this.loginForm.get('password')?.value);
 
-      this.http.post(apiUrl, formData).subscribe({
-        next: (response) => {
-          console.log('Server response:', response);
-        },
-        error: (error) => {
-          console.error('Error:', error);
-        },
-        complete: () => {},
-      });
+      // Make the POST request with the appropriate content type and body
+      this.http
+        .post(apiUrl, body.toString(), {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        })
+        .subscribe({
+          next: (response) => {
+            console.log(response);
+          },
+          error: (error) => {
+            console.error(error);
+          },
+          complete: () => {
+            console.log('HTTP request completed.');
+          },
+        });
     } else {
+      // Handle the case when the form is not valid, e.g., show validation messages.
     }
   }
-
   togglePasswordVisibility(event: Event) {
     event.preventDefault();
     this.showPassword = !this.showPassword;
