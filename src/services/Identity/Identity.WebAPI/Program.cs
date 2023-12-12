@@ -41,7 +41,7 @@ var app = builder.Build();
 
 app.InitializeDatabase<AuthDbContext>();
 
-app.UseCustomCors();
+app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())

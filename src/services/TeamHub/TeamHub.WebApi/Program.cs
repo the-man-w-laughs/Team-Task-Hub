@@ -43,7 +43,7 @@ builder.Services.AddCustomControllers();
 var app = builder.Build();
 
 app.InitializeDatabase<TeamHubDbContext>();
-app.UseCustomCors();
+app.UseCors();
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseRouting();

@@ -31,7 +31,7 @@ builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 
-app.UseCustomCors();
+app.UseCors();
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())

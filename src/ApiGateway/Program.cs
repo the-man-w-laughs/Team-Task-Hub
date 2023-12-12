@@ -23,7 +23,7 @@ builder.Services.ConfigureCors(config);
 
 var app = builder.Build();
 
-app.UseCustomCors();
+app.UseCors();
 app.UseRouting();
 
 if (!app.Environment.IsProduction())

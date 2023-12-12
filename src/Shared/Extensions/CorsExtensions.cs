@@ -15,21 +15,13 @@ namespace Shared.Extensions
             var apiGateway = config["AllowedOrigins:ApiGateway"];
             services.AddCors(options =>
             {
-                options.AddPolicy(
-                    "AllowAngularClient",
-                    builder =>
-                    {
-                        builder.WithOrigins(angularClientOrigin).AllowAnyHeader().AllowAnyMethod();
-                    }
-                );
-
-                options.AddPolicy(
-                    "AllowApiGateway",
-                    builder =>
-                    {
-                        builder.WithOrigins(apiGateway).AllowAnyHeader().AllowAnyMethod();
-                    }
-                );
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder
+                        .WithOrigins(angularClientOrigin, apiGateway)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
             });
         }
 
