@@ -17,7 +17,7 @@ var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger(config, assemblyName);
 builder.Services.AddControllers();
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(config);
 builder.Services.RegisterValidators();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.ConfigureAuthentication(config);
@@ -43,7 +43,7 @@ builder.Services.AddCustomControllers();
 var app = builder.Build();
 
 app.InitializeDatabase<TeamHubDbContext>();
-app.UseCors();
+app.UseCustomCors();
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseRouting();

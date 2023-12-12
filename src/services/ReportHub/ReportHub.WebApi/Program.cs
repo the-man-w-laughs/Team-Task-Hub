@@ -13,7 +13,7 @@ var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.ConfigureSwagger(config, assemblyName);
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(config);
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.ConfigureAuthentication(config);
 builder.Services.ConfigureAuthorization();
@@ -31,7 +31,7 @@ builder.Services.AddCustomControllers();
 
 var app = builder.Build();
 
-app.UseCors();
+app.UseCustomCors();
 app.UseMiddleware<ExceptionMiddleware>();
 
 if (!app.Environment.IsProduction())
