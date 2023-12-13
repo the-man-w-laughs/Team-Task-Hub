@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
 })
-export class AppComponent {
+export class CommentSectionComponent {
   title = 'angular-client';
   author: string = '';
   content: string = '';

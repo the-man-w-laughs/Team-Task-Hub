@@ -21,15 +21,7 @@
     width: 100%;
 }
 
-.password-input {
-    margin-top: 10px;
-}
-
-.toggle-password-btn {
-    margin-top: 10px;
-}
-
-.button-submit {
+.button-connect {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 20px;        
 }
