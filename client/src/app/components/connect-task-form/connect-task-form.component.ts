@@ -5,11 +5,12 @@ import {
   Validators,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-connect-task-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './connect-task-form.component.html',
   styleUrl: './connect-task-form.component.css',
 })
