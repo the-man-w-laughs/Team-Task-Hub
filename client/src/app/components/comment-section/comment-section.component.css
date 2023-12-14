@@ -11,19 +11,21 @@
     padding: 15px;
     border-radius: 8px;
     background-color: white;
-    width: 80%;
-    max-width: 500px;
+    width: 40%;
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
 }
 
 .list-group {
-    width: 80%;
-    max-width: 500px;
+    width: 40%;
     overflow-y: auto;
 }
 
 .list-group-item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
     background-color: #f0f0f0;
     padding: 10px;
     border-radius: 8px;
@@ -35,7 +37,9 @@
 }
 
 .no-comments {
-    margin: 20px 0;
+    text-align: center;
+    margin-top: 20px;
+    /* Adjust as needed */
     color: #666;
 }
 
@@ -46,13 +50,10 @@
 }
 
 .comment-content {
-    position: relative;
-    display: flex;
-    flex-direction: column;
+    flex: 1;
 }
 
 .comment-date {
-    position: absolute;
     bottom: 0;
     right: 0;
     color: #666;
@@ -67,4 +68,19 @@
 
 .comment-text {
     word-wrap: break-word;
+
+}
+
+.comment-text {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.button-margin {
+    margin-right: 8px;    
 }
