@@ -29,7 +29,7 @@ export class LoginFormComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      const apiUrl = 'http://localhost:5000/connect/token';
+      const apiUrl = 'http://localhost:5283/connect/token';
 
       // Create a new instance of HttpParams
       const body = new HttpParams()
