@@ -1,105 +1,89 @@
 {
-    "Routes": [
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
         {
-            "DownstreamPathTemplate": "/api/{everything}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5000
-                }
-            ],
-            "UpstreamPathTemplate": "/api/identity/{everything}",
-            "UpstreamHttpMethod": [
-                "Post",
-                "Get",
-                "Delete"
-            ],
-            "SwaggerKey": "identity"
-        },
-        {
-            "DownstreamPathTemplate": "/api/{everything}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5007
-                }
-            ],
-            "UpstreamPathTemplate": "/api/reporthub/{everything}",
-            "UpstreamHttpMethod": [
-                "Post",
-                "Get",
-                "Delete",
-                "Put"
-            ],
-            "SwaggerKey": "reporthub"
-        },
-        {
-            "DownstreamPathTemplate": "/api/{everything}",
-            "DownstreamScheme": "http",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5052
-                }
-            ],
-            "UpstreamPathTemplate": "/api/teamhub/{everything}",
-            "UpstreamHttpMethod": [
-                "Post",
-                "Get",
-                "Delete",
-                "Put"
-            ],
-            "Priority": 0,
-            "SwaggerKey": "teamhub"
-        },
-        {
-            "DownstreamPathTemplate": "/commentshub/",
-            "DownstreamScheme": "ws",
-            "DownstreamHostAndPorts": [
-                {
-                    "Host": "localhost",
-                    "Port": 5052
-                }
-            ],
-            "UpstreamPathTemplate": "/commentshub/",
-            "UpstreamHttpMethod": [
-                "GET"
-            ],
-            "Priority": 1
+          "Host": "localhost",
+          "Port": 5000
         }
-    ],
-    "SwaggerEndPoints": [
+      ],
+      "UpstreamPathTemplate": "/api/identity/{everything}",
+      "UpstreamHttpMethod": ["Post", "Get", "Delete"],
+      "SwaggerKey": "identity"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
         {
-            "Key": "identity",
-            "Config": [
-                {
-                    "Name": "Identity API",
-                    "Version": "v1",
-                    "Url": "http://localhost:5000/swagger/v1/swagger.json"
-                }
-            ]
-        },
-        {
-            "Key": "teamhub",
-            "Config": [
-                {
-                    "Name": "Teamhub API",
-                    "Version": "v1",
-                    "Url": "http://localhost:5052/swagger/v1/swagger.json"
-                }
-            ]
-        },
-        {
-            "Key": "reporthub",
-            "Config": [
-                {
-                    "Name": "Reporthub API",
-                    "Version": "v1",
-                    "Url": "http://localhost:5007/swagger/v1/swagger.json"
-                }
-            ]
+          "Host": "localhost",
+          "Port": 5007
         }
-    ]
+      ],
+      "UpstreamPathTemplate": "/api/reporthub/{everything}",
+      "UpstreamHttpMethod": ["Post", "Get", "Delete", "Put"],
+      "SwaggerKey": "reporthub"
+    },
+    {
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5052
+        }
+      ],
+      "UpstreamPathTemplate": "/api/teamhub/{everything}",
+      "UpstreamHttpMethod": ["Post", "Get", "Delete", "Put"],
+      "Priority": 0,
+      "SwaggerKey": "teamhub"
+    },
+    {
+      "DownstreamPathTemplate": "/commentshub/",
+      "DownstreamScheme": "ws",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5052
+        }
+      ],
+      "UpstreamPathTemplate": "/commentshub/",
+      "UpstreamHttpMethod": ["GET"],
+      "Priority": 1
+    }
+  ],
+  "SwaggerEndPoints": [
+    {
+      "Key": "identity",
+      "Config": [
+        {
+          "Name": "Identity API",
+          "Version": "v1",
+          "Url": "http://localhost:5000/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "teamhub",
+      "Config": [
+        {
+          "Name": "Teamhub API",
+          "Version": "v1",
+          "Url": "http://localhost:5052/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "reporthub",
+      "Config": [
+        {
+          "Name": "Reporthub API",
+          "Version": "v1",
+          "Url": "http://localhost:5007/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ]
 }

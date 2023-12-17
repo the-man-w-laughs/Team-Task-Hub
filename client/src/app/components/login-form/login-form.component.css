@@ -25,11 +25,15 @@
     margin-top: 10px;
 }
 
-.toggle-password-btn {
-    margin-top: 10px;
-}
-
 .button-submit {
     width: 100%;
     margin-top: 20px;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+.error-message {
+    margin-top: 10px;
 }

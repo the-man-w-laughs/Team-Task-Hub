@@ -54,7 +54,7 @@
       "SwaggerKey": "teamhub"
     },
     {
-      "DownstreamPathTemplate": "/commentshub/",
+      "DownstreamPathTemplate": "/commentshub",
       "DownstreamScheme": "ws",
       "DownstreamHostAndPorts": [
         {
@@ -62,8 +62,8 @@
           "Port": 5052
         }
       ],
-      "UpstreamPathTemplate": "/commentshub/",
-      "UpstreamHttpMethod": ["GET"],
+      "UpstreamPathTemplate": "/commentshub",
+      "UpstreamHttpMethod": ["GET", "POST", "Delete", "Put"],
       "Priority": 1
     }
   ],

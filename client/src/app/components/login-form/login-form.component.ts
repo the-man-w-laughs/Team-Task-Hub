@@ -6,8 +6,9 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth-service/auth.service';
 
 @Component({
   selector: 'app-login-form',
@@ -20,7 +21,14 @@ export class LoginFormComponent {
   loginForm: FormGroup;
   showPassword: boolean = false;
 
-  constructor(private formBuilder: FormBuilder, private http: HttpClient) {
+  loginError: string | undefined;
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private http: HttpClient,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.loginForm = this.formBuilder.group({
       username: ['', Validators.required],
       password: ['', Validators.required],
@@ -31,14 +39,12 @@ export class LoginFormComponent {
     if (this.loginForm.valid) {
       const apiUrl = 'http://localhost:5283/connect/token';
 
-      // Create a new instance of HttpParams
       const body = new HttpParams()
         .set('client_id', 'client')
         .set('grant_type', 'password')
         .set('username', this.loginForm.get('username')?.value)
         .set('password', this.loginForm.get('password')?.value);
 
-      // Make the POST request with the appropriate content type and body
       this.http
         .post(apiUrl, body.toString(), {
           headers: {
@@ -48,18 +54,25 @@ export class LoginFormComponent {
         .subscribe({
           next: (response) => {
             console.log(response);
+
+            const token = (response as any)?.access_token;
+
+            this.authService.setAccessToken(token);
+
+            this.router.navigate(['/task-connection']);
           },
           error: (error) => {
             console.error(error);
+            this.loginError = 'Login failed. Please check your credentials.';
           },
           complete: () => {
             console.log('HTTP request completed.');
           },
         });
     } else {
-      // Handle the case when the form is not valid, e.g., show validation messages.
     }
   }
+
   togglePasswordVisibility(event: Event) {
     event.preventDefault();
     this.showPassword = !this.showPassword;

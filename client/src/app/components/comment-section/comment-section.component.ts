@@ -2,13 +2,16 @@ import { Component } from '@angular/core';
 import { Comment } from '../../../shared/models/comment';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CommentsService } from '../../../services/comment-service/comment.service';
+import { ActivatedRoute } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
   templateUrl: './comment-section.component.html',
   styleUrls: ['./comment-section.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
 })
 export class CommentSectionComponent {
   title = 'angular-client';
@@ -16,15 +19,26 @@ export class CommentSectionComponent {
   content: string = '';
   comments: Comment[] = [];
   editingCommentIndex: number | null = null;
+  taskId: string = '';
 
-  constructor() {
-    for (let i = 0; i < 10; i++) {
-      const uniqueAuthor = `User${i + 1}`;
-      const uniqueContent = `This is comment ${i + 1}.`;
-      this.author = uniqueAuthor;
-      this.content = uniqueContent;
-      this.addComment();
-    }
+  constructor(
+    private commentService: CommentsService,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.route.params.subscribe((params) => {
+      this.taskId = params['taskId'];
+      this.loadComments();
+    });
+  }
+
+  loadComments() {
+    this.commentService
+      .getComments(this.taskId, 0, 100)
+      .subscribe((comments) => {
+        console.log(comments);
+      });
   }
 
   updateComment() {

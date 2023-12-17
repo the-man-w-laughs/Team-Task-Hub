@@ -13,21 +13,20 @@ namespace Shared.Extensions
         {
             var angularClientOrigin = config["AllowedOrigins:AngularClientOrigin"];
             var apiGateway = config["AllowedOrigins:ApiGateway"];
+            var reportHub = config["AllowedOrigins:ReportHub"];
+            var teamHub = config["AllowedOrigins:TeamHub"];
+            var identity = config["AllowedOrigins:Identity"];
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
                 {
                     builder
-                        .WithOrigins(angularClientOrigin, apiGateway)
+                        .WithOrigins(angularClientOrigin, apiGateway, reportHub, teamHub, identity)
                         .AllowAnyHeader()
-                        .AllowAnyMethod();
+                        .AllowAnyMethod()
+                        .AllowCredentials();
                 });
             });
-        }
-
-        public static IApplicationBuilder UseCustomCors(this IApplicationBuilder app)
-        {
-            return app.UseCors("AllowAngularClient").UseCors("AllowApiGateway");
         }
     }
 }
