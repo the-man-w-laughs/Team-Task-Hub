@@ -3,6 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth-service/auth.service';
+import { map } from 'rxjs/operators';
+import { CommentDto } from '../../shared/models/CommentResponseDto';
+import { createCommentDto } from '../../mappers/createCommentDto';
 
 @Injectable({
   providedIn: 'root',
@@ -15,7 +18,11 @@ export class CommentsService {
     private authService: AuthService
   ) {}
 
-  getComments(taskId: string, offset: number, limit: number): Observable<any> {
+  getComments(
+    taskId: string,
+    offset: number,
+    limit: number
+  ): Observable<CommentDto[]> {
     const url = `${this.apiUrl}/${taskId}/comments`;
 
     const token = this.authService.getAccessToken();
@@ -27,6 +34,12 @@ export class CommentsService {
       limit: limit.toString(),
     };
 
-    return this.httpClient.get(url, { headers, params });
+    return this.httpClient
+      .get<any[]>(url, { headers, params })
+      .pipe(
+        map((rawComments) =>
+          rawComments.map((comment) => createCommentDto(comment))
+        )
+      );
   }
 }

@@ -12,12 +12,14 @@
     border-radius: 8px;
     background-color: white;
     width: 40%;
+    min-width: 400px;
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
 }
 
 .list-group {
+    min-width: 400px;
     width: 40%;
     overflow-y: auto;
 }
@@ -38,8 +40,7 @@
 
 .no-comments {
     text-align: center;
-    margin-top: 20px;
-    /* Adjust as needed */
+    margin-top: 20px;    
     color: #666;
 }
 

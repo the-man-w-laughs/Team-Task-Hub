@@ -26,14 +26,10 @@
     </ng-template>
 
     <!-- Comment Form with Border -->
-    <form class="mt-4 comment-form">
+    <form class="mt-4 comment-form" [formGroup]="commentForm">
         <div class="mb-3">
-            <input name="author-input" type="text" class="form-control" id="author" placeholder="Author:"
-                [(ngModel)]="author" />
-        </div>
-        <div class="mb-3">
-            <textarea name="content-input" class="form-control" id="content" placeholder="Comment:"
-                [(ngModel)]="content"></textarea>
+            <textarea [(ngModel)]="content" formControlName="content" class="form-control" id="content"
+                placeholder="Comment:"></textarea>
         </div>
         <div>
             <!-- Apply the new class to the "Cancel" button -->
@@ -41,11 +37,10 @@
                 (click)="cancelEditing()">Cancel</button>
 
             <button type="button" class="btn btn-primary" *ngIf="editingCommentIndex !== null"
-                (click)="updateComment()">Save</button>
-
+                [disabled]="commentForm.invalid" (click)="updateComment()">Save</button>
 
             <button type="submit" class="btn btn-primary" *ngIf="editingCommentIndex === null"
-                (click)="addComment()">Send</button>
+                [disabled]="commentForm.invalid" (click)="addComment()">Send</button>
         </div>
     </form>
 </div>

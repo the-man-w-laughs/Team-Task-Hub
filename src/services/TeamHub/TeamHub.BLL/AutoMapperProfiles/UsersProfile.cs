@@ -18,7 +18,6 @@ namespace TeamHub.BLL.AutoMapperProfiles
             CreateMap<User, UserResponseDto>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(user => user.Id))
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(user => user.Email))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(user => user.CreatedAt))
                 .ForMember(dest => dest.IsOnline, opt => opt.MapFrom<UserOnlineResolver>());
 
             CreateMap<User, UserDataContract>()

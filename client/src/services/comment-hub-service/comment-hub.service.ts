@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../auth-service/auth.service';
+import { CommentRequestDto } from '../../shared/models/CommentRequestDto';
+import { Observable, from } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -44,16 +46,20 @@ export class CommentsHubService {
   public onCommentDeleted(callback: (comment: any) => void) {
     this.hubConnection.on('DeleteCommentAsync', callback);
   }
-
-  public sendComment(comment: any) {
-    this.hubConnection.invoke('SendComment', comment);
+  public sendComment(comment: CommentRequestDto): Observable<void> {
+    return from(this.hubConnection.invoke('SendComment', comment));
   }
 
-  public updateComment(commentId: number, updatedComment: any) {
-    this.hubConnection.invoke('UpdateComment', commentId, updatedComment);
+  public updateComment(
+    commentId: string,
+    updatedComment: any
+  ): Observable<void> {
+    return from(
+      this.hubConnection.invoke('UpdateComment', commentId, updatedComment)
+    );
   }
 
-  public deleteComment(commentId: number) {
-    this.hubConnection.invoke('DeleteComment', commentId);
+  public deleteComment(commentId: string): Observable<void> {
+    return from(this.hubConnection.invoke('DeleteComment', commentId));
   }
 }
