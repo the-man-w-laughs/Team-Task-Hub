@@ -6,6 +6,7 @@ import { NotFoundComponent } from './components/not-found-component/not-found.co
 import { TaskConnectionFormComponent } from './components/task-connection-form/task-connection-form.component';
 
 export const routes: Routes = [
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginFormComponent },
   { path: 'task/:taskId/comments', component: CommentSectionComponent },
   { path: 'task-connection', component: TaskConnectionFormComponent },
