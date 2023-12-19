@@ -1,0 +1,46 @@
+<div class="container comment-container">
+    <h2 class="mb-4">Comments</h2>
+    <!-- Comments Display -->
+    <div class="list-group" *ngIf="comments.length > 0; else noComments">
+        <li class="list-group-item" *ngFor="let comment of comments; let i = index">
+            <div class="comment-content">
+                <div class="comment-text">
+                    <strong>{{comment.author}}</strong>: {{ comment.content }}
+                </div>
+                <div class="comment-details">
+                    <small class="comment-date">{{ comment.date | date: 'medium' }}</small>
+                </div>
+            </div>
+            <div class="comment-actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="startEditing(i)">Edit</button>
+                <button class="btn btn-sm btn-outline-danger" (click)="deleteComment(i)">Delete</button>
+            </div>
+        </li>
+    </div>
+
+
+    <ng-template #noComments>
+        <div class="no-comments">
+            <p class="mt-3">No comments available.</p>
+        </div>
+    </ng-template>
+
+    <!-- Comment Form with Border -->
+    <form class="mt-4 comment-form" [formGroup]="commentForm">
+        <div class="mb-3">
+            <textarea [(ngModel)]="content" formControlName="content" class="form-control" id="content"
+                placeholder="Comment:"></textarea>
+        </div>
+        <div>
+            <!-- Apply the new class to the "Cancel" button -->
+            <button type="button" class="btn btn-secondary button-margin" *ngIf="editingCommentIndex !== null"
+                (click)="cancelEditing()">Cancel</button>
+
+            <button type="button" class="btn btn-primary" *ngIf="editingCommentIndex !== null"
+                [disabled]="commentForm.invalid" (click)="updateComment()">Save</button>
+
+            <button type="submit" class="btn btn-primary" *ngIf="editingCommentIndex === null"
+                [disabled]="commentForm.invalid" (click)="addComment()">Send</button>
+        </div>
+    </form>
+</div>

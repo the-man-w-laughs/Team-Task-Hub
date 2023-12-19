@@ -8,6 +8,7 @@ using TeamHub.BLL.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Commands;
 using MediatR;
 using TeamHub.BLL.MediatR.CQRS.Tasks.Queries;
+using Microsoft.AspNetCore.Http;
 
 namespace TeamHub.BLL.SignalR
 {
@@ -16,17 +17,23 @@ namespace TeamHub.BLL.SignalR
     {
         private readonly IConfiguration _configuration;
         private readonly IMediator _mediator;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CommentsHub(IConfiguration configuration, IMediator mediator)
+        public CommentsHub(
+            IConfiguration configuration,
+            IMediator mediator,
+            IHttpContextAccessor httpContextAccessor
+        )
         {
             _mediator = mediator;
+            _httpContextAccessor = httpContextAccessor;
             _configuration = configuration;
         }
 
         public override async Task OnConnectedAsync()
         {
+            _httpContextAccessor.HttpContext = Context.GetHttpContext();
             var userId = Context.User!.GetUserId();
-
             var taskId = ExtractTaskId();
             var groupId = GetGroupName(taskId);
             var connectionId = Context.ConnectionId;
@@ -48,6 +55,7 @@ namespace TeamHub.BLL.SignalR
 
         public async Task SendComment(CommentRequestDto commentRequestDto)
         {
+            _httpContextAccessor.HttpContext = Context.GetHttpContext();
             var taskId = Context.Items.GetTaskId();
             var command = new CreateCommentCommand(taskId, commentRequestDto);
             var result = await _mediator.Send(command, Context.ConnectionAborted);
@@ -58,6 +66,7 @@ namespace TeamHub.BLL.SignalR
 
         public async Task UpdateComment(int commentId, CommentRequestDto commentRequestDto)
         {
+            _httpContextAccessor.HttpContext = Context.GetHttpContext();
             var taskId = Context.Items.GetTaskId();
             var command = new UpdateCommentCommand(commentId, commentRequestDto);
             var result = await _mediator.Send(command, Context.ConnectionAborted);
@@ -68,6 +77,7 @@ namespace TeamHub.BLL.SignalR
 
         public async Task DeleteComment(int commentId)
         {
+            _httpContextAccessor.HttpContext = Context.GetHttpContext();
             var command = new DeleteCommentCommand(commentId);
             var result = await _mediator.Send(command, Context.ConnectionAborted);
 

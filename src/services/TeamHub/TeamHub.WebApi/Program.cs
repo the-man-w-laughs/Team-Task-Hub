@@ -17,7 +17,7 @@ var assemblyName = Assembly.GetExecutingAssembly().GetName().Name!;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger(config, assemblyName);
 builder.Services.AddControllers();
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(config);
 builder.Services.RegisterValidators();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.ConfigureAuthentication(config);

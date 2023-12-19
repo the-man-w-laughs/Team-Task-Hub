@@ -26,7 +26,7 @@ builder.Services.RegisterUtilsDependencies();
 builder.Services.RegisterAutomapperProfiles();
 builder.Services.RegisterServices();
 builder.Services.AddControllers();
-builder.Services.ConfigureCors();
+builder.Services.ConfigureCors(config);
 builder.Services.ConfigureMassTransit(config);
 builder.Services.AddUserRequestRepository(config);
 builder.Services.AddConfigurationSection<EmailCredentials>(config);

@@ -1,0 +1,87 @@
+.comment-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    justify-content: flex-end;
+}
+
+.comment-form {
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: white;
+    width: 40%;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.list-group {
+    min-width: 400px;
+    width: 40%;
+    overflow-y: auto;
+}
+
+.list-group-item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.list-group-item:last-child {
+    margin-bottom: 0;
+}
+
+.no-comments {
+    text-align: center;
+    margin-top: 20px;    
+    color: #666;
+}
+
+.comment-form textarea {
+    resize: none;
+    overflow-y: hidden;
+    height: auto;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-date {
+    bottom: 0;
+    right: 0;
+    color: #666;
+    font-size: 12px;
+}
+
+.comment-details {
+    margin-top: 15px;
+    color: #666;
+    font-size: 12px;
+}
+
+.comment-text {
+    word-wrap: break-word;
+
+}
+
+.comment-text {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.button-margin {
+    margin-right: 8px;    
+}

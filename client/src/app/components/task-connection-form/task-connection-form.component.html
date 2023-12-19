@@ -1,0 +1,38 @@
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="form-header">
+                <h2>Connect to Task</h2>
+            </div>
+
+            <form [formGroup]="connectForm" (ngSubmit)="connect()" class="mt-4">
+                <div class="form-group form-group-center">
+                    <label for="taskId">Task ID:</label>
+                    <input type="text" id="taskId" formControlName="taskId" class="form-control input-field" />
+                    <div *ngIf="connectForm.get('taskId')?.hasError('required') && connectForm.get('taskId')?.touched"
+                        class="text-danger">
+                        Task ID is required.
+                    </div>
+                </div>
+
+                <div class="form-group form-group-center">
+                    <button type="submit" [disabled]="connectForm.invalid"
+                        class="btn btn-success button-connect">Connect</button>
+                </div>
+
+                <div class="form-group form-group-center d-flex justify-content-center">
+                    <div *ngIf="connectionStatus === 'success'" class="text-success text-center">
+                        Connected successfully! Redirecting...
+                    </div>
+                    <div *ngIf="connectionStatus === 'error'" class="text-danger text-center">
+                        Connection failed. Please check your Task ID and try again.
+                    </div>
+                    <div *ngIf="connectionStatus === 'connecting'" class="text-info text-center">
+                        Connecting...
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

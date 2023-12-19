@@ -68,7 +68,9 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
         }
 
         // update comment
+        var createdAt = comment.CreatedAt;
         _mapper.Map(request.CommentRequestDto, comment);
+        comment.CreatedAt = createdAt;
         _commentRepository.Update(comment);
         await _commentRepository.SaveAsync(cancellationToken);
 

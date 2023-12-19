@@ -1,3 +1,4 @@
+using System.Reflection;
 using ApiGateway.Extensions;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -18,9 +19,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.ConfigureLogging(builder, assemblyName);
 builder.Services.AddRoutingOptions();
 builder.Services.AddCustomControllers();
+builder.Services.ConfigureCors(config);
 
 var app = builder.Build();
 
+app.UseCors();
 app.UseRouting();
 
 if (!app.Environment.IsProduction())
