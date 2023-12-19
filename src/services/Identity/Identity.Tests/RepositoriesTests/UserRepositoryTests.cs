@@ -5,6 +5,8 @@ using Identity.Infrastructure.Repositories;
 using Identity.Tests.Fakers;
 using Identity.Tests.Helpers;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Identity.Tests.RepositoriesTests
@@ -19,17 +21,26 @@ namespace Identity.Tests.RepositoriesTests
 
         public UserRepositoryTests()
         {
-            var store = new Mock<IUserStore<AppUser>>();
+            var storeMock = new Mock<IUserStore<AppUser>>();
+            var optionsAccessorMock = new Mock<IOptions<IdentityOptions>>();
+            var passwordHasherMock = new Mock<IPasswordHasher<AppUser>>();
+            var userValidatorMocks = new List<Mock<IUserValidator<AppUser>>>();
+            var passwordValidatorMocks = new List<Mock<IPasswordValidator<AppUser>>>();
+            var keyNormalizerMock = new Mock<ILookupNormalizer>();
+            var errorsMock = new Mock<IdentityErrorDescriber>();
+            var servicesMock = new Mock<IServiceProvider>();
+            var loggerMock = new Mock<ILogger<UserManager<AppUser>>>();
+
             _userManagerMock = new Mock<UserManager<AppUser>>(
-                store.Object,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                storeMock.Object,
+                optionsAccessorMock.Object,
+                passwordHasherMock.Object,
+                userValidatorMocks.Select(mock => mock.Object),
+                passwordValidatorMocks.Select(mock => mock.Object),
+                keyNormalizerMock.Object,
+                errorsMock.Object,
+                servicesMock.Object,
+                loggerMock.Object
             );
 
             _userManagerHelper = new UserManagerHelper(_userManagerMock);
@@ -201,7 +212,7 @@ namespace Identity.Tests.RepositoriesTests
         public async void IsInRoleAsync_UserHasTargetRole_ReturnTrue()
         {
             // Arrange
-            var targetRole = "admin";
+            var targetRole = RoleNames.AdminRoleName;
             var user = _appUserFaker.Generate();
             var roles = new Dictionary<AppUser, string>() { { user, targetRole } };
             _userManagerHelper.SetupIsInRoleAsync(roles);
@@ -218,8 +229,8 @@ namespace Identity.Tests.RepositoriesTests
         public async void IsInRoleAsync_UserDoesntHaveTargetRole_ReturnFalse()
         {
             // Arrange
-            var currentRole = "user";
-            var targetRole = "admin";
+            var currentRole = RoleNames.UserRoleName;
+            var targetRole = RoleNames.AdminRoleName;
             var user = _appUserFaker.Generate();
             var roles = new Dictionary<AppUser, string>() { { user, currentRole } };
             _userManagerHelper.SetupIsInRoleAsync(roles);

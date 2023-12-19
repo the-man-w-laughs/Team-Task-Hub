@@ -8,14 +8,14 @@ namespace TeamHub.Tests.Fakers
     {
         public TaskModelFaker()
         {
-            RuleFor(t => t.Id, f => f.IndexFaker);
-            RuleFor(t => t.AuthorTeamMemberId, f => f.Random.Number());
-            RuleFor(t => t.ProjectId, f => f.Random.Number());
-            RuleFor(t => t.PriorityId, f => f.PickRandom<TaskPriorityEnum>());
-            RuleFor(t => t.Content, f => f.Lorem.Sentence());
-            RuleFor(t => t.Deadline, f => f.Date.Future());
-            RuleFor(t => t.IsCompleted, f => f.Random.SByte(0, 1));
-            RuleFor(t => t.CreatedAt, f => f.Date.Past());
+            RuleFor(task => task.Id, faker => faker.IndexFaker);
+            RuleFor(task => task.AuthorTeamMemberId, faker => faker.Random.Number());
+            RuleFor(task => task.ProjectId, faker => faker.Random.Number());
+            RuleFor(task => task.PriorityId, faker => faker.PickRandom<TaskPriorityEnum>());
+            RuleFor(task => task.Content, faker => faker.Lorem.Sentence());
+            RuleFor(task => task.Deadline, faker => faker.Date.Future());
+            RuleFor(task => task.IsCompleted, faker => faker.Random.SByte(0, 1));
+            RuleFor(task => task.CreatedAt, faker => faker.Date.Past());
         }
     }
 }

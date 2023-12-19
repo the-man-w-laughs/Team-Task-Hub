@@ -7,8 +7,8 @@ namespace Identity.Tests.Fakers
     {
         public AppUserFaker()
         {
-            RuleFor(u => u.Id, f => f.Random.Number(max: int.MaxValue));
-            RuleFor(u => u.Email, f => f.Internet.Email());
+            RuleFor(appUser => appUser.Id, faker => faker.Random.Number(max: int.MaxValue));
+            RuleFor(appUser => appUser.Email, faker => faker.Internet.Email());
         }
     }
 }

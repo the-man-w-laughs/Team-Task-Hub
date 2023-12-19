@@ -6,6 +6,7 @@ using Identity.Tests.Helpers;
 using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using Shared.Exceptions;
 using Shared.SharedModels;
@@ -25,17 +26,28 @@ public class EmailConfirmationServiceTests
     public EmailConfirmationServiceTests()
     {
         _mapperMock = new Mock<IMapper>();
+        var storeMock = new Mock<IUserStore<AppUser>>();
+        var optionsAccessorMock = new Mock<IOptions<IdentityOptions>>();
+        var passwordHasherMock = new Mock<IPasswordHasher<AppUser>>();
+        var userValidatorMocks = new List<Mock<IUserValidator<AppUser>>>();
+        var passwordValidatorMocks = new List<Mock<IPasswordValidator<AppUser>>>();
+        var keyNormalizerMock = new Mock<ILookupNormalizer>();
+        var errorsMock = new Mock<IdentityErrorDescriber>();
+        var servicesMock = new Mock<IServiceProvider>();
+        var loggerMock = new Mock<ILogger<UserManager<AppUser>>>();
+
         _userManagerMock = new Mock<UserManager<AppUser>>(
-            Mock.Of<IUserStore<AppUser>>(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null
+            storeMock.Object,
+            optionsAccessorMock.Object,
+            passwordHasherMock.Object,
+            userValidatorMocks.Select(mock => mock.Object),
+            passwordValidatorMocks.Select(mock => mock.Object),
+            keyNormalizerMock.Object,
+            errorsMock.Object,
+            servicesMock.Object,
+            loggerMock.Object
         );
+
         _userManagerHelper = new UserManagerHelper(_userManagerMock);
         _publishEndpointMock = new Mock<IPublishEndpoint>();
         _loggerMock = new Mock<ILogger<EmailConfirmationService>>();
@@ -50,12 +62,15 @@ public class EmailConfirmationServiceTests
         _faker = new Faker();
     }
 
-    [Fact]
-    public async Task ConfirmEmailAsync_MissingEmail_ShouldThrowWrongActionException()
+    [Theory]
+    [InlineData("", "test@example.com")]
+    [InlineData("validToken", "")]
+    [InlineData("validToken", null)]
+    public async Task ConfirmEmailAsync_InvalidInput_ShouldThrowWrongActionException(
+        string token,
+        string email
+    )
     {
-        // Arrange
-        var email = "";
-        var token = "valid_token";
         // Act
         async Task Act() => await _emailConfirmationService.ConfirmEmailAsync(token, email);
 
@@ -63,25 +78,14 @@ public class EmailConfirmationServiceTests
         await Assert.ThrowsAsync<WrongActionException>(Act);
     }
 
-    [Fact]
-    public async Task ConfirmEmailAsync_MissingToken_ShouldThrowWrongActionException()
+    [Theory]
+    [InlineData("valid_token", "test@example.com")]
+    public async Task ConfirmEmailAsync_UserNotFound_ShouldThrowNotFoundException(
+        string token,
+        string email
+    )
     {
         // Arrange
-        var email = _faker.Internet.Email();
-        var token = "";
-        // Act
-        async Task Act() => await _emailConfirmationService.ConfirmEmailAsync(token, email);
-
-        // Assert
-        await Assert.ThrowsAsync<WrongActionException>(Act);
-    }
-
-    [Fact]
-    public async Task ConfirmEmailAsync_UserNotFound_ShouldThrowNotFoundException()
-    {
-        // Arrange
-        var email = _faker.Internet.Email();
-        var token = "valid_token";
         AppUser expectedResult = null;
         _userManagerHelper.SetupFindByEmailAsync(email, expectedResult);
 
@@ -92,12 +96,14 @@ public class EmailConfirmationServiceTests
         await Assert.ThrowsAsync<NotFoundException>(Act);
     }
 
-    [Fact]
-    public async Task ConfirmEmailAsync_InvalidToken_ShouldThrowWrongActionException()
+    [Theory]
+    [InlineData("valid_token", "test@example.com")]
+    public async Task ConfirmEmailAsync_InvalidToken_ShouldThrowWrongActionException(
+        string token,
+        string email
+    )
     {
         // Arrange
-        var email = _faker.Internet.Email();
-        var token = "invalid_token";
         var user = new AppUser { Email = email };
 
         _userManagerHelper.SetupFindByEmailAsync(email, user);
@@ -110,12 +116,14 @@ public class EmailConfirmationServiceTests
         await Assert.ThrowsAsync<WrongActionException>(Act);
     }
 
-    [Fact]
-    public async Task ConfirmEmailAsync_ValidTokenAndEmail_ShouldConfirmEmail()
+    [Theory]
+    [InlineData("valid_token", "test@example.com")]
+    public async Task ConfirmEmailAsync_ValidTokenAndEmail_ShouldConfirmEmail(
+        string token,
+        string email
+    )
     {
         // Arrange
-        var email = _faker.Internet.Email();
-        var token = "valid_token";
         var user = new AppUser { Email = email };
 
         _userManagerHelper.SetupFindByEmailAsync(email, user);

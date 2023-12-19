@@ -7,11 +7,11 @@ namespace TeamHub.Tests.Fakers
     {
         public CommentFaker()
         {
-            RuleFor(c => c.Id, f => f.IndexFaker);
-            RuleFor(c => c.AuthorId, f => f.Random.Number());
-            RuleFor(c => c.TasksId, f => f.Random.Number());
-            RuleFor(c => c.Content, f => f.Lorem.Sentence());
-            RuleFor(c => c.CreatedAt, f => f.Date.Past());
+            RuleFor(comment => comment.Id, faker => faker.IndexFaker);
+            RuleFor(comment => comment.AuthorId, faker => faker.Random.Number());
+            RuleFor(comment => comment.TasksId, faker => faker.Random.Number());
+            RuleFor(comment => comment.Content, faker => faker.Lorem.Sentence());
+            RuleFor(comment => comment.CreatedAt, faker => faker.Date.Past());
         }
     }
 }

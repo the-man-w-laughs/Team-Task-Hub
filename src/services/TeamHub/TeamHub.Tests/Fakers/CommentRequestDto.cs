@@ -7,7 +7,7 @@ namespace TeamHub.Tests.Fakers
     {
         public CommentRequestDtoFaker()
         {
-            RuleFor(c => c.Content, f => f.Lorem.Sentence());
+            RuleFor(commentRequest => commentRequest.Content, faker => faker.Lorem.Sentence());
         }
     }
 }

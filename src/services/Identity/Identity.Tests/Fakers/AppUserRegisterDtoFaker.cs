@@ -7,8 +7,8 @@ namespace Identity.Tests.Fakers
     {
         public AppUserRegisterDtoFaker()
         {
-            RuleFor(u => u.Email, f => f.Internet.Email());
-            RuleFor(u => u.Password, f => f.Internet.Password());
+            RuleFor(registerDto => registerDto.Email, faker => faker.Internet.Email());
+            RuleFor(registerDto => registerDto.Password, faker => faker.Internet.Password());
         }
     }
 }

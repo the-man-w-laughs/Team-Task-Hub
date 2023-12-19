@@ -29,6 +29,7 @@ namespace Identity.Tests.Helpers
                     (AppUser user, string password) =>
                     {
                         users.Add(user);
+
                         return IdentityResult.Success;
                     }
                 );
@@ -42,6 +43,7 @@ namespace Identity.Tests.Helpers
                     (AppUser user) =>
                     {
                         users.Remove(user);
+
                         return IdentityResult.Success;
                     }
                 );

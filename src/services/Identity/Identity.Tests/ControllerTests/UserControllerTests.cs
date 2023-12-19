@@ -16,7 +16,7 @@ namespace Identity.Tests.ControllerTests
         private readonly Mock<IUserService> _userService;
         private readonly UsersController _usersController;
         private readonly UserServiceHelper _userServiceHelper;
-        private readonly Faker<AppUserRegisterDto> _appUserRegisterDto;
+        private readonly Faker<AppUserRegisterDto> _appUserRegisterDtoFaker;
         private readonly Faker<AppUserDto> _appUserDto;
 
         public UserControllerTests()
@@ -25,7 +25,7 @@ namespace Identity.Tests.ControllerTests
             _usersController = new UsersController(_userService.Object);
             _userServiceHelper = new UserServiceHelper(_userService);
 
-            _appUserRegisterDto = new AppUserRegisterDtoFaker();
+            _appUserRegisterDtoFaker = new AppUserRegisterDtoFaker();
 
             _appUserDto = new AppUserDtoFaker();
         }
@@ -34,7 +34,7 @@ namespace Identity.Tests.ControllerTests
         public async Task CreateNewUserAsync_UserDoesNotExist_ReturnsOk()
         {
             // Arrange
-            var appUserRegisterDto = _appUserRegisterDto.Generate();
+            var appUserRegisterDto = _appUserRegisterDtoFaker.Generate();
             var expectedResult = new SuccessResult<string>(string.Empty);
             _userServiceHelper.SetupAddUserAsync(expectedResult);
 
@@ -50,7 +50,7 @@ namespace Identity.Tests.ControllerTests
         public async Task CreateNewUserAsync_UserExists_ReturnBadRequest()
         {
             // Arrange
-            var appUserRegisterDto = _appUserRegisterDto.Generate();
+            var appUserRegisterDto = _appUserRegisterDtoFaker.Generate();
             var expectedResult = new InvalidResult<string>(string.Empty);
             _userServiceHelper.SetupAddUserAsync(expectedResult);
 

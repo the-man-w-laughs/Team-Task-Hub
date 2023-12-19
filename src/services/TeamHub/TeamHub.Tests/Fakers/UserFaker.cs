@@ -7,9 +7,9 @@ namespace TeamHub.Tests.Fakers
     {
         public UserFaker()
         {
-            RuleFor(u => u.Id, f => f.IndexFaker);
-            RuleFor(u => u.Email, (f, u) => f.Internet.Email());
-            RuleFor(u => u.CreatedAt, f => f.Date.Past());
+            RuleFor(user => user.Id, faker => faker.IndexFaker);
+            RuleFor(user => user.Email, (faker, user) => faker.Internet.Email());
+            RuleFor(user => user.CreatedAt, faker => faker.Date.Past());
         }
     }
 }
