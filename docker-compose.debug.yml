@@ -174,3 +174,14 @@ services:
       - ~/.vsdbg:/remote_debugger:rw
       - ./keys/signing_key.pfx:/app/signing_key.pfx
     restart: always
+
+  angular-client:
+    container_name: angular-client 
+    image: angular-client 
+    build:      
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - apigateway
