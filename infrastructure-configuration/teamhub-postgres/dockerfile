@@ -1,0 +1,9 @@
+FROM postgres:latest
+
+ENV POSTGRES_DB="tasks"
+ENV POSTGRES_USER="postgres"
+ENV POSTGRES_PASSWORD="postgres"
+
+COPY infrastructure-configuration/teamhub-postgres/init.sql /docker-entrypoint-initdb.d/
+
+EXPOSE 5432
