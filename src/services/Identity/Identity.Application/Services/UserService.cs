@@ -3,7 +3,7 @@ using Hangfire;
 using Identity.Application.Dtos;
 using Identity.Application.Ports.Services;
 using Identity.Application.Ports.Utils;
-using Identity.Application.Result;
+using Identity.Application.ResultPattern;
 using Identity.Application.ResultPattern.Results;
 using Identity.Domain.Entities;
 using MassTransit;
@@ -23,6 +23,7 @@ namespace Identity.Application.Services
         private readonly IConfirmationEmailSender _emailConfirmationHelper;
         private readonly ILogger<UserService> _logger;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
         public UserService(
             IMapper mapper,
@@ -30,7 +31,8 @@ namespace Identity.Application.Services
             IPublishEndpoint publishEndpoint,
             IConfirmationEmailSender emailConfirmationHelper,
             ILogger<UserService> logger,
-            IHttpContextAccessor httpContextAccessor
+            IHttpContextAccessor httpContextAccessor,
+            IBackgroundJobClient backgroundJobClient
         )
         {
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace Identity.Application.Services
             _emailConfirmationHelper = emailConfirmationHelper;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<Result<string>> AddUserAsync(AppUserRegisterDto appUserDto)
@@ -68,7 +71,7 @@ namespace Identity.Application.Services
                 );
             }
 
-            BackgroundJob.Enqueue(() => _emailConfirmationHelper.SendEmailAsync(appUser));
+            _backgroundJobClient.Enqueue(() => _emailConfirmationHelper.SendEmailAsync(appUser));
 
             _logger.LogInformation(
                 "User created successfully. Sending confirmation email to {Email}.",

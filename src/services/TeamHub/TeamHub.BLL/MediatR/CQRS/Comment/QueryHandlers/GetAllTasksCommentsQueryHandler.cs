@@ -6,7 +6,6 @@ using Shared.Extensions;
 using TeamHub.BLL.MediatR.CQRS.Comments.Queries;
 using TeamHub.DAL.Contracts.Repositories;
 using TeamHub.BLL.Contracts;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Projects.Queries;

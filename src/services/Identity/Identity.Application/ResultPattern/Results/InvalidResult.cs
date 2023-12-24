@@ -1,6 +1,4 @@
-﻿using Identity.Application.Result;
-
-namespace Identity.Application.ResultPattern.Results
+﻿namespace Identity.Application.ResultPattern.Results
 {
     public class InvalidResult<T> : Result<T>
     {
@@ -13,6 +11,6 @@ namespace Identity.Application.ResultPattern.Results
 
         public override ResultType ResultType => ResultType.Invalid;
         public override List<string> Errors => new List<string> { _error };
-        public override T Data => default;
+        public override T Value => default;
     }
 }

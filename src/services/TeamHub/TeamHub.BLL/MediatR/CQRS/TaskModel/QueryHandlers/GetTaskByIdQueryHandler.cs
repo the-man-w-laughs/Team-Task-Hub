@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using TeamHub.BLL.Dtos;
 using Shared.Extensions;
 using TeamHub.BLL.Contracts;
-using Amazon.Runtime.Internal.Util;
 using Microsoft.Extensions.Logging;
 
 namespace TeamHub.BLL.MediatR.CQRS.Tasks.Queries;

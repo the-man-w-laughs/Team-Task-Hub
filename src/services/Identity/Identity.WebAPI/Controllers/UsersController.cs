@@ -61,7 +61,7 @@ public class UsersController : ControllerBase
     /// </summary>
     [HttpGet("{email}")]
     [Authorize]
-    public async Task<IActionResult> GetUserByIdAsync(string email)
+    public async Task<IActionResult> GetUserByEmailAsync(string email)
     {
         var result = await _userService.GetUserByEmailAsync(email);
 
